@@ -2,6 +2,9 @@ import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/loaders/loader.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'auth/view/signup.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
@@ -33,6 +36,12 @@ class _SplashscreenState extends State<Splashscreen> {
           setState(() {
             _animateLogo = true;
           });
+
+            //Navigate to the signup screen
+          Future.delayed(const Duration(milliseconds: 2000), () {
+            Get.off(() => const SignupScreen(), transition: Transition.fadeIn);
+          });
+
         });
       });
     });
