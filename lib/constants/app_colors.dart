@@ -7,7 +7,6 @@ class AppColors {
   static const Color textColor=Colors.white;
   static const Color textColor2=Colors.black;
   static const Color headingColor=Color(0x353539);
-
 static const MaterialColor mainSwatch = MaterialColor(
     0xFFFF715B,
     <int, Color>{

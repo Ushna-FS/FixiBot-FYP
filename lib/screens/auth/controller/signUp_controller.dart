@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
+import '../view/login.dart';
+
 class SignupController extends GetxController {
   var usernameController = TextEditingController();
   var emailController = TextEditingController();
@@ -31,13 +33,10 @@ class SignupController extends GetxController {
       return;
     }
 
-    
-    // Navigate to another page (e.g., login)
-    // Get.to(LoginPage());
+    Get.to(Login());
   }
   void signInNavigation() {
-    // Navigate to another page (e.g., login)
-    // Get.to(LoginPage());
+    Get.to(Login());
   }
   void googleSignIn() {
     // Simulate Google Sign In
