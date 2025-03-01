@@ -4,6 +4,7 @@ import 'package:fixibot_app/loaders/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'auth/view/login.dart';
 import 'auth/view/signup.dart';
 
 class Splashscreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
             //Navigate to the signup screen
           Future.delayed(const Duration(milliseconds: 2000), () {
-            Get.off(() => const SignupScreen(), transition: Transition.fadeIn);
+            Get.off(() => const Login(), transition: Transition.fadeIn);
           });
 
         });

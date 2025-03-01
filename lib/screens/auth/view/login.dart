@@ -20,50 +20,46 @@ class _LoginState extends State<Login> {
     final LoginController controller = Get.put((LoginController()));
 
     return Scaffold(
-    backgroundColor: AppColors.secondaryColor,
-    body: Stack(
-      children: [
-        Container(
-          color: AppColors.secondaryColor,
-        ),
-        Positioned(
-          top:0,
-          right:0,
-          child: Image.asset('assets/icons/upperTyre.png')
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          child: Image.asset('assets/icons/lowerTyre.png')
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 34),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.mainSwatch,
-                          blurRadius: 10,
-                          offset: Offset.zero
-                        )
-                      ]
+      backgroundColor: AppColors.secondaryColor,
+      body: Stack(
+        children: [
+          Container(
+            color: AppColors.secondaryColor,
+          ),
+          Positioned(
+              top: 0,
+              right: 0,
+              child: Image.asset('assets/icons/upperTyre.png')),
+          Positioned(
+              bottom: 0,
+              left: 0,
+              child: Image.asset('assets/icons/lowerTyre.png')),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: SingleChildScrollView(
+                padding:
+                    EdgeInsets.symmetric(horizontal: screenSize.width * 0.08),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                color: AppColors.mainSwatch,
+                                blurRadius: 10,
+                                offset: Offset.zero)
+                          ]),
+                      child: const CircleAvatar(
+                        backgroundColor: AppColors.secondaryColor,
+                        radius: 50,
+                        child: Icon(Icons.person,
+                            size: 60, color: AppColors.mainColor),
+                      ),
                     ),
-                    child: const CircleAvatar(
-                      backgroundColor: AppColors.secondaryColor,
-                      radius: 50,
-                      child: Icon(Icons.person,
-                            size: 60,
-                            color: AppColors.mainColor),
-                    ),
-                  ),
-                  const SizedBox(height: 19),
+                    SizedBox(height: screenSize.height * 0.05),
                     const Text(
                       "Start Your Journey Here!",
                       style: TextStyle(
@@ -71,13 +67,13 @@ class _LoginState extends State<Login> {
                           fontWeight: FontWeight.bold,
                           color: AppColors.textColor2),
                     ),
-                  const SizedBox(height: 41),
-                  const CustomTextField(
+                    SizedBox(height: screenSize.height * 0.04),
+                    const CustomTextField(
                       hintText: "Username or Email",
                       icon: Icons.person,
                     ),
-                  const SizedBox(height: 32),
-                  Obx(() => CustomTextField(
+                    SizedBox(height: screenSize.height * 0.015),
+                    Obx(() => CustomTextField(
                           hintText: "Password",
                           icon: Icons.lock,
                           isPassword: !controller.isPasswordVisible.value,
@@ -85,15 +81,15 @@ class _LoginState extends State<Login> {
                         )),
                     SizedBox(height: screenSize.height * 0.015),
                     const Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text("Forget password",
-                                style: TextStyle(color: AppColors.mainColor)),
-                          ],
-                        ),
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("Forget password",
+                            style: TextStyle(color: AppColors.mainColor)),
+                      ],
+                    ),
                     SizedBox(height: screenSize.height * 0.02),
                     CustomButton(
-                      text: "Login", 
+                      text: "Login",
                       onPressed: controller.login,
                     ),
                     SizedBox(height: screenSize.height * 0.02),
@@ -116,7 +112,8 @@ class _LoginState extends State<Login> {
                         'assets/icons/google.png',
                         width: 20,
                         height: 20,
-                      ), onPressed: () {  },
+                      ),
+                      onPressed: () {},
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     Row(
@@ -139,14 +136,14 @@ class _LoginState extends State<Login> {
                         ),
                       ],
                     ),
-                    SizedBox(height: screenSize.height * 0.01),
-                ],
+                    SizedBox(height: screenSize.height * 0.001),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 }
