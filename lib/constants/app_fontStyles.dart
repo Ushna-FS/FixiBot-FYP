@@ -9,5 +9,9 @@ class AppFonts {
     height: 73.14 / 60,
     color: AppColors.textColor,
   );
-
+  static TextStyle journeytext = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    color: AppColors.textColor3,
+  );
 }

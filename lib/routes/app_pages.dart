@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
 import '../screens/splashScreen.dart';
+import '../screens/user_journey.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -14,5 +15,8 @@ class AppPages {
     GetPage(
         name: AppRoutes.login,
         page: () => const Login(),),
+    GetPage(
+    name: AppRoutes.userJourney,
+    page: () => const UserJourney(),),
   ];
 }
