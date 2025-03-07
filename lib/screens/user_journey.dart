@@ -2,7 +2,6 @@ import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/model/userJourneyModel.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
-import 'package:fixibot_app/screens/searchScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -197,7 +196,7 @@ class _UserJourneyState extends State<UserJourney> {
                               color: AppColors.mainColor),
                           onPressed: () =>
                               _model.pageViewController!.previousPage(
-                                duration: const Duration(seconds: 1),
+                                duration: const Duration(milliseconds: 500),
                                 curve: Curves.easeInOut,
                               )),
                       SmoothPageIndicator(
@@ -235,7 +234,7 @@ class _UserJourneyState extends State<UserJourney> {
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      Get.to(const SearchScreen());
+                      Get.to(const HomeScreen());
                     },
                     child: const Text(
                       "Skip",
