@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/searchScreen.dart';
 import 'package:get/get.dart';
 
 import '../screens/auth/view/login.dart';
@@ -18,5 +19,8 @@ class AppPages {
     GetPage(
     name: AppRoutes.userJourney,
     page: () => const UserJourney(),),
+    GetPage(
+    name: AppRoutes.search,
+    page: () => const SearchScreen(),),
   ];
 }

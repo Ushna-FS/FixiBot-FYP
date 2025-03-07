@@ -6,6 +6,6 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String forgotPassword = '/forgotPassword';
   static const String userJourney = '/userJourney';
-  
+  static const String search = '/search';
 
 }
