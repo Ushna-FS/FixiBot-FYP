@@ -37,6 +37,7 @@ class LocationPopup {
                   ImageIcon(
                     AssetImage('assets/icons/currentLocation.png'),
                     size: 24,
+                    color: AppColors.mainColor
                   ),
                   SizedBox(width: 10),
                   TextButton(
@@ -58,6 +59,7 @@ class LocationPopup {
                       'assets/icons/newLocation.png',
                     ),
                     size: 24,
+                    color: AppColors.mainColor
                   ),
                   SizedBox(width: 10),
                   TextButton(
