@@ -14,6 +14,11 @@ class AppFonts {
     fontSize: 24,
     color: AppColors.textColor,
   );
+  static TextStyle montserratBlackHeading = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 20,
+    color: AppColors.textColor2,
+  );
 
   static TextStyle montserratText = GoogleFonts.montserrat(
     fontWeight: FontWeight.w200,
@@ -24,5 +29,34 @@ class AppFonts {
     fontWeight: FontWeight.w500,
     fontSize: 18,
     color: AppColors.textColor2,
+  );
+  static TextStyle montserratText3 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 12,
+    color: AppColors.textColor2,
+  );
+
+  static TextStyle montserratText4 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 12,
+    color: AppColors.mainColor,
+  );
+
+  static TextStyle montserratText5 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 12,
+    color: AppColors.textColor2,
+  );
+
+  static TextStyle montserratWhiteText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: AppColors.textColor,
+  );
+
+  static TextStyle montserratMainText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: AppColors.mainColor,
   );
 }

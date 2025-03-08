@@ -1,6 +1,6 @@
-import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import '../../mechanics/view/mechanicsScreen.dart';
 import '../view/signup.dart';
 
 class LoginController extends GetxController {
@@ -38,6 +38,6 @@ class LoginController extends GetxController {
   void googleLogIn() {
     // Simulate Google Sign In
     // Get.to(LoginPage());
-    Get.to(ProfileScreen());
+    Get.to(MechanicScreen());
   }
 }

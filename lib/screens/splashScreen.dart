@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'auth/view/login.dart';
-import 'auth/view/signup.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
