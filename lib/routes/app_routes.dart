@@ -7,5 +7,7 @@ class AppRoutes {
   static const String forgotPassword = '/forgotPassword';
   static const String userJourney = '/userJourney';
   static const String search = '/search';
+  static const String location = '/location';
+  static const String selfhelp = '/selfhelp';
 
 }

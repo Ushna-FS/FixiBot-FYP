@@ -1,8 +1,8 @@
+import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../constants/app_colors.dart';
-import '../constants/app_fontStyles.dart';
-import '../widgets/custom_buttons.dart';
 import 'location/location_popup.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,7 +24,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('HomePage')),
+      appBar: 
+      AppBar(
+        title: Text('HomePage'),
+      actions: [
+          IconButton(
+            onPressed: (){}, 
+            icon:Icon( Icons.notifications, color: AppColors.mainColor))
+        ],),
+      body: ElevatedButton(onPressed: () {
+        Get.to(SelfHelpSolutions());
+        }, 
+        child: Text("Flat Tyre"))
     );
   }
 }

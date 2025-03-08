@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
+import '../screens/location/locationScreen.dart';
+import '../screens/selfHelpSolutionScreen.dart';
 import '../screens/splashScreen.dart';
 import '../screens/user_journey.dart';
 import 'app_routes.dart';
@@ -22,5 +24,11 @@ class AppPages {
     GetPage(
     name: AppRoutes.search,
     page: () => const SearchScreen(),),
+        GetPage(
+    name: AppRoutes.location,
+    page: () => const LocationScreen(),),
+    //  GetPage(
+    // name: AppRoutes.selfhelp,
+    // page: () => const SelfHelpSolutions(),),
   ];
 }
