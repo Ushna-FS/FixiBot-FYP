@@ -9,5 +9,20 @@ class AppFonts {
     height: 73.14 / 60,
     color: AppColors.textColor,
   );
+  static TextStyle montserratHeading = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 24,
+    color: AppColors.textColor,
+  );
 
+  static TextStyle montserratText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w200,
+    fontSize: 14,
+    color: AppColors.textColor,
+  );
+  static TextStyle montserratText2 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    color: AppColors.textColor2,
+  );
 }
