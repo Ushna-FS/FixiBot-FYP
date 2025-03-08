@@ -1,5 +1,7 @@
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../constants/app_colors.dart';
 import '../../widgets/custom_buttons.dart';
@@ -9,13 +11,14 @@ class LocationPopup {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
-      isDismissible: false, 
+      isDismissible: false,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
+        return Container(
+          width: MediaQuery.of(context).size.width * 0.8,
           padding: EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -31,42 +34,43 @@ class LocationPopup {
               SizedBox(height: 15),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      'assets/icons/currentLocation.png',
-                      width: 16,
-                      height: 19,
-                    ),
+                  ImageIcon(
+                    AssetImage('assets/icons/currentLocation.png'),
+                    size: 24,
                   ),
                   SizedBox(width: 10),
-                  Text(
-                    "Use current location",
-                    style: AppFonts.customTextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.mainColor,
-                    ),
-                  ),
+                  TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        "Use current location",
+                        style: AppFonts.customTextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.mainColor,
+                        ),
+                      )),
                 ],
               ),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Image.asset(
+                  ImageIcon(
+                    AssetImage(
                       'assets/icons/newLocation.png',
-                      width: 16,
-                      height: 19,
                     ),
+                    size: 24,
                   ),
                   SizedBox(width: 10),
-                  Text(
-                    "Add new location",
-                    style: AppFonts.customTextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.mainColor,
+                  TextButton(
+                    onPressed: () {
+                      Get.to(LocationScreen());
+                    },
+                    child: Text(
+                      "Add new location",
+                      style: AppFonts.customTextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.mainColor,
+                      ),
                     ),
                   ),
                 ],
