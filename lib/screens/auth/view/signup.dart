@@ -10,7 +10,7 @@ class SignupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SignupController controller = Get.put(SignupController());
+    final SignupController controller = Get.find<SignupController>();
     final Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(

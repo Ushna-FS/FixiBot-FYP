@@ -17,7 +17,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    final LoginController controller = Get.put((LoginController()));
+    final LoginController controller = Get.find<LoginController>();
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -113,7 +113,9 @@ class _LoginState extends State<Login> {
                         width: 20,
                         height: 20,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        controller.googleLogIn();
+                      },
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     Row(

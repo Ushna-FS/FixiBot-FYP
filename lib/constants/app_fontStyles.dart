@@ -9,7 +9,18 @@ class AppFonts {
     height: 73.14 / 60,
     color: AppColors.textColor,
   );
+  static TextStyle montserratHeading = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 24,
+    color: AppColors.textColor,
+  );
+  static TextStyle montserratBlackHeading = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 20,
+    color: AppColors.textColor2,
+  );
 
+<<<<<<< HEAD
   static TextStyle journeytext = GoogleFonts.montserrat(
     fontWeight: FontWeight.w500,
     fontSize: 18,
@@ -29,5 +40,46 @@ class AppFonts {
       height: height,
     );
   }
+=======
+  static TextStyle montserratText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w200,
+    fontSize: 14,
+    color: AppColors.textColor,
+  );
+  static TextStyle montserratText2 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    color: AppColors.textColor2,
+  );
+  static TextStyle montserratText3 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 12,
+    color: AppColors.textColor2,
+  );
+
+  static TextStyle montserratText4 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 12,
+    color: AppColors.mainColor,
+  );
+
+  static TextStyle montserratText5 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 12,
+    color: AppColors.textColor2,
+  );
+
+  static TextStyle montserratWhiteText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: AppColors.textColor,
+  );
+
+  static TextStyle montserratMainText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: AppColors.mainColor,
+  );
+>>>>>>> b09f093bcf9e194c031a0c364bc75545adef8a6b
 }
 
