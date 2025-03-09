@@ -1,4 +1,5 @@
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
+import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -29,7 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text('HomePage'),
       actions: [
           IconButton(
-            onPressed: (){}, 
+            onPressed: (){
+              Get.to(ViewNotificationsScreen());
+            }, 
             icon:Icon( Icons.notifications, color: AppColors.mainColor))
         ],),
       body: ElevatedButton(onPressed: () {

@@ -44,7 +44,7 @@ class _UserJourneyState extends State<UserJourney> {
               Column(
                 children: [
                   Container(
-                    width: screenSize.height * 0.5,
+                    width: screenSize.width * 0.5,
                     height: screenSize.height * 0.4,
                     decoration: const BoxDecoration(
                         color: AppColors.secondaryColor,
