@@ -1,6 +1,6 @@
-import 'package:fixibot_app/constants/app_colors.dart';
-import 'package:fixibot_app/constants/app_fontStyles.dart';
-import 'package:fixibot_app/screens/mechanics/view/controller/mechanicController.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_fontStyles.dart';
+import '../screens/mechanics/view/controller/mechanicController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

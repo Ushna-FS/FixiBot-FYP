@@ -1,5 +1,5 @@
-import 'package:fixibot_app/constants/app_colors.dart';
-import 'package:fixibot_app/screens/auth/view/login.dart';
+import '../../../constants/app_colors.dart';
+import '../../auth/view/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fixibot_app/constants/app_colors.dart';
+import '../constants/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;

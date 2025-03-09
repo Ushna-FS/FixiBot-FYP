@@ -1,4 +1,4 @@
-import 'package:fixibot_app/screens/mechanics/view/controller/mechanicController.dart';
+import '../screens/mechanics/view/controller/mechanicController.dart';
 import 'package:get/get.dart';
 
 import '../screens/auth/controller/login_controller.dart';

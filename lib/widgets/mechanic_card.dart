@@ -1,5 +1,5 @@
-import 'package:fixibot_app/constants/app_colors.dart';
-import 'package:fixibot_app/constants/app_fontStyles.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_fontStyles.dart';
 import 'package:flutter/material.dart';
 
 class MechanicCard extends StatelessWidget {

@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
   get: ^4.7.2
+  smooth_page_indicator: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -56,7 +57,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/icons/
+    - assets/images/
   uses-material-design: true
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

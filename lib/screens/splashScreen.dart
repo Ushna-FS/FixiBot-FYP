@@ -1,19 +1,18 @@
-import 'package:fixibot_app/constants/app_colors.dart';
-import 'package:fixibot_app/constants/app_fontStyles.dart';
-import 'package:fixibot_app/loaders/loader.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_fontStyles.dart';
+import '../loaders/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'auth/view/login.dart';
 
-class Splashscreen extends StatefulWidget {
-  const Splashscreen({super.key});
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  State<Splashscreen> createState() => _SplashscreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashscreenState extends State<Splashscreen> {
+class _SplashScreenState extends State<SplashScreen> {
   bool _showLoader = true;
   bool _animateText = false;
   bool _animateLogo = false; 

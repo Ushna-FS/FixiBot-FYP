@@ -1,4 +1,4 @@
-import 'package:fixibot_app/constants/app_colors.dart';
+import 'app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -19,6 +19,26 @@ class AppFonts {
     fontSize: 20,
     color: AppColors.textColor2,
   );
+
+  static TextStyle journeytext = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    color: AppColors.textColor3,
+  );
+
+  static TextStyle customTextStyle({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? height,
+  }) {
+    return GoogleFonts.montserrat(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      height: height,
+    );
+  }
 
   static TextStyle montserratText = GoogleFonts.montserrat(
     fontWeight: FontWeight.w200,
@@ -60,3 +80,4 @@ class AppFonts {
     color: AppColors.mainColor,
   );
 }
+

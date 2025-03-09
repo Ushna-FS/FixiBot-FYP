@@ -1,4 +1,4 @@
-import 'package:fixibot_app/constants/app_colors.dart';
+import '../../../constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../widgets/custom_buttons.dart';

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
+import '../../userJourney.dart';
 import '../view/login.dart';
 
 class SignupController extends GetxController {
@@ -39,8 +40,7 @@ class SignupController extends GetxController {
     Get.to(Login());
   }
   void googleSignIn() {
-    // Simulate Google Sign In
-    // Get.to(LoginPage());
+    Get.to(UserJourney());
   }
 
 }
