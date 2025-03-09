@@ -20,7 +20,6 @@ class AppFonts {
     color: AppColors.textColor2,
   );
 
-<<<<<<< HEAD
   static TextStyle journeytext = GoogleFonts.montserrat(
     fontWeight: FontWeight.w500,
     fontSize: 18,
@@ -40,7 +39,7 @@ class AppFonts {
       height: height,
     );
   }
-=======
+
   static TextStyle montserratText = GoogleFonts.montserrat(
     fontWeight: FontWeight.w200,
     fontSize: 14,
@@ -80,6 +79,5 @@ class AppFonts {
     fontSize: 16,
     color: AppColors.mainColor,
   );
->>>>>>> b09f093bcf9e194c031a0c364bc75545adef8a6b
 }
 
