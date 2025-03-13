@@ -1,4 +1,4 @@
-import 'app_colors.dart';
+import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,8 +15,8 @@ class AppFonts {
     color: AppColors.textColor,
   );
   static TextStyle montserratBlackHeading = GoogleFonts.montserrat(
-    fontWeight: FontWeight.w500,
-    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    fontSize: 22,
     color: AppColors.textColor2,
   );
 
@@ -78,6 +78,29 @@ class AppFonts {
     fontWeight: FontWeight.w500,
     fontSize: 16,
     color: AppColors.mainColor,
+  );
+
+  static TextStyle montserrathomecardText = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w600,
+    fontSize: 18,
+    color: AppColors.mainColor,
+  );
+  static TextStyle montserratHomecardText2 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w400,
+    fontSize: 12,
+    color: const Color.fromARGB(255, 82, 77, 77),
+  );
+
+  static TextStyle montserratHomeAppbar = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w400,
+    fontSize: 12,
+    color: AppColors.textColor,
+  );
+
+  static TextStyle HomeheaderBox = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w600,
+    fontSize: 18,
+    color: AppColors.textColor,
   );
 }
 
