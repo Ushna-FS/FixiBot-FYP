@@ -9,6 +9,8 @@ class AppColors {
   static const Color headingColor=Color(0x353539);
   static const Color textColor3 =Color(0xFFC7C4C4);
   static const Color textColor4 = Color(0xFF828282);
+  static const Color minorColor = Color.fromARGB(255, 36, 29, 99);
+
 
 static const MaterialColor mainSwatch = MaterialColor(
     0xFFFF715B,
