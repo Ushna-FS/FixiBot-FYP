@@ -19,7 +19,7 @@ class SelfHelpSolutions extends StatelessWidget {
         titleTextStyle: AppFonts.customTextStyle(fontSize: 20, color: AppColors.mainColor, fontWeight: FontWeight.bold),
         leading: IconButton(
                     onPressed: () {
-                      Get.to(const HomeScreen());
+                      Get.to(HomeScreen());
                     }, 
                     icon: Image.asset('assets/icons/back.png',
                     width: 30,
