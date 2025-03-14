@@ -41,9 +41,9 @@ class _CustomNavBarState extends State<CustomNavBar> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/home.png', index: 0),
-                _buildNavItem(iconPath: 'assets/icons/nav-icons/loupe.png', index: 1),
-                SizedBox(width: 60), 
-                _buildNavItem(iconPath: 'assets/icons/nav-icons/mechanical.png', index: 2),
+                _buildNavItem(iconPath: 'assets/icons/nav-icons/search.png', index: 1),
+                // SizedBox(width: 60), 
+                _buildNavItem(iconPath: 'assets/icons/nav-icons/mechanic.png', index: 2),
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/user.png', index: 3),
               ],
             ),
@@ -102,8 +102,8 @@ class _CustomNavBarState extends State<CustomNavBar> {
           children: [
             Image.asset(
               iconPath,
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               color: isSelected || isHovered ? AppColors.mainColor : Colors.grey,
             ),
             if (isHovered || isSelected) 
@@ -121,7 +121,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
     switch (index) {
       case 0: return "Home";
       case 1: return "Search";
-      case 2: return "Mechanic Assistance";
+      case 2: return "Find Mechanic";
       case 3: return "Profile";
       default: return "";
     }

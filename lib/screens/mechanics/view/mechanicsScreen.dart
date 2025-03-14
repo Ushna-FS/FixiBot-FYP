@@ -1,8 +1,8 @@
-import '../../../constants/app_colors.dart';
-import '../../../constants/app_fontStyles.dart';
-import 'controller/mechanicController.dart';
-import '../../../widgets/category_chips.dart';
-import '../../../widgets/mechanic_card.dart';
+import 'package:fixibot_app/constants/app_colors.dart';
+import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/screens/mechanics/view/controller/mechanicController.dart';
+import 'package:fixibot_app/widgets/category_chips.dart';
+import 'package:fixibot_app/widgets/mechanic_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,9 +33,14 @@ class MechanicScreen extends GetView<MechanicController> {
             ),
           ),
         ),
-        leading: GestureDetector(
-          child: Image.asset("assets/icons/backArrow.png"),
-        ),
+      leading: IconButton(
+                    onPressed: () {
+                      Get.back();
+                    }, 
+                    icon: Image.asset('assets/icons/back.png',
+                    width: 30,
+                    height:30),
+                    ),
         centerTitle: true,
         actions: [
           Padding(
