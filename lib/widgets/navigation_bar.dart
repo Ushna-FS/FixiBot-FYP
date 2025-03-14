@@ -42,7 +42,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
               children: [
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/home.png', index: 0),
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/search.png', index: 1),
-                // SizedBox(width: 60), 
+                SizedBox(width: 60), 
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/mechanic.png', index: 2),
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/user.png', index: 3),
               ],
@@ -102,8 +102,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
           children: [
             Image.asset(
               iconPath,
-              width: 40,
-              height: 40,
+              
               color: isSelected || isHovered ? AppColors.mainColor : Colors.grey,
             ),
             if (isHovered || isSelected) 
