@@ -1,5 +1,3 @@
-
-
 import 'package:fixibot_app/screens/MyVehicles.dart';
 import 'package:fixibot_app/screens/help/support.dart';
 import 'package:fixibot_app/screens/profile/editProfile.dart';
@@ -9,8 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../constants/app_fontStyles.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String userName = "Jasmine Rose";
+  String userEmail = "email@email.com";
+
+  // Function to handle the profile update result
+  void _updateProfile(Map<String, String> updatedData) {
+    setState(() {
+      userName = updatedData['name'] ?? userName;
+      userEmail = updatedData['email'] ?? userEmail;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +58,8 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Jasmine Rose", style: AppFonts.montserratHeading),
-                            Text("email@email.com", style: AppFonts.montserratText),
+                            Text(userName, style: AppFonts.montserratHeading),
+                            Text(userEmail, style: AppFonts.montserratText),
                           ],
                         ),
                       ),
@@ -75,45 +89,53 @@ class ProfileScreen extends StatelessWidget {
                     ListTile(
                       leading: Image.asset("assets/icons/profile.png"),
                       title: InkWell(
-    onTap: () => Get.to(MyVehicleScreen()),
-    child: Text("My Vehicles", style: AppFonts.montserratText2),
-  ),
+                        onTap: () => Get.to(MyVehicleScreen()),
+                        child: Text("My Vehicles", style: AppFonts.montserratText2),
+                      ),
                     ),
-                   ListTile(
-  leading: Image.asset("assets/icons/editText.png"),
-  title: InkWell(
-    onTap: () => Get.to(EditProfile()),
-    child: Text("Edit Profile", style: AppFonts.montserratText2),
-  ),
-),
-ListTile(
-  leading: Image.asset("assets/icons/help.png"),
-  title: InkWell(
-    onTap: () => Get.to(HelpSupportPage()),
-    child: Text("Help & Support", style: AppFonts.montserratText2),
-  ),
-),
+                    ListTile(
+                      leading: Image.asset("assets/icons/editText.png"),
+                      title: InkWell(
+                        onTap: () async {
+                          // Wait for the result from EditProfile screen
+                          final updatedData = await Get.to(EditProfile(
+                            currentName: userName,
+                            currentEmail: userEmail,
+                          ));
+
+                          // If data is returned, update the profile
+                          if (updatedData != null) {
+                            _updateProfile(updatedData);
+                          }
+                        },
+                        child: Text("Edit Profile", style: AppFonts.montserratText2),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Image.asset("assets/icons/help.png"),
+                      title: InkWell(
+                        onTap: () => Get.to(HelpSupportPage()),
+                        child: Text("Help & Support", style: AppFonts.montserratText2),
+                      ),
+                    ),
                     const Spacer(),
-                    
-Align(
-  alignment: Alignment.bottomRight,
-  child: Padding(
-    padding: const EdgeInsets.only(bottom: 20.0, right: 20.0), // Adjust padding as needed
-    child: GestureDetector(
-      onTap: () => Get.to(const Login()),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset("assets/icons/logout.png"),
-          const SizedBox(width: 8), 
-          Text("Logout", style: AppFonts.montserratText2),
-        ],
-      ),
-    ),
-  ),
-),
-
-
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0, right: 20.0),
+                        child: GestureDetector(
+                          onTap: () => Get.to(const Login()),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset("assets/icons/logout.png"),
+                              const SizedBox(width: 8),
+                              Text("Logout", style: AppFonts.montserratText2),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -124,3 +146,15 @@ Align(
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
