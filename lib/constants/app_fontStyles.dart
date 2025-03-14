@@ -102,5 +102,7 @@ class AppFonts {
     fontSize: 18,
     color: AppColors.textColor,
   );
+
+  
 }
 

@@ -1,3 +1,5 @@
+import 'package:fixibot_app/constants/app_fontStyles.dart';
+
 import '../../../constants/app_colors.dart';
 import '../../../widgets/custom_textField.dart';
 import 'package:flutter/material.dart';
@@ -60,12 +62,9 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     SizedBox(height: screenSize.height * 0.05),
-                    const Text(
+                    Text(
                       "Start Your Journey Here!",
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor2),
+                      style: AppFonts.montserratBlackHeading,
                     ),
                     SizedBox(height: screenSize.height * 0.04),
                     const CustomTextField(
