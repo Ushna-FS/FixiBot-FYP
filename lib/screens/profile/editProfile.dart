@@ -66,7 +66,7 @@ CustomTextField(
   keyboardType: TextInputType.name,
 ),
 SizedBox(height: 20),
-Text("Email", style: AppFonts.montserratText),
+Text("Email", style: AppFonts.montserratText3),
 CustomTextField(
   controller: emailController,
   hintText: "Enter your email",
