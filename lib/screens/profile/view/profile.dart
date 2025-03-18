@@ -1,4 +1,4 @@
-import 'package:fixibot_app/screens/MyVehicles.dart';
+import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
 import 'package:fixibot_app/screens/help/support.dart';
 import 'package:fixibot_app/screens/profile/editProfile.dart';
 import '../../../constants/app_colors.dart';

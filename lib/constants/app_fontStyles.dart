@@ -19,7 +19,22 @@ class AppFonts {
     fontSize: 22,
     color: AppColors.textColor2,
   );
+static TextStyle montserratAuthBlackHeading = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w500,
+    fontSize: 22,
+    color: AppColors.textColor2,
+  );
+  static TextStyle montserratGreyText14 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 14,
+    color: AppColors.textColor4,
+  );
 
+  static TextStyle montserratMainText14 = GoogleFonts.montserrat(
+    fontWeight: FontWeight.w300,
+    fontSize: 14,
+    color: AppColors.mainColor,
+  );
   static TextStyle journeytext = GoogleFonts.montserrat(
     fontWeight: FontWeight.w500,
     fontSize: 18,

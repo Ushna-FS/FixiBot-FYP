@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/otp/view/otpScreen.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,7 @@ class SignupController extends GetxController {
   var passwordController = TextEditingController();
   var confirmPasswordController = TextEditingController();
   var phoneController = TextEditingController();
-  
+
   var isPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
   var savePassword = false.obs;
@@ -30,17 +31,20 @@ class SignupController extends GetxController {
   void signup() {
     if (passwordController.text != confirmPasswordController.text) {
       Get.snackbar("Error", "Passwords do not match!",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
       return;
     }
 
-    Get.to(Login());
+    Get.to(OtpScreen());
   }
+
   void signInNavigation() {
     Get.to(Login());
   }
+
   void googleSignIn() {
     Get.to(UserJourney());
   }
-
 }
