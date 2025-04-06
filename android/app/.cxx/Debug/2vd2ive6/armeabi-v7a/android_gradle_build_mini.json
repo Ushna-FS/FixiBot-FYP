@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "C:\\Users\\Ushna Siddiqui\\AppData\\Roaming\\flutter\\packages\\flutter_tools\\gradle\\src\\main\\groovy\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\Ushna Siddiqui\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "D:\\FYP\\FixiBot-App\\fixibot_app\\android\\app\\.cxx\\Debug\\2vd2ive6\\armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\Ushna Siddiqui\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "D:\\FYP\\FixiBot-App\\fixibot_app\\android\\app\\.cxx\\Debug\\2vd2ive6\\armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

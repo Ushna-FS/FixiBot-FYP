@@ -33,9 +33,14 @@ class MechanicScreen extends GetView<MechanicController> {
             ),
           ),
         ),
-        leading: GestureDetector(
-          child: Image.asset("assets/icons/backArrow.png"),
-        ),
+      leading: IconButton(
+                    onPressed: () {
+                      Get.back();
+                    }, 
+                    icon: Image.asset('assets/icons/back.png',
+                    width: 30,
+                    height:30),
+                    ),
         centerTitle: true,
         actions: [
           Padding(

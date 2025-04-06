@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import 'package:fixibot_app/screens/searchScreen.dart';
+=======
+import '../screens/searchScreen.dart';
+>>>>>>> 085ef3deeb8253267ccdd6832e9a739fa92c74ba
 import 'package:get/get.dart';
 
 import '../screens/auth/view/login.dart';
@@ -6,12 +10,16 @@ import '../screens/auth/view/signup.dart';
 import '../screens/location/locationScreen.dart';
 import '../screens/selfHelpSolutionScreen.dart';
 import '../screens/splashScreen.dart';
+<<<<<<< HEAD
 import '../screens/user_journey.dart';
+=======
+import '../screens/userJourney.dart';
+>>>>>>> 085ef3deeb8253267ccdd6832e9a739fa92c74ba
 import 'app_routes.dart';
 
 class AppPages {
   static final List<GetPage> pages = [
-    GetPage(name: AppRoutes.splash, page: () => const Splashscreen()),
+    GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(
         name: AppRoutes.signup,
         page: () => const SignupScreen(),),

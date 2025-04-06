@@ -1,5 +1,5 @@
-import 'package:fixibot_app/bindings/initialBinding.dart';
-import 'package:fixibot_app/screens/splashScreen.dart';
+import 'bindings/initialBinding.dart';
+import 'screens/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,
-      home: Splashscreen(),
+      home: const SplashScreen(),
       getPages: AppPages.pages,
       initialRoute: AppRoutes.splash,
       themeMode: ThemeMode.system,

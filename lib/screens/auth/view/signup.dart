@@ -1,4 +1,6 @@
-import 'package:fixibot_app/constants/app_colors.dart';
+import 'package:fixibot_app/constants/app_fontStyles.dart';
+
+import '../../../constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../widgets/custom_buttons.dart';
@@ -33,9 +35,10 @@ class SignupScreen extends StatelessWidget {
             child: Center(
               child: SingleChildScrollView(
                 padding:
-                    EdgeInsets.symmetric(horizontal: screenSize.width * 0.08),
+                    EdgeInsets.symmetric(horizontal: screenSize.width * 0.098),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       decoration: const BoxDecoration(
@@ -56,10 +59,7 @@ class SignupScreen extends StatelessWidget {
                     SizedBox(height: screenSize.height * 0.02),
                     Text(
                       "Sign Up For Smart Repairs!",
-                      style: TextStyle(
-                          fontSize: screenSize.width * 0.05,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor2),
+                      style: AppFonts.montserratBlackHeading,
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     CustomTextField(

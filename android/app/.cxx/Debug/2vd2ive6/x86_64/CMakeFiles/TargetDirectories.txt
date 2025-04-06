@@ -1,0 +1,2 @@
+D:/FYP/FixiBot-App/fixibot_app/android/app/.cxx/Debug/2vd2ive6/x86_64/CMakeFiles/edit_cache.dir
+D:/FYP/FixiBot-App/fixibot_app/android/app/.cxx/Debug/2vd2ive6/x86_64/CMakeFiles/rebuild_cache.dir

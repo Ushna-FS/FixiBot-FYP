@@ -38,6 +38,13 @@ dependencies:
   google_fonts: ^6.2.1
   get: ^4.7.2
   smooth_page_indicator: ^1.2.1
+<<<<<<< HEAD
+=======
+  carousel_slider: ^5.0.0
+  dots_indicator: ^4.0.1
+  flutter_otp_text_field: ^1.5.1+1
+  image_picker: ^1.1.2
+>>>>>>> 085ef3deeb8253267ccdd6832e9a739fa92c74ba
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +65,11 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+<<<<<<< HEAD
+=======
+    - assets/icons/nav-icons/
+
+>>>>>>> 085ef3deeb8253267ccdd6832e9a739fa92c74ba
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
