@@ -16,11 +16,21 @@ class UserJourney extends StatefulWidget {
 
 class _UserJourneyState extends State<UserJourney> {
   late UserJourneyModel _model;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _model = UserJourneyModel();
+    _model.pageViewController ??= PageController(initialPage: 0);
+    _model.pageViewController!.addListener(() {
+      int newPage = _model.pageViewController!.page!.round();
+      if (_currentPage != newPage) {
+        setState(() {
+          _currentPage = newPage;
+        });
+      }
+    });
   }
 
   @override
@@ -182,14 +192,18 @@ class _UserJourneyState extends State<UserJourney> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: AppColors.mainColor),
-                          onPressed: () =>
-                              _model.pageViewController!.previousPage(
+                      _currentPage != 0
+                          ? IconButton(
+                              icon: const Icon(Icons.arrow_back,
+                                  color: AppColors.mainColor),
+                              onPressed: () =>
+                                  _model.pageViewController!.previousPage(
                                 duration: const Duration(milliseconds: 500),
                                 curve: Curves.easeInOut,
-                              )),
+                              ),
+                            )
+                          : const SizedBox(width: 48), // Keep layout spacing
+
                       SmoothPageIndicator(
                         controller: _model.pageViewController ??=
                             PageController(initialPage: 0),
@@ -201,7 +215,7 @@ class _UserJourneyState extends State<UserJourney> {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.ease,
                           );
-                          setState(() {}); // Ensure UI updates
+                          setState(() {});
                         },
                         effect: const SlideEffect(
                           spacing: 8,
@@ -213,13 +227,18 @@ class _UserJourneyState extends State<UserJourney> {
                           paintStyle: PaintingStyle.fill,
                         ),
                       ),
-                      IconButton(
-                          icon: const Icon(Icons.arrow_forward,
-                              color: AppColors.mainColor),
-                          onPressed: () => _model.pageViewController!.nextPage(
-                                duration: const Duration(seconds: 1),
+
+                      _currentPage != 2
+                          ? IconButton(
+                              icon: const Icon(Icons.arrow_forward,
+                                  color: AppColors.mainColor),
+                              onPressed: () =>
+                                  _model.pageViewController!.nextPage(
+                                duration: const Duration(milliseconds: 500),
                                 curve: Curves.easeInOut,
-                              )),
+                              ),
+                            )
+                          : const SizedBox(width: 48), // Keep layout spacing
                     ],
                   ),
                   const SizedBox(height: 10),
