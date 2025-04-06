@@ -10,6 +10,8 @@ void main() {
 }
 
 class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,6 +22,8 @@ class ChatScreen extends StatelessWidget {
 }
 
 class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
+
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -30,7 +34,7 @@ class _ChatPageState extends State<ChatPage> {
     {"text": "....", "isSent": false},
   ];
 
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   void sendMessage() {
     if (_controller.text.trim().isEmpty) return;
@@ -39,7 +43,7 @@ class _ChatPageState extends State<ChatPage> {
       _controller.clear();
 
       // Simulating bot reply after a short delay
-      Future.delayed(Duration(seconds: 1), () {
+      Future.delayed(const Duration(seconds: 1), () {
         setState(() {
           messages.add({"text": "Thank you! We'll process your request soon.", "isSent": true});
         });
@@ -64,14 +68,14 @@ class _ChatPageState extends State<ChatPage> {
                     width: 30,
                     height:30),
                     ),
-        actions: [Icon(Icons.file_copy_outlined, color: AppColors.mainColor)],
+        actions: const [Icon(Icons.file_copy_outlined, color: AppColors.mainColor)],
       ),
 
 body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 return Align(
@@ -79,21 +83,21 @@ body: Column(
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: EdgeInsets.all(12),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: messages[index]["isSent"]
                           ? AppColors.mainColor
                           : AppColors.mainSwatch.shade100,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
+                        topLeft: const Radius.circular(15),
+                        topRight: const Radius.circular(15),
                         bottomLeft: messages[index]["isSent"]
-                            ? Radius.circular(15)
-                            : Radius.circular(0),
+                            ? const Radius.circular(15)
+                            : const Radius.circular(0),
                         bottomRight: messages[index]["isSent"]
-                            ? Radius.circular(0)
-                            : Radius.circular(15),
+                            ? const Radius.circular(0)
+                            : const Radius.circular(15),
                       ),
                     ),
                     child: Text(
@@ -110,7 +114,7 @@ body: Column(
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), 
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), 
             child: Row(
               children: [
                 Expanded(
@@ -121,7 +125,7 @@ body: Column(
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send_rounded, color: AppColors.mainColor),
+                  icon: const Icon(Icons.send_rounded, color: AppColors.mainColor),
                   onPressed: sendMessage,
                 ),
               ],

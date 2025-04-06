@@ -3,6 +3,8 @@ import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 
 class HomeHeaderBox extends StatefulWidget {
+  const HomeHeaderBox({super.key});
+
   @override
   _HomeHeaderBoxState createState() => _HomeHeaderBoxState();
 }
@@ -13,14 +15,14 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Color(0xFFFF715B),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(110),
           bottomRight: Radius.circular(110),
         ),
       ),
-      padding: EdgeInsets.fromLTRB(35, 10, 0, 20),
+      padding: const EdgeInsets.fromLTRB(35, 10, 0, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,14 +34,14 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
             "Start Your Smart Journey.",
             style: AppFonts.montserratHomeAppbar,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             "Your Vehicles",
             style: AppFonts.HomeheaderBox,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
-            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
             child: Row(
             mainAxisAlignment: MainAxisAlignment.start, 
             children: [
@@ -65,7 +67,7 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
                               color: Colors.blue.shade800,
                               spreadRadius: 2,
                               blurRadius: 5,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ]
                         : [],
@@ -78,7 +80,7 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
                 ),
               ),
 
-              SizedBox(width: 25), 
+              const SizedBox(width: 25), 
 
               
               GestureDetector(
@@ -102,7 +104,7 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
                               color: Colors.blue.shade800,
                               spreadRadius: 2,
                               blurRadius: 5,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ]
                         : [],

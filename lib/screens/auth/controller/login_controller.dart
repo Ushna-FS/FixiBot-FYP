@@ -25,6 +25,7 @@ class LoginController extends GetxController {
     }
   }
 
+  @override
   void onClose() {
     emailController.dispose();
     passwordController.dispose();
@@ -32,7 +33,7 @@ class LoginController extends GetxController {
   }
 
   void LogInNavigation() {
-    Get.to(SignupScreen());
+    Get.to(const SignupScreen());
   }
 
   void googleLogIn() {

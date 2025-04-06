@@ -5,6 +5,6 @@ import 'package:get/get.dart';
 
 class OtpController extends GetxController {
   void verification() {
-    Get.to(AddVehicle());
+    Get.to(const AddVehicle());
   }
 }

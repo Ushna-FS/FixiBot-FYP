@@ -7,7 +7,7 @@ class CustomNavBar extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  CustomNavBar({required this.currentIndex, required this.onTap});
+  const CustomNavBar({super.key, required this.currentIndex, required this.onTap});
 
   @override
   _CustomNavBarState createState() => _CustomNavBarState();
@@ -33,7 +33,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                   color: Colors.grey.withOpacity(0.3),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -42,7 +42,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
               children: [
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/home.png', index: 0),
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/search.png', index: 1),
-                SizedBox(width: 60), 
+                const SizedBox(width: 60), 
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/mechanic.png', index: 2),
                 _buildNavItem(iconPath: 'assets/icons/nav-icons/user.png', index: 3),
               ],
@@ -53,18 +53,18 @@ class _CustomNavBarState extends State<CustomNavBar> {
         Positioned(
           top: -35, 
           child: Transform.translate(
-            offset: Offset(0, -5),
+            offset: const Offset(0, -5),
             child: GestureDetector(
               onTap: () => widget.onTap(1),
               child: Container(
                 width: 70,
                 height: 70,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.mainColor,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color.fromARGB(255, 224, 133, 105),
+                      color: Color.fromARGB(255, 224, 133, 105),
                       blurRadius: 10,
                       spreadRadius: 2,
                       offset: Offset(0, 8),
@@ -108,7 +108,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
             if (isHovered || isSelected) 
               Text(
                 _getNavLabel(index),
-                style: TextStyle(fontSize: 12, color: AppColors.mainColor),
+                style: const TextStyle(fontSize: 12, color: AppColors.mainColor),
               ),
           ],
         ),

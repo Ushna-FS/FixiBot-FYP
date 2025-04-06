@@ -17,7 +17,7 @@ class ForgotPasswordController extends GetxController {
 
     isLoading.value = true;
 
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     isLoading.value = false;
     Get.snackbar("Success", "Password reset link sent to your email",

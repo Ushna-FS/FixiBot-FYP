@@ -60,7 +60,7 @@ class ForgotPasswordScreen extends StatelessWidget {
 
                 SizedBox(height: screenSize.height * 0.02),
 Container(
-  margin: EdgeInsets.symmetric(horizontal: 60,vertical: 20), // Add horizontal margin
+  margin: const EdgeInsets.symmetric(horizontal: 60,vertical: 20), // Add horizontal margin
   child: Obx(() => CustomButton(
         text: "Send Reset Link",
         onPressed: controller.isLoading.value ? () {} : controller.resetPassword,

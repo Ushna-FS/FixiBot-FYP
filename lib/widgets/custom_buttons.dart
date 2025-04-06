@@ -10,14 +10,14 @@ class CustomButton extends StatelessWidget {
   final Widget? icon;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.color = AppColors.mainColor,
     this.textColor = AppColors.textColor,
     this.isOutlined = false,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class CustomButton extends StatelessWidget {
           ? OutlinedButton(
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.transparent,
-                side: BorderSide(color: AppColors.mainColor, width: 1.5),
+                side: const BorderSide(color: AppColors.mainColor, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -79,14 +79,14 @@ class CustomHomeButton extends StatelessWidget {
   final Widget? icon;
 
   const CustomHomeButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.color = const Color(0xFFFFAFA4), 
     this.textColor = Colors.white,
     this.isOutlined = false,
     this.icon,
-  }) : super(key: key);
+  });
 
   
 
@@ -129,7 +129,7 @@ class CustomHomeButton extends StatelessWidget {
           style: TextStyle(fontSize: 14, color: textColor, fontWeight: FontWeight.bold),
         ),
         if (icon != null) ...[
-          SizedBox(width: 5), 
+          const SizedBox(width: 5), 
           icon!, 
         ],
       ],

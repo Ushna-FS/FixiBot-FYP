@@ -1,49 +1,3 @@
-<<<<<<< HEAD
-import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
-import 'package:fixibot_app/screens/viewNotifications.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import '../constants/app_colors.dart';
-import 'location/location_popup.dart';
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocationPopup.showLocationPopup(context);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: 
-      AppBar(
-        title: Text('HomePage'),
-      actions: [
-          IconButton(
-            onPressed: (){
-              Get.to(ViewNotificationsScreen());
-            }, 
-            icon:Icon( Icons.notifications, color: AppColors.mainColor))
-        ],),
-      body: ElevatedButton(onPressed: () {
-        Get.to(SelfHelpSolutions());
-        }, 
-        child: Text("Flat Tyre"))
-    );
-  }
-}
-=======
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
@@ -61,6 +15,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -75,16 +31,16 @@ class _HomePageState extends State<HomeScreen> {
 
   switch (index) {
     case 0:
-      Get.offAll(HomeScreen());
+      Get.offAll(const HomeScreen());
       break;
     case 1:
-      Get.to(SearchScreen());
+      Get.to(const SearchScreen());
       break;
     case 2:
       Get.to(MechanicScreen()); 
       break;
     case 3:
-      Get.to(ProfileScreen());
+      Get.to(const ProfileScreen());
       break;
   }
 }
@@ -99,7 +55,7 @@ class _HomePageState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 10), () {
+    Future.delayed(const Duration(seconds: 10), () {
       LocationPopup.showLocationPopup(context);
     });
   }
@@ -116,7 +72,7 @@ class _HomePageState extends State<HomeScreen> {
   title: Row(
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [
-      CircleAvatar(radius: 20),
+      const CircleAvatar(radius: 20),
       Image.asset("assets/icons/locationIcon.png", color: AppColors.textColor),
       Text(
         'COMSATS UNIVERSITY ISLAMABAD',
@@ -132,15 +88,15 @@ class _HomePageState extends State<HomeScreen> {
           
           children: [
             HomeHeaderBox(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               height: 215,
-              margin: EdgeInsets.symmetric(horizontal: 18,),
-              padding: EdgeInsets.all(4),
+              margin: const EdgeInsets.symmetric(horizontal: 18,),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     blurRadius: 20,
                     color: Color(0x1A263238),
@@ -151,12 +107,12 @@ class _HomePageState extends State<HomeScreen> {
                 
                 children: [
                   
-                  Text(
+                  const Text(
                     "Self Help Solutions",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Divider(),
-                  SizedBox(height: 10),
+                  const Divider(),
+                  const SizedBox(height: 10),
             
 
 CarouselSlider(
@@ -184,12 +140,12 @@ CarouselSlider(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Color(0x4DA4A1A1), width: 1),
+                border: Border.all(color: const Color(0x4DA4A1A1), width: 1),
               ),
               alignment: Alignment.center,
               child: Text(
                 issue,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -202,7 +158,7 @@ CarouselSlider(
 
 
 
-SizedBox(height: 4),
+const SizedBox(height: 4),
 
 DotsIndicator(
                     dotsCount: issuesList.length,
@@ -210,16 +166,16 @@ DotsIndicator(
                     decorator: DotsDecorator(
                       activeColor: AppColors.mainColor,
                       color: Colors.grey,
-                      activeSize: Size(10.0, 10.0),
-                      size: Size(8.0, 8.0),
-                      spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      activeSize: const Size(10.0, 10.0),
+                      size: const Size(8.0, 8.0),
+                      spacing: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                     ),
                   ),
         
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildInfoCard(
               "Find Mechanic",
               "Locate expert mechanics nearby, fast and hassle-free.",
@@ -229,7 +185,7 @@ DotsIndicator(
               },
               buttonText: "Find Now", 
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildInfoCard(
               "Add Your Vehicle",
               "Save details for quick fixes and smart assistance.",
@@ -240,7 +196,7 @@ DotsIndicator(
               buttonText: "Add Vehicle", 
             
             ),
-            SizedBox(height: 20,)
+            const SizedBox(height: 20,)
           ],
         ),
       ),
@@ -255,13 +211,13 @@ DotsIndicator(
       {String buttonText = "Click"}) {
     return Container(
     
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      padding: EdgeInsets.all(18),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(18),
       height:150,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
+        boxShadow: const [
                   BoxShadow(
                     blurRadius: 20,
                     color: Color(0x1A263238),
@@ -280,19 +236,19 @@ DotsIndicator(
                   title,
                   style: AppFonts.montserrathomecardText,
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(description,style: AppFonts.montserratHomecardText2,),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 CustomHomeButton(
                   
                   text: buttonText,
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.arrow_circle_right_outlined,
                     color: AppColors.mainColor,
                   ), // Use dynamic button text
                   onPressed: onPressed,
-                  color: Color(0xFFFFF4F2),
+                  color: const Color(0xFFFFF4F2),
                   textColor:AppColors.mainColor,
                   isOutlined: false,
                   
@@ -301,7 +257,7 @@ DotsIndicator(
               ],
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Image.asset(imagePath, width: 115,height: 160,),
         ],
       ),
@@ -310,4 +266,3 @@ DotsIndicator(
   }
   
 }
->>>>>>> 085ef3deeb8253267ccdd6832e9a739fa92c74ba

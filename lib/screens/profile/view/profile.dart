@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ListTile(
                       leading: Image.asset("assets/icons/profile.png"),
                       title: InkWell(
-                        onTap: () => Get.to(MyVehicleScreen()),
+                        onTap: () => Get.to(const MyVehicleScreen()),
                         child: Text("My Vehicles", style: AppFonts.montserratText2),
                       ),
                     ),

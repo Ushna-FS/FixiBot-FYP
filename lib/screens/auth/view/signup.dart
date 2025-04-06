@@ -8,7 +8,7 @@ import '../../../widgets/custom_textField.dart';
 import '../controller/signUp_controller.dart';
 
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class SignupScreen extends StatelessWidget {
                     Obx(() => Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text("Save password",
+                            const Text("Save password",
                                 style: TextStyle(color: AppColors.mainColor)),
                             Switch(
                               inactiveThumbColor: AppColors.mainColor,
@@ -119,13 +119,13 @@ class SignupScreen extends StatelessWidget {
                     SizedBox(height: screenSize.height * 0.015),
                     Row(
                       children: [
-                        Expanded(child: Divider(thickness: 1)),
+                        const Expanded(child: Divider(thickness: 1)),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: screenSize.width * 0.02),
-                          child: Text("Or"),
+                          child: const Text("Or"),
                         ),
-                        Expanded(child: Divider(thickness: 1)),
+                        const Expanded(child: Divider(thickness: 1)),
                       ],
                     ),
                     SizedBox(height: screenSize.height * 0.015),

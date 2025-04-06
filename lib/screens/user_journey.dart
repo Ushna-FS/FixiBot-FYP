@@ -183,7 +183,7 @@ class _UserJourneyState extends State<UserJourney> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                          icon: Icon(Icons.arrow_back,
+                          icon: const Icon(Icons.arrow_back,
                               color: AppColors.mainColor),
                           onPressed: () =>
                               _model.pageViewController!.previousPage(
@@ -214,7 +214,7 @@ class _UserJourneyState extends State<UserJourney> {
                         ),
                       ),
                       IconButton(
-                          icon: Icon(Icons.arrow_forward,
+                          icon: const Icon(Icons.arrow_forward,
                               color: AppColors.mainColor),
                           onPressed: () => _model.pageViewController!.nextPage(
                                 duration: const Duration(seconds: 1),

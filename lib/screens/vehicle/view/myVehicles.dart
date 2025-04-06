@@ -31,7 +31,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
       ),
       backgroundColor: AppColors.secondaryColor,
       body: Container(
-        child: Text('My vehicles'),
+        child: const Text('My vehicles'),
       ),
     );
   }

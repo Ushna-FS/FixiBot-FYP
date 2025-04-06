@@ -9,7 +9,7 @@ class EditProfile extends StatefulWidget {
   final String currentName;
   final String currentEmail;
 
-  const EditProfile({Key? key, required this.currentName, required this.currentEmail}) : super(key: key);
+  const EditProfile({super.key, required this.currentName, required this.currentEmail});
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -57,7 +57,7 @@ class _EditProfileState extends State<EditProfile> {
                 child: Image.asset("assets/icons/profileImg.png"),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text("Name", style: AppFonts.montserratText),
 CustomTextField(
   controller: nameController,
@@ -65,7 +65,7 @@ CustomTextField(
   icon: Icons.person,
   keyboardType: TextInputType.name,
 ),
-SizedBox(height: 20),
+const SizedBox(height: 20),
 Text("Email", style: AppFonts.montserratText3),
 CustomTextField(
   controller: emailController,
@@ -73,7 +73,7 @@ CustomTextField(
   icon: Icons.email,
   keyboardType: TextInputType.emailAddress,
 ),
-SizedBox(height: 40),
+const SizedBox(height: 40),
 Align(
   alignment: Alignment.center,
   child: CustomButton(
