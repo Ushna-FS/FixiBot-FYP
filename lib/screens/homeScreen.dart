@@ -1,3 +1,4 @@
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
@@ -5,6 +6,7 @@ import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/searchScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
+import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/home_header.dart';
 import 'package:fixibot_app/widgets/navigation_bar.dart';
@@ -201,7 +203,7 @@ void _checkAndShowPopup( )async {
                 "Save details for quick fixes and smart assistance.",
                 "assets/images/AddVeh-illustration.png",
                 () {
-                  Get.to(MechanicScreen());
+                  Get.to(AddVehicle());
                 },
                 buttonText: "Add Vehicle",
               ),

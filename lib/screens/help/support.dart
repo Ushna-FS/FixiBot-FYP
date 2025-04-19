@@ -1,3 +1,4 @@
+
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/custom_textField.dart';
@@ -10,8 +11,6 @@ class HelpSupportPage extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
-
-  HelpSupportPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +43,9 @@ class HelpSupportPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             
-            const Text(
+            Text(
               'If you have any issues, feel free to reach out to us.',
-              style: TextStyle(fontSize: 16, color: AppColors.textColor),
+              style: TextStyle(fontSize: 16, color: AppColors.textColor4),
             ),
             const SizedBox(height: 20),
             CustomTextField(
@@ -77,10 +76,10 @@ class HelpSupportPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 20),
-            const Center(
+            Center(
               child: Text(
                 'You can also contact us at support@fixibot.com',
-                style: TextStyle(fontSize: 14, color: AppColors.textColor),
+                style: TextStyle(fontSize: 14, color: AppColors.textColor2),
               ),
             ),
           ],
