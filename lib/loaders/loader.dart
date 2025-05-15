@@ -48,12 +48,11 @@ class _LoaderWidgetState extends State<LoaderWidget>
           );
         },
         child: Image.asset(
-          'assets/icons/app-icon.png',
-          width: 80, 
-          height: 80,
+          'assets/icons/parts.png',
+          width: 180, 
+          height: 180,
         ),
       ),
     );
   }
 }
-
