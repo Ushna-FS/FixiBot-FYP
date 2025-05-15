@@ -1,6 +1,4 @@
-import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:get/get.dart';
-
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
 import '../screens/location/locationScreen.dart';
@@ -27,8 +25,6 @@ class AppPages {
         GetPage(
     name: AppRoutes.location,
     page: () => const LocationScreen(),),
-    GetPage(
-    name: AppRoutes.selfhelp,
-    page: () => SelfHelpSolutions(),),
+  
   ];
 }

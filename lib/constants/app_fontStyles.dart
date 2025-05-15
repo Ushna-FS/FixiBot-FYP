@@ -7,7 +7,7 @@ class AppFonts {
     fontWeight: FontWeight.w700,
     fontSize: 60,
     height: 73.14 / 60,
-    color: AppColors.textColor,
+    color: AppColors.mainColor,
   );
   static TextStyle montserratHeading = GoogleFonts.montserrat(
     fontWeight: FontWeight.w500,
