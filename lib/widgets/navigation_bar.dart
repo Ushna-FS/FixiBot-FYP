@@ -72,7 +72,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
                   ],
                 ),
                 child: IconButton(
-                  onPressed: () => Get.to(ChatScreen()),
+                  onPressed: () => Get.to(const ChatScreen()),
                   icon: Image.asset(
                     'assets/icons/nav-icons/chat.png',
                     color: Colors.white,

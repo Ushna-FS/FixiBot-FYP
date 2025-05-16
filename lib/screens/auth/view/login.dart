@@ -1,5 +1,4 @@
 import 'package:fixibot_app/constants/app_fontStyles.dart';
-
 import '../../../constants/app_colors.dart';
 import '../../../widgets/custom_textField.dart';
 import 'package:flutter/material.dart';
@@ -66,9 +65,10 @@ class _LoginState extends State<Login> {
                       style: AppFonts.montserratBlackHeading,
                     ),
                     SizedBox(height: screenSize.height * 0.04),
-                    const CustomTextField(
+                    CustomTextField(
                       hintText: "Username or Email",
                       icon: Icons.person,
+                      controller: controller.emailController, // Fixed this line
                     ),
                     SizedBox(height: screenSize.height * 0.015),
                     Obx(() => CustomTextField(
@@ -89,6 +89,7 @@ class _LoginState extends State<Login> {
                     CustomButton(
                       text: "Login",
                       onPressed: controller.login,
+                      isLoading: controller.isLoading.value,
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     Row(
@@ -112,7 +113,7 @@ class _LoginState extends State<Login> {
                         height: 20,
                       ),
                       onPressed: () {
-                        controller.googleLogIn();
+                        controller.googleSignIn();
                       },
                     ),
                     SizedBox(height: screenSize.height * 0.02),

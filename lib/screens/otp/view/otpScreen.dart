@@ -1,3 +1,5 @@
+import 'package:fixibot_app/screens/auth/view/signup.dart';
+
 import '../../../constants/app_fontStyles.dart';
 import '../controller/otpController.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,12 @@ class OtpScreen extends GetView<OtpController> {
             child: GestureDetector(
               onTap: () {
                 //Back Button
-                Get.back();
+                print("Back Button Pressed");
+                if (Get.key.currentState!.canPop()) {
+                  Get.back();
+                } else {
+                  Get.off(SignupScreen()); // Fallback screen
+                }
               },
               child: Image.asset("assets/icons/backArrow.png"),
             ),

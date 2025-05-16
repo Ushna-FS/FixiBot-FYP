@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 void main() {
-  runApp(ChatScreen());
+  runApp(const ChatScreen());
 }
 
 class ChatScreen extends StatelessWidget {
@@ -14,7 +14,7 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ChatPage(),
     );

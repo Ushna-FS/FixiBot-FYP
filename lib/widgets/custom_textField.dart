@@ -25,7 +25,23 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
   String? _errorText;
+  late TextEditingController _controller;
 
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // Only dispose if we created it ourselves
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+  
   // Validate user input based on keyboardType
   String? _validateInput(String value) {
     if (widget.keyboardType == TextInputType.emailAddress) {

@@ -63,7 +63,7 @@ class SignupScreen extends StatelessWidget {
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     CustomTextField(
-                      hintText: "Username or Email",
+                      hintText: "Username",
                       icon: Icons.person,
                       controller: controller.usernameController,
                     ),
@@ -115,6 +115,7 @@ class SignupScreen extends StatelessWidget {
                     CustomButton(
                       text: "Sign Up",
                       onPressed: controller.signup,
+                      isLoading: controller.isLoading.value,
                     ),
                     SizedBox(height: screenSize.height * 0.015),
                     Row(

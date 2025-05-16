@@ -12,6 +12,8 @@ class HelpSupportPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
 
+  HelpSupportPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +45,7 @@ class HelpSupportPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             
-            Text(
+            const Text(
               'If you have any issues, feel free to reach out to us.',
               style: TextStyle(fontSize: 16, color: AppColors.textColor4),
             ),
@@ -76,7 +78,7 @@ class HelpSupportPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 20),
-            Center(
+            const Center(
               child: Text(
                 'You can also contact us at support@fixibot.com',
                 style: TextStyle(fontSize: 14, color: AppColors.textColor2),

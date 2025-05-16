@@ -40,7 +40,7 @@ class _HomePageState extends State<HomeScreen> {
         Get.to(const SearchScreen());
         break;
       case 2:
-        Get.to(MechanicScreen());
+        Get.to(const MechanicScreen());
         break;
       case 3:
         Get.to(const ProfileScreen());
@@ -101,7 +101,7 @@ void _checkAndShowPopup( )async {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              HomeHeaderBox(),
+              const HomeHeaderBox(),
               const SizedBox(height: 20),
               Container(
                 height: 215,
@@ -176,12 +176,12 @@ void _checkAndShowPopup( )async {
                     DotsIndicator(
                       dotsCount: issuesList.length,
                       position: currentIndex.toDouble(),
-                      decorator: DotsDecorator(
+                      decorator: const DotsDecorator(
                         activeColor: AppColors.mainColor,
                         color: Colors.grey,
-                        activeSize: const Size(10.0, 10.0),
-                        size: const Size(8.0, 8.0),
-                        spacing: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        activeSize: Size(10.0, 10.0),
+                        size: Size(8.0, 8.0),
+                        spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
                       ),
                     ),
                   ],
@@ -193,7 +193,7 @@ void _checkAndShowPopup( )async {
                 "Locate expert mechanics nearby, fast and hassle-free.",
                 "assets/images/MechanicIllustration.png",
                 () {
-                  Get.to(MechanicScreen());
+                  Get.to(const MechanicScreen());
                 },
                 buttonText: "Find Now",
               ),
@@ -203,7 +203,7 @@ void _checkAndShowPopup( )async {
                 "Save details for quick fixes and smart assistance.",
                 "assets/images/AddVeh-illustration.png",
                 () {
-                  Get.to(AddVehicle());
+                  Get.to(const AddVehicle());
                 },
                 buttonText: "Add Vehicle",
               ),

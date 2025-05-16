@@ -244,7 +244,7 @@ class _UserJourneyState extends State<UserJourney> {
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      Get.to(HomeScreen());
+                      Get.to(const HomeScreen());
                     },
                     child: const Text(
                       "Skip",

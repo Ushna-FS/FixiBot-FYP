@@ -26,7 +26,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Get.to(HomeScreen());
+                      Get.to(const HomeScreen());
                     }, 
                     icon: Image.asset('assets/icons/back.png',
                     width: 30,

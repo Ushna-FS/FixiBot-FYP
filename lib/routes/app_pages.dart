@@ -1,9 +1,13 @@
+import 'package:fixibot_app/screens/auth/view/forgotPassword.dart';
+import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:get/get.dart';
 
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
+import '../screens/homeScreen.dart';
 import '../screens/location/locationScreen.dart';
+import '../screens/mechanics/view/mechanicsScreen.dart';
 import '../screens/searchScreen.dart';
 import '../screens/splashScreen.dart';
 import '../screens/userJourney.dart';
@@ -13,22 +17,48 @@ class AppPages {
   static final List<GetPage> pages = [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(
-        name: AppRoutes.signup,
-        page: () => const SignupScreen(),),
+      name: AppRoutes.signup,
+      page: () => const SignupScreen(),
+    ),
     GetPage(
-        name: AppRoutes.login,
-        page: () => const Login(),),
+      name: AppRoutes.login,
+      page: () => const Login(),
+    ),
     GetPage(
-    name: AppRoutes.userJourney,
-    page: () => const UserJourney(),),
+      name: AppRoutes.userJourney,
+      page: () => const UserJourney(),
+    ),
     GetPage(
-    name: AppRoutes.search,
-    page: () => const SearchScreen(),),
-        GetPage(
-    name: AppRoutes.location,
-    page: () => const LocationScreen(),),
+      name: AppRoutes.search,
+      page: () => const SearchScreen(),
+    ),
     GetPage(
-    name: AppRoutes.selfhelp,
-    page: () => SelfHelpSolutions(),),
+      name: AppRoutes.location,
+      page: () => const LocationScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.selfhelp,
+      page: () => SelfHelpSolutions(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => ForgotPasswordScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.verification,
+      page: () => VerificationSentScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.mechanics,
+      page: () => MechanicScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.selfHelpSolutions,
+      page: () => SelfHelpSolutions(),
+    ),
+    GetPage(
+      name: AppRoutes.home,
+      page: () => const HomeScreen(),
+    ),
   ];
 }

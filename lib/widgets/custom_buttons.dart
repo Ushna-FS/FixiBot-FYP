@@ -7,6 +7,7 @@ class CustomButton extends StatelessWidget {
   final Color color;
   final Color textColor;
   final bool isOutlined;
+  final bool isLoading;
   final Widget? icon;
 
   const CustomButton({
@@ -16,6 +17,7 @@ class CustomButton extends StatelessWidget {
     this.color = AppColors.mainColor,
     this.textColor = AppColors.textColor,
     this.isOutlined = false,
+    this.isLoading = false,
     this.icon,
   });
 
@@ -33,7 +35,7 @@ class CustomButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: onPressed,
+              onPressed: isLoading ? null : onPressed,
               child: _buildContent(),
             )
           : ElevatedButton(
@@ -43,13 +45,24 @@ class CustomButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: onPressed,
+              onPressed: isLoading ? null : onPressed,
               child: _buildContent(),
             ),
     );
   }
 
   Widget _buildContent() {
+    if (isLoading) {
+      return const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.textColor),
+        ),
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -76,19 +89,19 @@ class CustomHomeButton extends StatelessWidget {
   final Color color;
   final Color textColor;
   final bool isOutlined;
+  final bool isLoading;
   final Widget? icon;
 
   const CustomHomeButton({
     super.key,
     required this.text,
     required this.onPressed,
-    this.color = const Color(0xFFFFAFA4), 
+    this.color = const Color(0xFFFFAFA4),
     this.textColor = Colors.white,
     this.isOutlined = false,
+    this.isLoading = false,
     this.icon,
   });
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +117,7 @@ class CustomHomeButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              onPressed: onPressed,
+              onPressed: isLoading ? null : onPressed,
               child: _buildContent(),
             )
           : ElevatedButton(
@@ -114,27 +127,36 @@ class CustomHomeButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: onPressed,
+              onPressed: isLoading ? null : onPressed,
               child: _buildContent(),
             ),
     );
   }
 
   Widget _buildContent() {
+    if (isLoading) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+    }
+
     return Row(
-      mainAxisSize: MainAxisSize.min, 
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           text,
           style: TextStyle(fontSize: 14, color: textColor, fontWeight: FontWeight.bold),
         ),
         if (icon != null) ...[
-          const SizedBox(width: 5), 
-          icon!, 
+          const SizedBox(width: 5),
+          icon!,
         ],
       ],
     );
   }
-
-
 }

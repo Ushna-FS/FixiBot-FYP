@@ -9,5 +9,9 @@ class AppRoutes {
   static const String search = '/search';
   static const String location = '/location';
   static const String selfhelp = '/selfhelp';
+  static const String verification = '/verification';
+  static const String mechanics = '/mechanics';
+  static const String mechanicsDetails = '/mechanicsDetails';
+  static const String selfHelpSolutions = '/selfHelpSolutions';
 
 }

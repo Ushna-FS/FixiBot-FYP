@@ -8,7 +8,7 @@ import '../constants/app_fontStyles.dart';
 class SelfHelpSolutions extends StatelessWidget {
 
 
-    SelfHelpSolutions({super.key, });
+    const SelfHelpSolutions({super.key, });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class SelfHelpSolutions extends StatelessWidget {
         titleTextStyle: AppFonts.customTextStyle(fontSize: 20, color: AppColors.mainColor, fontWeight: FontWeight.bold),
         leading: IconButton(
                     onPressed: () {
-                      Get.to(HomeScreen());
+                      Get.to(const HomeScreen());
                     }, 
                     icon: Image.asset('assets/icons/back.png',
                     width: 30,
