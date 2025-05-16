@@ -140,37 +140,33 @@ void _checkAndShowPopup( )async {
                         },
                       ),
                       items: issuesList.map((issues) {
-                        return Wrap(
-                          spacing: 15,
-                          runSpacing: 20,
-                          children: issues
-                              .map((issue) => GestureDetector(
-                                    onTap: () {
-                                      Get.to(() => SelfHelpSolutions());
-                                    },
-                                    child: Container(
-                                      height: 48,
-                                      width: 105,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                            color: const Color(0x4DA4A1A1),
-                                            width: 1),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        issue,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                        );
-                      }).toList(),
+  return Wrap(
+    spacing: 15,
+    runSpacing: 20,
+    children: issues.map((issue) => GestureDetector(
+      onTap: () {
+        Get.to(() => SelfHelpSolutions(issueTitle: issue));
+      },
+      child: Container(
+        height: 48,
+        width: 105,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: const Color(0x4DA4A1A1), width: 1),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          issue,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    )).toList(),
+  );
+}).toList(),
+
+
                     ),
                     const SizedBox(height: 4),
                     DotsIndicator(

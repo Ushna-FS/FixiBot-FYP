@@ -29,11 +29,11 @@ class _LoginState extends State<Login> {
           Positioned(
               top: 0,
               right: 0,
-              child: Image.asset('assets/icons/upperTyre.png')),
+              child: Image.asset('assets/icons/upper.png',height: 230)),
           Positioned(
               bottom: 0,
               left: 0,
-              child: Image.asset('assets/icons/lowerTyre.png')),
+              child: Image.asset('assets/icons/lower.png',height: 230)),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(

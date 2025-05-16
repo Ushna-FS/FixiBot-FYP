@@ -1,8 +1,5 @@
-import 'package:fixibot_app/screens/auth/view/forgotPassword.dart';
-import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:get/get.dart';
-
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
 import '../screens/homeScreen.dart';
@@ -29,36 +26,13 @@ class AppPages {
       page: () => const UserJourney(),
     ),
     GetPage(
-      name: AppRoutes.search,
-      page: () => const SearchScreen(),
-    ),
+    name: AppRoutes.search,
+    page: () => const SearchScreen(),),
+        GetPage(
+    name: AppRoutes.location,
+    page: () => const LocationScreen(),),
     GetPage(
-      name: AppRoutes.location,
-      page: () => const LocationScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.selfhelp,
-      page: () => SelfHelpSolutions(),
-    ),
-    GetPage(
-      name: AppRoutes.forgotPassword,
-      page: () => ForgotPasswordScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.verification,
-      page: () => VerificationSentScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.mechanics,
-      page: () => MechanicScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.selfHelpSolutions,
-      page: () => SelfHelpSolutions(),
-    ),
-    GetPage(
-      name: AppRoutes.home,
-      page: () => const HomeScreen(),
-    ),
+    name: AppRoutes.selfhelp,
+    page: () => SelfHelpSolutions(),),
   ];
 }
