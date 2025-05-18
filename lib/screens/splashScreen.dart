@@ -63,7 +63,7 @@ Widget build(BuildContext context) {
               child: AnimatedScale(
                 scale: _hideLoader ? 0.0 : 1.0,
                 duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOutBack, // Smooth bounce
+                curve: Curves.easeInOutBack,
                 child: const LoaderWidget(),
               ),
             )
@@ -86,21 +86,25 @@ Widget build(BuildContext context) {
                   ),
                 ),
                 AnimatedAlign(
+                  
                   alignment: _animateLogo ? Alignment.center : Alignment.centerLeft,
-                  duration: const Duration(milliseconds: 700), // Faster
-                  curve: Curves.easeInOutCubic, // Smoother easing
+                  duration: const Duration(milliseconds: 700), 
+                  curve: Curves.easeInOutCubic, 
                   child: AnimatedOpacity(
+                    
                     opacity: _animateLogo ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 400),
                     curve: Curves.easeIn,
+                    child: Padding(padding:const EdgeInsets.only(left: 20) ,
                     child: Transform.translate(
                       offset: _animateLogo ? const Offset(65, 0) : Offset.zero,
                       child: Image.asset(
                         'assets/icons/APPicon.png',
                         height: 60,
                         width: 50,
+                        
                       ),
-                    ),
+                    ),),
                   ),
                 ),
               ],

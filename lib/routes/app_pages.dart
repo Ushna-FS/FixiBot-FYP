@@ -32,7 +32,9 @@ class AppPages {
     name: AppRoutes.location,
     page: () => const LocationScreen(),),
     GetPage(
-    name: AppRoutes.selfhelp,
-    page: () => SelfHelpSolutions(),),
+  name: AppRoutes.selfhelp,
+  page: () => SelfHelpSolutions(issueTitle: Get.arguments),
+),
+
   ];
 }

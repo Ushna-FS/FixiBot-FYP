@@ -104,7 +104,7 @@ void _checkAndShowPopup( )async {
               const HomeHeaderBox(),
               const SizedBox(height: 20),
               Container(
-                height: 215,
+                height: 185,
                 margin: const EdgeInsets.symmetric(
                   horizontal: 18,
                 ),
@@ -120,7 +120,9 @@ void _checkAndShowPopup( )async {
                   ],
                 ),
                 child: Column(
+                  
                   children: [
+                    
                     const Text(
                       "Self Help Solutions",
                       style:
@@ -141,8 +143,8 @@ void _checkAndShowPopup( )async {
                       ),
                       items: issuesList.map((issues) {
   return Wrap(
-    spacing: 15,
-    runSpacing: 20,
+    spacing: 10,
+    runSpacing: 10,
     children: issues.map((issue) => GestureDetector(
       onTap: () {
         Get.to(() => SelfHelpSolutions(issueTitle: issue));
@@ -183,7 +185,7 @@ void _checkAndShowPopup( )async {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               _buildInfoCard(
                 "Find Mechanic",
                 "Locate expert mechanics nearby, fast and hassle-free.",
@@ -193,10 +195,10 @@ void _checkAndShowPopup( )async {
                 },
                 buttonText: "Find Now",
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               _buildInfoCard(
                 "Add Your Vehicle",
-                "Save details for quick fixes and smart assistance.",
+                "Save your vehicles details.",
                 "assets/images/AddVeh-illustration.png",
                 () {
                   Get.to(const AddVehicle());
@@ -204,7 +206,7 @@ void _checkAndShowPopup( )async {
                 buttonText: "Add Vehicle",
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               )
             ],
           ),
@@ -220,8 +222,8 @@ void _checkAndShowPopup( )async {
       {String buttonText = "Click"}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(18),
-      height: 150,
+      padding: const EdgeInsets.all(12),
+      height: 180,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -253,7 +255,7 @@ void _checkAndShowPopup( )async {
                   icon: const Icon(
                     Icons.arrow_circle_right_outlined,
                     color: AppColors.mainColor,
-                  ), // Use dynamic button text
+                  ), 
                   onPressed: onPressed,
                   color: const Color(0xFFFFF4F2),
                   textColor: AppColors.mainColor,

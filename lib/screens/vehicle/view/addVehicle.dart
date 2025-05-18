@@ -23,13 +23,13 @@ class AddVehicle extends GetView<VehicleController> {
           Positioned(
               top: 0,
               right: 0,
-              child: Image.asset('assets/icons/upperTyre.png')),
+              child: Image.asset('assets/icons/upper.png')),
           Positioned(
             top: 15,
             left: 25,
             child: GestureDetector(
               onTap: () {
-                //Back Button
+              
                 Get.back();
               },
               child: Image.asset("assets/icons/backArrow.png"),
@@ -38,7 +38,7 @@ class AddVehicle extends GetView<VehicleController> {
           Positioned(
               bottom: 0,
               left: 0,
-              child: Image.asset('assets/icons/lowerTyre.png')),
+              child: Image.asset('assets/icons/lower.png')),
           Padding(
               padding: const EdgeInsets.all(16.0),
               child: Center(
