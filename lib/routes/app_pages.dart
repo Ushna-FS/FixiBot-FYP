@@ -5,7 +5,7 @@ import '../screens/auth/view/signup.dart';
 import '../screens/homeScreen.dart';
 import '../screens/location/locationScreen.dart';
 import '../screens/mechanics/view/mechanicsScreen.dart';
-import '../screens/searchScreen.dart';
+import '../screens/search/searchScreen.dart';
 import '../screens/splashScreen.dart';
 import '../screens/userJourney.dart';
 import 'app_routes.dart';
