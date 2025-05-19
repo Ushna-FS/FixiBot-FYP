@@ -7,7 +7,7 @@ class CustomTextField extends StatefulWidget {
   final IconData icon;
   final bool isPassword;
   final TextEditingController? controller;
-  final TextInputType keyboardType; // Define input type
+  final TextInputType keyboardType;
 
   const CustomTextField({
     super.key,
@@ -15,7 +15,7 @@ class CustomTextField extends StatefulWidget {
     required this.icon,
     this.isPassword = false,
     this.controller,
-    this.keyboardType = TextInputType.text, // Default to text input
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -25,36 +25,43 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
   String? _errorText;
-  late TextEditingController _controller;
+  late TextEditingController _effectiveController;
+   bool _isExternalController = false;
+
+  
 
   @override
+  void didUpdateWidget(CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the external controller changes, update our reference
+    if (widget.controller != oldWidget.controller) {
+      _effectiveController = widget.controller ?? TextEditingController();
+    }
+  }
+
+@override
   void initState() {
     super.initState();
-    _controller = widget.controller ?? TextEditingController();
+    _isExternalController = widget.controller != null;
+    _effectiveController = widget.controller ?? TextEditingController();
   }
 
   @override
   void dispose() {
-    // Only dispose if we created it ourselves
-    if (widget.controller == null) {
-      _controller.dispose();
+    if (!_isExternalController) {
+      _effectiveController.dispose();
     }
     super.dispose();
   }
-  
-  // Validate user input based on keyboardType
   String? _validateInput(String value) {
     if (widget.keyboardType == TextInputType.emailAddress) {
-      // Email validation
       final emailRegex =
           RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
       if (!emailRegex.hasMatch(value)) return "Enter a valid email";
     } else if (widget.keyboardType == TextInputType.number) {
-      // Number validation
       final numberRegex = RegExp(r'^[0-9]+$');
       if (!numberRegex.hasMatch(value)) return "Enter a valid number";
     } else if (widget.keyboardType == TextInputType.name) {
-      // Name validation (letters only)
       final nameRegex = RegExp(r"^[a-zA-Z\s]+$");
       if (!nameRegex.hasMatch(value)) return "Enter a valid name";
     }
@@ -71,24 +78,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: const [
               BoxShadow(
-                color: Color.fromARGB(255, 129, 126, 126), 
+                color: Color.fromARGB(255, 129, 126, 126),
                 blurRadius: 5,
                 offset: Offset(2, 2),
               ),
             ],
           ),
           child: TextField(
-            controller: widget.controller,
+            controller: _effectiveController, // Use the correct controller
             obscureText: widget.isPassword ? _obscureText : false,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.keyboardType == TextInputType.number
-                ? [
-                    FilteringTextInputFormatter.digitsOnly
-                  ] // Restrict input to numbers
+                ? [FilteringTextInputFormatter.digitsOnly]
                 : null,
             onChanged: (value) {
               setState(() {
-                _errorText = _validateInput(value); // Validate input
+                _errorText = _validateInput(value);
               });
             },
             decoration: InputDecoration(
@@ -96,30 +101,28 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               prefixIcon: Icon(
                 widget.icon,
-                color: AppColors.mainColor
-                    .withOpacity(0.8), // Lightened icon color
+                color: AppColors.mainColor.withOpacity(0.8),
               ),
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                color: Colors.grey.shade400, // Light grey placeholder text
+                color: Colors.grey.shade400,
               ),
               filled: true,
-              fillColor: Colors.white, // Background color
+              fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none, // Remove default border
+                borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Colors.grey.shade300), // Subtle border
+                borderSide: BorderSide(color: Colors.grey.shade300),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide:
                     const BorderSide(color: AppColors.mainColor, width: 2.0),
               ),
-              errorText: _errorText, // Show error message
+              errorText: _errorText,
               suffixIcon: widget.isPassword
                   ? IconButton(
                       icon: Icon(
@@ -128,11 +131,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscureText = !_obscureText; // Toggle obscureText
+                          _obscureText = !_obscureText;
                         });
                       },
                     )
-                  : null, // No suffix for non-password fields
+                  : null,
             ),
           ),
         ),

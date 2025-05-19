@@ -1,3 +1,4 @@
+import 'package:fixibot_app/bindings/initialBinding.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:get/get.dart';
 import '../screens/auth/view/login.dart';
@@ -15,26 +16,29 @@ class AppPages {
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(
       name: AppRoutes.signup,
-      page: () => const SignupScreen(),
+      page: () => SignupScreen(),
+      binding: InitialBinding(),
     ),
     GetPage(
       name: AppRoutes.login,
-      page: () => const Login(),
+      page: () => Login(),
+      binding: InitialBinding(),
     ),
     GetPage(
       name: AppRoutes.userJourney,
       page: () => const UserJourney(),
     ),
     GetPage(
-    name: AppRoutes.search,
-    page: () => const SearchScreen(),),
-        GetPage(
-    name: AppRoutes.location,
-    page: () => const LocationScreen(),),
+      name: AppRoutes.search,
+      page: () => const SearchScreen(),
+    ),
     GetPage(
-  name: AppRoutes.selfhelp,
-  page: () => SelfHelpSolutions(issueTitle: Get.arguments),
-),
-
+      name: AppRoutes.location,
+      page: () => const LocationScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.selfhelp,
+      page: () => SelfHelpSolutions(issueTitle: Get.arguments),
+    ),
   ];
 }

@@ -107,7 +107,7 @@ class VerificationSentScreen extends StatelessWidget {
                 width: double.infinity,
                 child: CustomButton(
                   onPressed: () {
-                    Get.offAll(() => const Login());
+                    Get.offAll(() =>  Login());
                   },
                   text: "Back to Login",
                   isLoading: false,

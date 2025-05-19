@@ -1,4 +1,3 @@
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
@@ -13,7 +12,6 @@ import 'package:fixibot_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/screens/location/location_popup.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +24,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  int currentIndex = 0;
+  final List<List<String>> issuesList = [
+    ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
+    ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
+  ];
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -48,182 +51,184 @@ class _HomePageState extends State<HomeScreen> {
     }
   }
 
-  final List<List<String>> issuesList = [
-    ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
-    ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
-  ];
-
-  int currentIndex = 0;
-
-
-@override
-void initState() {
-  super.initState();
-  _checkAndShowPopup();
-}
-
-void _checkAndShowPopup( )async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
-
-  if (isFirstTime) {
-    Future.delayed(const Duration(seconds: 10), () {
-      LocationPopup.showLocationPopup(context);
-    });
-
-    await prefs.setBool('isFirstTimeHome', false);
+  @override
+  void initState() {
+    super.initState();
+    _checkAndShowPopup();
   }
-}
 
+  void _checkAndShowPopup() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
+
+    if (isFirstTime) {
+      Future.delayed(const Duration(seconds: 10), () {
+        LocationPopup.showLocationPopup(context);
+      });
+      await prefs.setBool('isFirstTimeHome', false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.mainColor,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const CircleAvatar(radius: 20),
-              Image.asset("assets/icons/locationIcon.png",
-                  color: AppColors.textColor),
-              Text(
-                'COMSATS UNIVERSITY ISLAMABAD',
-                style: AppFonts.montserratHomeAppbar,
-              ),
-              Image.asset("assets/icons/notification.png",
-                  color: AppColors.textColor),
-            ],
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const HomeHeaderBox(),
-              const SizedBox(height: 20),
-              Container(
-                height: 185,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                ),
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 20,
-                      color: Color(0x1A263238),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  
-                  children: [
-                    
-                    const Text(
-                      "Self Help Solutions",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 10),
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 3,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            currentIndex = index;
-                          });
-                        },
-                      ),
-                      items: issuesList.map((issues) {
-  return Wrap(
-    spacing: 10,
-    runSpacing: 10,
-    children: issues.map((issue) => GestureDetector(
-      onTap: () {
-        Get.to(() => SelfHelpSolutions(issueTitle: issue));
-      },
-      child: Container(
-        height: 48,
-        width: 105,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: const Color(0x4DA4A1A1), width: 1),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          issue,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          textAlign: TextAlign.center,
+      appBar: AppBar(
+        backgroundColor: AppColors.mainColor,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const CircleAvatar(radius: 20),
+            Image.asset(
+              "assets/icons/locationIcon.png",
+              color: AppColors.textColor,
+            ),
+            Text(
+              'COMSATS UNIVERSITY ISLAMABAD',
+              style: AppFonts.montserratHomeAppbar,
+            ),
+            Image.asset(
+              "assets/icons/notification.png",
+              color: AppColors.textColor,
+            ),
+          ],
         ),
       ),
-    )).toList(),
-  );
-}).toList(),
-
-
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const HomeHeaderBox(),
+            SizedBox(height: screenHeight * 0.02),
+            Container(
+              height: screenHeight * 0.28,
+              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              padding: EdgeInsets.all(screenWidth * 0.01),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 20,
+                    color: Color(0x1A263238),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    "Self Help Solutions",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Divider(),
+                  SizedBox(height: screenHeight * 0.01),
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      aspectRatio: 3,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          currentIndex = index;
+                        });
+                      },
                     ),
-                    const SizedBox(height: 4),
-                    DotsIndicator(
-                      dotsCount: issuesList.length,
-                      position: currentIndex.toDouble(),
-                      decorator: const DotsDecorator(
-                        activeColor: AppColors.mainColor,
-                        color: Colors.grey,
-                        activeSize: Size(10.0, 10.0),
-                        size: Size(8.0, 8.0),
-                        spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
-                      ),
+                    items: issuesList.map((issues) {
+                      return Wrap(
+                        spacing: screenWidth * 0.04,
+                        runSpacing: screenHeight * 0.02,
+                        children: issues.map((issue) => GestureDetector(
+                          onTap: () {
+                            Get.to(() => SelfHelpSolutions(issueTitle: issue));
+                          },
+                          child: Container(
+                            height: screenHeight * 0.06,
+                            width: screenWidth * 0.3,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color(0x4DA4A1A1),
+                                width: 1,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              issue,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )).toList(),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: screenHeight * 0.005),
+                  DotsIndicator(
+                    dotsCount: issuesList.length,
+                    position: currentIndex.toDouble(),
+                    decorator: const DotsDecorator(
+                      activeColor: AppColors.mainColor,
+                      color: Colors.grey,
+                      activeSize: Size(10.0, 10.0),
+                      size: Size(8.0, 8.0),
+                      spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              _buildInfoCard(
-                "Find Mechanic",
-                "Locate expert mechanics nearby, fast and hassle-free.",
-                "assets/images/MechanicIllustration.png",
-                () {
-                  Get.to(const MechanicScreen());
-                },
-                buttonText: "Find Now",
-              ),
-              const SizedBox(height: 10),
-              _buildInfoCard(
-                "Add Your Vehicle",
-                "Save your vehicles details.",
-                "assets/images/AddVeh-illustration.png",
-                () {
-                  Get.to(const AddVehicle());
-                },
-                buttonText: "Add Vehicle",
-              ),
-              const SizedBox(
-                height: 10,
-              )
-            ],
-          ),
+            ),
+            SizedBox(height: screenHeight * 0.035),
+            _buildInfoCard(
+              "Find Mechanic",
+              "Locate expert mechanics nearby, fast and hassle-free.",
+              "assets/images/MechanicIllustration.png",
+              () {
+                Get.to(const MechanicScreen());
+              },
+              buttonText: "Find Now",
+            ),
+            SizedBox(height: screenHeight * 0.025),
+            _buildInfoCard(
+              "Add Your Vehicle",
+              "Save details for quick fixes and smart assistance.",
+              "assets/images/AddVeh-illustration.png",
+              () {
+                Get.to(const AddVehicle());
+              },
+              buttonText: "Add Vehicle",
+            ),
+            SizedBox(height: screenHeight * 0.025),
+          ],
         ),
-        bottomNavigationBar: CustomNavBar(
-          currentIndex: _selectedIndex,
-          onTap: _onNavItemTapped,
-        ));
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavItemTapped,
+      ),
+    );
   }
 
-  Widget _buildInfoCard(String title, String description, String imagePath,
-      VoidCallback onPressed,
-      {String buttonText = "Click"}) {
+  Widget _buildInfoCard(
+    String title,
+    String description,
+    String imagePath,
+    VoidCallback onPressed, {
+    String buttonText = "Click",
+  }) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(12),
-      height: 180,
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+      padding: EdgeInsets.all(screenWidth * 0.04),
+      height: screenHeight * 0.2,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -244,18 +249,18 @@ void _checkAndShowPopup( )async {
                   title,
                   style: AppFonts.montserrathomecardText,
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: screenHeight * 0.01),
                 Text(
                   description,
                   style: AppFonts.montserratHomecardText2,
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: screenHeight * 0.015),
                 CustomHomeButton(
                   text: buttonText,
                   icon: const Icon(
                     Icons.arrow_circle_right_outlined,
                     color: AppColors.mainColor,
-                  ), 
+                  ),
                   onPressed: onPressed,
                   color: const Color(0xFFFFF4F2),
                   textColor: AppColors.mainColor,
@@ -264,14 +269,14 @@ void _checkAndShowPopup( )async {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: screenWidth * 0.03),
           Image.asset(
             imagePath,
-            width: 115,
-            height: 160,
+            width: screenWidth * 0.3,
+            height: screenHeight * 0.22,
           ),
         ],
       ),
     );
   }
-}
+} 

@@ -49,8 +49,10 @@ class LoginController extends GetxController {
         email: email,
         password: password,
       );
-
       print('[Login] Authentication successful');
+
+      await _sharedPrefs.setRememberUser(true);
+      print('[Login] User remembered');
 
       // Check if email is verified
       if (userCredential.user?.emailVerified == false) {
@@ -95,6 +97,8 @@ class LoginController extends GetxController {
         message = 'Too many attempts. Try again later.';
       } else if (e.code == 'user-disabled') {
         message = 'This account has been disabled.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is invalid.';
       } else if (e.code == 'requires-recent-login') {
         message =
             'This operation requires recent authentication. Please log in again.';
@@ -124,7 +128,7 @@ class LoginController extends GetxController {
   }
 
   void LogInNavigation() {
-    Get.to(const SignupScreen());
+    Get.offAll(SignupScreen());
   }
 
   void googleSignIn() async {

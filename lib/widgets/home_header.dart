@@ -23,10 +23,12 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   }
 
   Future<void> _loadUserName() async {
-    final name = await _sharedPrefs.getUserName();
+    final user = await _sharedPrefs.getUserData();
+
+    print(user?['name']);
     if (mounted) {
       setState(() {
-        userName = name ?? 'User';
+        userName = user?['name'] ?? 'User';
       });
     }
   }
