@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controller/vehicleController.dart';
 import '../../../constants/app_fontStyles.dart';
-
 import '../../../constants/app_colors.dart';
 import '../../../widgets/custom_buttons.dart';
 import '../../../widgets/custom_textField.dart';
@@ -14,150 +13,204 @@ class AddVehicle extends GetView<VehicleController> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
+    final bool isPortrait = screenSize.height > screenSize.width;
+    final double horizontalPadding =
+        isPortrait ? screenSize.width * 0.08 : screenSize.width * 0.15;
+    final double verticalPadding =
+        isPortrait ? screenSize.height * 0.02 : screenSize.height * 0.03;
+
     return Scaffold(
-        backgroundColor: AppColors.secondaryColor,
-        body: Stack(children: [
-          Container(
-            color: AppColors.secondaryColor,
-          ),
+      backgroundColor: AppColors.secondaryColor,
+      body: Stack(
+        children: [
+          Container(color: AppColors.secondaryColor),
           Positioned(
-              top: 0,
-              right: 0,
-              child: Image.asset('assets/icons/upper.png')),
-          Positioned(
-            top: 15,
-            left: 25,
-            child: GestureDetector(
-              onTap: () {
-              
-                Get.back();
-              },
-              child: Image.asset("assets/icons/backArrow.png"),
+            top: 0,
+            right: 0,
+            child: Image.asset(
+              'assets/icons/upper.png',
+              width:
+                  isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
             ),
           ),
           Positioned(
-              bottom: 0,
-              left: 0,
-              child: Image.asset('assets/icons/lower.png')),
+            top: screenSize.height * 0.07,
+            left: screenSize.width * 0.05,
+            child: GestureDetector(
+              onTap: () => Get.back(),
+              child: Image.asset(
+                "assets/icons/backArrow.png",
+                width: isPortrait
+                    ? screenSize.width * 0.08
+                    : screenSize.height * 0.08,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: Image.asset(
+              'assets/icons/lower.png',
+              width:
+                  isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
+            ),
+          ),
           Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                  child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenSize.width * 0.08),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () => OpenDialog(context),
-                              child: Center(
-                                child: Obx(
-                                  () => controller.image.value == null
-                                      ? Container(
-                                          width: screenSize.width * 0.6,
-                                          height: screenSize.height * 0.2,
-                                          decoration: const BoxDecoration(
-                                              color: AppColors.secondaryColor,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(30)),
-                                              border: Border(
-                                                  top: BorderSide(
-                                                      color:
-                                                          AppColors.mainColor),
-                                                  bottom: BorderSide(
-                                                      color:
-                                                          AppColors.mainColor),
-                                                  left: BorderSide(
-                                                      color:
-                                                          AppColors.mainColor),
-                                                  right: BorderSide(
-                                                      color: AppColors
-                                                          .mainColor))),
-                                          child: Center(
-                                            child: Text(
-                                              "No Image added",
-                                              style:
-                                                  AppFonts.montserratMainText,
-                                            ),
-                                          ),
-                                        )
-                                      : Image(
-                                          image: FileImage(
-                                              controller.image.value!),
-                                          width: screenSize.width * 0.8,
-                                          height: screenSize.height * 0.4,
-                                        ),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: screenSize.height * 0.02,
+            ),
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => OpenDialog(context),
+                      child: Center(
+                        child: Obx(
+                          () => controller.image.value == null
+                              ? Container(
+                                  width: isPortrait
+                                      ? screenSize.width * 0.8
+                                      : screenSize.width * 0.5,
+                                  height: isPortrait
+                                      ? screenSize.height * 0.25
+                                      : screenSize.height * 0.4,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondaryColor,
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                      color: AppColors.mainColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "+",
+                                      style:
+                                          AppFonts.montserratMainText.copyWith(
+                                        fontSize: isPortrait
+                                            ? screenSize.height * 0.02
+                                            : screenSize.width * 0.02,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Image(
+                                  image: FileImage(controller.image.value!),
+                                  width: isPortrait
+                                      ? screenSize.width * 0.9
+                                      : screenSize.width * 0.6,
+                                  height: isPortrait
+                                      ? screenSize.height * 0.35
+                                      : screenSize.height * 0.5,
                                 ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: verticalPadding),
+                    CustomTextField(
+                      hintText: "Car Manufacturer",
+                      icon: Icons.car_rental,
+                      controller: controller.carManufacturer,
+                    ),
+                    SizedBox(height: verticalPadding),
+                    CustomTextField(
+                      hintText: "Car Model",
+                      icon: Icons.car_rental,
+                      controller: controller.carModel,
+                    ),
+                    SizedBox(height: verticalPadding),
+                    CustomTextField(
+                      hintText: "Car Model Year",
+                      icon: Icons.car_rental,
+                      controller: controller.carModelYear,
+                    ),
+                    SizedBox(height: verticalPadding),
+                    Obx(() => Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              controller.transmissionAuto.value
+                                  ? "Manual"
+                                  : "Auto",
+                              style: AppFonts.montserratMainText14.copyWith(
+                                fontSize: isPortrait
+                                    ? screenSize.height * 0.018
+                                    : screenSize.width * 0.018,
                               ),
                             ),
-                            SizedBox(height: screenSize.height * 0.02),
-                            CustomTextField(
-                              hintText: "Car Manufacturer",
-                              icon: Icons.car_rental,
-                              controller: controller.carManufacturer,
+                            Switch(
+                              inactiveThumbColor: AppColors.mainColor,
+                              activeColor: AppColors.mainColor,
+                              value: controller.transmissionAuto.value,
+                              onChanged: (value) =>
+                                  controller.toggleTransmission(),
                             ),
-                            SizedBox(height: screenSize.height * 0.02),
-                            CustomTextField(
-                              hintText: "Car Model",
-                              icon: Icons.car_rental,
-                              controller: controller.carModel,
-                            ),
-                            SizedBox(height: screenSize.height * 0.02),
-                            CustomTextField(
-                              hintText: "Car Model Year",
-                              icon: Icons.car_rental,
-                              controller: controller.carModelYear,
-                            ),
-                            SizedBox(height: screenSize.height * 0.02),
-                            Obx(() => Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                        controller.transmissionAuto.value
-                                            ? "Manual"
-                                            : "Auto",
-                                        style: AppFonts.montserratMainText14),
-                                    Switch(
-                                      inactiveThumbColor: AppColors.mainColor,
-                                      activeColor: AppColors.mainColor,
-                                      value: controller.transmissionAuto.value,
-                                      onChanged: (value) =>
-                                          controller.toggleTransmission(),
-                                    ),
-                                  ],
-                                )),
-                            SizedBox(height: screenSize.height * 0.001),
-                            SizedBox(height: screenSize.height * 0.02),
-                            CustomButton(
-                              text: 'Add Vehicle',
-                              onPressed: () {
-                                // TODO: Add Vehicle function
-                              },
-                            ),
-                          ]))))
-        ]));
+                          ],
+                        )),
+                    SizedBox(height: verticalPadding),
+                    CustomButton(
+                      text: 'Add Vehicle',
+                      onPressed: () {
+                        // TODO: Add Vehicle function
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void OpenDialog(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = screenSize.height > screenSize.width;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.secondaryColor,
-        title: Text("Select Image Source", style: AppFonts.montserratMainText),
+        title: Text(
+          "Select Image Source",
+          style: AppFonts.montserratMainText.copyWith(
+            fontSize: isPortrait
+                ? screenSize.height * 0.025
+                : screenSize.width * 0.025,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
-              Get.back(); // Close dialog
+              Get.back();
               controller.pickImage(ImageSource.camera);
             },
-            child: Text("Camera", style: AppFonts.montserratText5),
+            child: Text(
+              "Camera",
+              style: AppFonts.montserratText5.copyWith(
+                fontSize: isPortrait
+                    ? screenSize.height * 0.02
+                    : screenSize.width * 0.02,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
-              Get.back(); // Close dialog
+              Get.back();
               controller.pickImage(ImageSource.gallery);
             },
-            child: Text("Gallery", style: AppFonts.montserratText5),
+            child: Text(
+              "Gallery",
+              style: AppFonts.montserratText5.copyWith(
+                fontSize: isPortrait
+                    ? screenSize.height * 0.02
+                    : screenSize.width * 0.02,
+              ),
+            ),
           ),
         ],
       ),

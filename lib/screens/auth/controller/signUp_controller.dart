@@ -188,7 +188,7 @@ class SignupController extends GetxController {
   }
 
   // Navigation methods
-  void signInNavigation() => Get.to(() => const Login());
+  void signInNavigation() => Get.offAll(() => Login());
 
   // Google Sign-In method
   void googleSignIn() async {
@@ -200,7 +200,6 @@ class SignupController extends GetxController {
 
   @override
   void onClose() {
-    _resendTimer?.cancel();
     usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
@@ -208,4 +207,5 @@ class SignupController extends GetxController {
     phoneController.dispose();
     super.onClose();
   }
+
 }

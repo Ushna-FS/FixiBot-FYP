@@ -14,7 +14,6 @@ import 'package:fixibot_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/screens/location/location_popup.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +27,11 @@ class HomeScreen extends StatefulWidget {
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
     var location = 'COMSATS UNIVERSITY ISLAMABAD'.obs;
+  int currentIndex = 0;
+  final List<List<String>> issuesList = [
+    ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
+    ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
+  ];
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -50,13 +54,6 @@ class _HomePageState extends State<HomeScreen> {
     }
   }
 
-  final List<List<String>> issuesList = [
-    ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
-    ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
-  ];
-
-  int currentIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -78,6 +75,9 @@ class _HomePageState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.mainColor,
@@ -185,60 +185,66 @@ class _HomePageState extends State<HomeScreen> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 4),
-                    DotsIndicator(
-                      dotsCount: issuesList.length,
-                      position: currentIndex.toDouble(),
-                      decorator: const DotsDecorator(
-                        activeColor: AppColors.mainColor,
-                        color: Colors.grey,
-                        activeSize: Size(10.0, 10.0),
-                        size: Size(8.0, 8.0),
-                        spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
-                      ),
+                  SizedBox(height: screenHeight * 0.005),
+                  DotsIndicator(
+                    dotsCount: issuesList.length,
+                    position: currentIndex.toDouble(),
+                    decorator: const DotsDecorator(
+                      activeColor: AppColors.mainColor,
+                      color: Colors.grey,
+                      activeSize: Size(10.0, 10.0),
+                      size: Size(8.0, 8.0),
+                      spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              _buildInfoCard(
-                "Find Mechanic",
-                "Locate expert mechanics nearby, fast and hassle-free.",
-                "assets/images/MechanicIllustration.png",
-                () {
-                  Get.to(const MechanicScreen());
-                },
-                buttonText: "Find Now",
-              ),
-              const SizedBox(height: 10),
-              _buildInfoCard(
-                "Add Your Vehicle",
-                "Save your vehicles details.",
-                "assets/images/AddVeh-illustration.png",
-                () {
-                  Get.to(const AddVehicle());
-                },
-                buttonText: "Add Vehicle",
-              ),
-              const SizedBox(
-                height: 10,
-              )
-            ],
-          ),
+            ),
+            SizedBox(height: screenHeight * 0.035),
+            _buildInfoCard(
+              "Find Mechanic",
+              "Locate expert mechanics nearby, fast and hassle-free.",
+              "assets/images/MechanicIllustration.png",
+              () {
+                Get.to(const MechanicScreen());
+              },
+              buttonText: "Find Now",
+            ),
+            SizedBox(height: screenHeight * 0.025),
+            _buildInfoCard(
+              "Add Your Vehicle",
+              "Save details for quick fixes and smart assistance.",
+              "assets/images/AddVeh-illustration.png",
+              () {
+                Get.to(const AddVehicle());
+              },
+              buttonText: "Add Vehicle",
+            ),
+            SizedBox(height: screenHeight * 0.025),
+          ],
         ),
-        bottomNavigationBar: CustomNavBar(
-          currentIndex: _selectedIndex,
-          onTap: _onNavItemTapped,
-        ));
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavItemTapped,
+      ),
+    );
   }
 
-  Widget _buildInfoCard(String title, String description, String imagePath,
-      VoidCallback onPressed,
-      {String buttonText = "Click"}) {
+  Widget _buildInfoCard(
+    String title,
+    String description,
+    String imagePath,
+    VoidCallback onPressed, {
+    String buttonText = "Click",
+  }) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(12),
-      height: 180,
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+      padding: EdgeInsets.all(screenWidth * 0.04),
+      height: screenHeight * 0.2,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -259,12 +265,12 @@ class _HomePageState extends State<HomeScreen> {
                   title,
                   style: AppFonts.montserrathomecardText,
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: screenHeight * 0.01),
                 Text(
                   description,
                   style: AppFonts.montserratHomecardText2,
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: screenHeight * 0.015),
                 CustomHomeButton(
                   text: buttonText,
                   icon: const Icon(
@@ -279,14 +285,14 @@ class _HomePageState extends State<HomeScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: screenWidth * 0.03),
           Image.asset(
             imagePath,
-            width: 115,
-            height: 160,
+            width: screenWidth * 0.3,
+            height: screenHeight * 0.22,
           ),
         ],
       ),
     );
   }
-}
+} 
