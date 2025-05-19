@@ -18,17 +18,22 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredModules = SearchModel.modules;
+    _filteredModules = [];
   }
 
   void _onSearch(String query) {
-    setState(() {
+  setState(() {
+    if (query.isEmpty) {
+      _filteredModules = []; 
+    } else {
       _filteredModules = SearchModel.modules
           .where((module) =>
               module.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
-    });
-  }
+    }
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,30 +75,36 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: _filteredModules.isEmpty
+                child: _searchController.text.isEmpty
                     ? const Center(
-                        child: Text("No results found",
+                        child: Text("Start typing to search...",
                             style: TextStyle(color: Colors.white)),
                       )
-                    : ListView.builder(
-                        itemCount: _filteredModules.length,
-                        itemBuilder: (context, index) {
-                          final module = _filteredModules[index];
-                          return Card(
-                            color: AppColors.textColor3,
-                            child: ListTile(
-                              title: Text(
-                                module.name,
-                                style: const TextStyle(
-                                    color: AppColors.textColor4, fontSize: 14),
-                              ),
-                              onTap: () {
-                                Get.to(module.screen);
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                    : _filteredModules.isEmpty
+                        ? const Center(
+                            child: Text("No results found",
+                                style: TextStyle(color: Colors.white)),
+                          )
+                        : ListView.builder(
+                            itemCount: _filteredModules.length,
+                            itemBuilder: (context, index) {
+                              final module = _filteredModules[index];
+                              return Card(
+                                color: AppColors.textColor3,
+                                child: ListTile(
+                                  title: Text(
+                                    module.name,
+                                    style: const TextStyle(
+                                        color: AppColors.textColor4,
+                                        fontSize: 14),
+                                  ),
+                                  onTap: () {
+                                    Get.to(module.screen);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
               ),
             ],
           ),
