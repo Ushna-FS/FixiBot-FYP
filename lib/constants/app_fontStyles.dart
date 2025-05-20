@@ -16,7 +16,7 @@ class AppFonts {
   );
   static TextStyle montserratBlackHeading = GoogleFonts.montserrat(
     fontWeight: FontWeight.w600,
-    fontSize: 20,
+    fontSize: 22,
     color: AppColors.textColor2,
   );
 static TextStyle montserratAuthBlackHeading = GoogleFonts.montserrat(

@@ -1,13 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
-import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
-import 'package:fixibot_app/screens/search/searchScreen.dart';
+import 'package:fixibot_app/screens/searchScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
-import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/home_header.dart';
 import 'package:fixibot_app/widgets/navigation_bar.dart';
@@ -26,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
-    var location = 'COMSATS UNIVERSITY ISLAMABAD'.obs;
   int currentIndex = 0;
   final List<List<String>> issuesList = [
     ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
@@ -65,10 +62,9 @@ class _HomePageState extends State<HomeScreen> {
     bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
 
     if (isFirstTime) {
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(const Duration(seconds: 10), () {
         LocationPopup.showLocationPopup(context);
       });
-
       await prefs.setBool('isFirstTimeHome', false);
     }
   }
@@ -79,112 +75,100 @@ class _HomePageState extends State<HomeScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.mainColor,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const CircleAvatar(radius: 20),
-              Image.asset("assets/icons/locationIcon.png",
-                  color: AppColors.textColor),
-              TextButton(
-                  onPressed: () {
-                    Get.to(LocationScreen());
-                  },
-                  child: Text(
-                     (location.value.length > 16)
-                      ? "${location.value.substring(0, 20)}..."
-                      : location.value,
-                  style: AppFonts.montserratHomeAppbar,
-                  maxLines: 1,
-                  )),
-              IconButton(
-                onPressed: () {
-                  Get.to(const ViewNotificationsScreen());
-                },
-                icon: Image.asset('assets/icons/notification.png',
-                    width: 30, height: 30, color: AppColors.textColor),
-              ),
-            ],
-          ),
+      appBar: AppBar(
+        backgroundColor: AppColors.mainColor,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const CircleAvatar(radius: 20),
+            Image.asset(
+              "assets/icons/locationIcon.png",
+              color: AppColors.textColor,
+            ),
+            Text(
+              'COMSATS UNIVERSITY ISLAMABAD',
+              style: AppFonts.montserratHomeAppbar,
+            ),
+            Image.asset(
+              "assets/icons/notification.png",
+              color: AppColors.textColor,
+            ),
+          ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const HomeHeaderBox(),
-              const SizedBox(height: 20),
-              Container(
-                height: 185,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                ),
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 20,
-                      color: Color(0x1A263238),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const HomeHeaderBox(),
+            SizedBox(height: screenHeight * 0.02),
+            Container(
+              height: screenHeight * 0.28,
+              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              padding: EdgeInsets.all(screenWidth * 0.01),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 20,
+                    color: Color(0x1A263238),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    "Self Help Solutions",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Divider(),
+                  SizedBox(height: screenHeight * 0.01),
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      aspectRatio: 3,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          currentIndex = index;
+                        });
+                      },
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Self Help Solutions",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 10),
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 3,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            currentIndex = index;
-                          });
-                        },
-                      ),
-                      items: issuesList.map((issues) {
-                        return Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: issues
-                              .map((issue) => GestureDetector(
-                                    onTap: () {
-                                      Get.to(() =>
-                                          SelfHelpSolutions(issueTitle: issue));
-                                    },
-                                    child: Container(
-                                      height: 48,
-                                      width: 105,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                            color: const Color(0x4DA4A1A1),
-                                            width: 1),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        issue,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                        );
-                      }).toList(),
-                    ),
+                    items: issuesList.map((issues) {
+                      return Wrap(
+                        spacing: screenWidth * 0.04,
+                        runSpacing: screenHeight * 0.02,
+                        children: issues.map((issue) => GestureDetector(
+                          onTap: () {
+                            Get.to(() => SelfHelpSolutions(issueTitle: issue));
+                          },
+                          child: Container(
+                            height: screenHeight * 0.06,
+                            width: screenWidth * 0.3,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: const Color(0x4DA4A1A1),
+                                width: 1,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              issue,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )).toList(),
+                      );
+                    }).toList(),
+                  ),
                   SizedBox(height: screenHeight * 0.005),
                   DotsIndicator(
                     dotsCount: issuesList.length,

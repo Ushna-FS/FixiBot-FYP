@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
 import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
@@ -162,7 +163,7 @@ class SignupController extends GetxController {
       print('Display name updated');
 
       print('Navigating to VerificationSentScreen');
-      Get.off(() => const VerificationSentScreen());
+      Get.offNamed(AppRoutes.verification);
       print('Navigation complete');
     } on FirebaseAuthException catch (e) {
       print('FirebaseAuthException caught: ${e.code}');
@@ -188,7 +189,7 @@ class SignupController extends GetxController {
   }
 
   // Navigation methods
-  void signInNavigation() => Get.offAll(() => Login());
+  void signInNavigation() => Get.offAllNamed(AppRoutes.login);
 
   // Google Sign-In method
   void googleSignIn() async {

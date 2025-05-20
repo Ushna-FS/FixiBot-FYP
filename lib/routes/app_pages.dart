@@ -1,4 +1,5 @@
 import 'package:fixibot_app/bindings/initialBinding.dart';
+import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:get/get.dart';
 import '../screens/auth/view/login.dart';
@@ -6,7 +7,7 @@ import '../screens/auth/view/signup.dart';
 import '../screens/homeScreen.dart';
 import '../screens/location/locationScreen.dart';
 import '../screens/mechanics/view/mechanicsScreen.dart';
-import '../screens/search/searchScreen.dart';
+import '../screens/searchScreen.dart';
 import '../screens/splashScreen.dart';
 import '../screens/userJourney.dart';
 import 'app_routes.dart';
@@ -36,6 +37,13 @@ class AppPages {
       name: AppRoutes.location,
       page: () => const LocationScreen(),
     ),
+    GetPage(
+      name: AppRoutes.home,
+      page: () => const HomeScreen(),
+    ),
+    GetPage(
+        name: AppRoutes.verification,
+        page: () => const VerificationSentScreen()),
     GetPage(
       name: AppRoutes.selfhelp,
       page: () => SelfHelpSolutions(issueTitle: Get.arguments),

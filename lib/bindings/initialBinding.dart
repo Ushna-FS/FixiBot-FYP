@@ -10,6 +10,7 @@ import '../screens/auth/controller/signUp_controller.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
+    print('InitialBinding dependencies called');
     Get.lazyPut<LoginController>(() => LoginController(), fenix: true);
     Get.lazyPut<SignupController>(() => SignupController(), fenix: true);
     Get.lazyPut<MechanicController>(() => MechanicController(), fenix: true);
