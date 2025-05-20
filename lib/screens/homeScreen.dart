@@ -1,11 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
-import 'package:fixibot_app/screens/searchScreen.dart';
+import 'package:fixibot_app/screens/search/searchScreen.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
+import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/home_header.dart';
 import 'package:fixibot_app/widgets/navigation_bar.dart';
@@ -24,7 +26,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  int currentIndex = 0;
+  var location = 'COMSATS UNIVERSITY ISLAMABAD'.obs;
+ int currentIndex = 0;
   final List<List<String>> issuesList = [
     ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
     ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
@@ -62,7 +65,7 @@ class _HomePageState extends State<HomeScreen> {
     bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
 
     if (isFirstTime) {
-      Future.delayed(const Duration(seconds: 10), () {
+      Future.delayed(const Duration(seconds: 5), () {
         LocationPopup.showLocationPopup(context);
       });
       await prefs.setBool('isFirstTimeHome', false);
@@ -80,22 +83,30 @@ class _HomePageState extends State<HomeScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const CircleAvatar(radius: 20),
-            Image.asset(
-              "assets/icons/locationIcon.png",
-              color: AppColors.textColor,
-            ),
-            Text(
-              'COMSATS UNIVERSITY ISLAMABAD',
-              style: AppFonts.montserratHomeAppbar,
-            ),
-            Image.asset(
-              "assets/icons/notification.png",
-              color: AppColors.textColor,
-            ),
-          ],
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const CircleAvatar(radius: 20),
+              Image.asset("assets/icons/locationIcon.png",
+                  color: AppColors.textColor),
+              TextButton(
+                  onPressed: () {
+                    Get.to(LocationScreen());
+                  },
+                  child: Text(
+                     (location.value.length > 16)
+                      ? "${location.value.substring(0, 20)}..."
+                      : location.value,
+                  style: AppFonts.montserratHomeAppbar,
+                  maxLines: 1,
+                  )),
+              IconButton(
+                onPressed: () {
+                  Get.to(const ViewNotificationsScreen());
+                },
+                icon: Image.asset('assets/icons/notification.png',
+                    width: 30, height: 30, color: AppColors.textColor),
+              ),
+            ],
         ),
       ),
       body: SingleChildScrollView(

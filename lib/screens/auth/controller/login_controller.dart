@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
+import 'package:fixibot_app/screens/userJourney.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Add this import
@@ -84,8 +85,8 @@ class LoginController extends GetxController {
       await _sharedPrefs.saveUserData(email: email);
       print('[Login] User data saved to SharedPreferences');
 
-      print('[Login] Navigating to HomeScreen');
-      Get.offAll(const HomeScreen());
+      print('[Login] Navigating to User Journey');
+      Get.offAll(const UserJourney());
     } on FirebaseAuthException catch (e) {
       print('[Login] FirebaseAuthException caught: ${e.code}');
       String message = "Login failed";
@@ -135,7 +136,7 @@ class LoginController extends GetxController {
   void googleSignIn() async {
     final userCredential = await AuthHelper.signInWithGoogle();
     if (userCredential != null) {
-      Get.to(const HomeScreen());
+      Get.to(const UserJourney());
     }
   }
 }
