@@ -11,8 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:email_validator/email_validator.dart';
 
-import '../../userJourney.dart';
-import '../view/login.dart';
 import 'shared_pref_helper.dart';
 
 class SignupController extends GetxController {

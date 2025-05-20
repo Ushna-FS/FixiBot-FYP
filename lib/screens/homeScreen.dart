@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
@@ -27,7 +28,7 @@ class HomeScreen extends StatefulWidget {
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
   var location = 'COMSATS UNIVERSITY ISLAMABAD'.obs;
- int currentIndex = 0;
+  int currentIndex = 0;
   final List<List<String>> issuesList = [
     ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
     ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
@@ -83,30 +84,30 @@ class _HomePageState extends State<HomeScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const CircleAvatar(radius: 20),
-              Image.asset("assets/icons/locationIcon.png",
-                  color: AppColors.textColor),
-              TextButton(
-                  onPressed: () {
-                    Get.to(LocationScreen());
-                  },
-                  child: Text(
-                     (location.value.length > 16)
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const CircleAvatar(radius: 20),
+            Image.asset("assets/icons/locationIcon.png",
+                color: AppColors.textColor),
+            TextButton(
+                onPressed: () {
+                  Get.to(LocationScreen());
+                },
+                child: Text(
+                  (location.value.length > 16)
                       ? "${location.value.substring(0, 20)}..."
                       : location.value,
                   style: AppFonts.montserratHomeAppbar,
                   maxLines: 1,
-                  )),
-              IconButton(
-                onPressed: () {
-                  Get.to(const ViewNotificationsScreen());
-                },
-                icon: Image.asset('assets/icons/notification.png',
-                    width: 30, height: 30, color: AppColors.textColor),
-              ),
-            ],
+                )),
+            IconButton(
+              onPressed: () {
+                Get.to(const ViewNotificationsScreen());
+              },
+              icon: Image.asset('assets/icons/notification.png',
+                  width: 30, height: 30, color: AppColors.textColor),
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -151,32 +152,35 @@ class _HomePageState extends State<HomeScreen> {
                       return Wrap(
                         spacing: screenWidth * 0.04,
                         runSpacing: screenHeight * 0.02,
-                        children: issues.map((issue) => GestureDetector(
-                          onTap: () {
-                            Get.to(() => SelfHelpSolutions(issueTitle: issue));
-                          },
-                          child: Container(
-                            height: screenHeight * 0.06,
-                            width: screenWidth * 0.3,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: const Color(0x4DA4A1A1),
-                                width: 1,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              issue,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )).toList(),
+                        children: issues
+                            .map((issue) => GestureDetector(
+                                  onTap: () {
+                                    Get.to(() =>
+                                        SelfHelpSolutions(issueTitle: issue));
+                                  },
+                                  child: Container(
+                                    height: screenHeight * 0.06,
+                                    width: screenWidth * 0.3,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0x4DA4A1A1),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      issue,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
                       );
                     }).toList(),
                   ),
@@ -211,7 +215,7 @@ class _HomePageState extends State<HomeScreen> {
               "Save details for quick fixes and smart assistance.",
               "assets/images/AddVeh-illustration.png",
               () {
-                Get.to(const AddVehicle());
+                Get.offNamed(AppRoutes.addVehicle);
               },
               buttonText: "Add Vehicle",
             ),
@@ -290,4 +294,4 @@ class _HomePageState extends State<HomeScreen> {
       ),
     );
   }
-} 
+}

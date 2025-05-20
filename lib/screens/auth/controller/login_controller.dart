@@ -6,8 +6,6 @@ import 'package:fixibot_app/screens/userJourney.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Add this import
-import '../../mechanics/view/mechanicsScreen.dart';
-import '../view/signup.dart';
 import 'shared_pref_helper.dart';
 
 class LoginController extends GetxController {
