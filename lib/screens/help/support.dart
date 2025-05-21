@@ -17,6 +17,7 @@ class HelpSupportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
         elevation: 1,
         title: Text("Help Center", style: AppFonts.montserrathomecardText),
@@ -31,60 +32,63 @@ class HelpSupportPage extends StatelessWidget {
                     ),
       ),
       backgroundColor: AppColors.secondaryColor,
-      body: Padding(
+      body: 
+      Padding(
         padding: const EdgeInsets.all(16.0),
         
-        child: Column(
-          
-        
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Need Help?',
-              style:AppFonts.montserratBlackHeading,
-            ),
-            const SizedBox(height: 10),
+        child: SingleChildScrollView(
+          child: Column(
             
-            const Text(
-              'If you have any issues, feel free to reach out to us.',
-              style: TextStyle(fontSize: 16, color: AppColors.textColor4),
-            ),
-            const SizedBox(height: 20),
-            CustomTextField(
-              hintText: 'Your Name',
-              icon: Icons.person,
-              controller: nameController,
-              keyboardType: TextInputType.name,
-            ),
-            const SizedBox(height: 15),
-            CustomTextField(
-              hintText: 'Your Email',
-              icon: Icons.email,
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 15),
-            CustomTextField(
-              hintText: 'Your Message',
-              icon: Icons.message,
-              controller: messageController,
-              keyboardType: TextInputType.text,
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: 'Submit',
-              onPressed: () {
-                // Handle form submission logic
-              },
-            ),
-            const SizedBox(height: 20),
-            const Center(
-              child: Text(
-                'You can also contact us at support@fixibot.com',
-                style: TextStyle(fontSize: 14, color: AppColors.textColor2),
+          
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Need Help?',
+                style:AppFonts.montserratBlackHeading,
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              
+              const Text(
+                'If you have any issues, feel free to reach out to us.',textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: AppColors.textColor4,),
+              ),
+              const SizedBox(height: 20),
+              CustomTextField(
+                hintText: 'Your Name',
+                icon: Icons.person,
+                controller: nameController,
+                keyboardType: TextInputType.name,
+              ),
+              const SizedBox(height: 15),
+              CustomTextField(
+                hintText: 'Your Email',
+                icon: Icons.email,
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 15),
+              CustomTextField(
+                hintText: 'Your Message',
+                icon: Icons.message,
+                controller: messageController,
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 20),
+              CustomButton(
+                text: 'Submit',
+                onPressed: () {
+                  
+                },
+              ),
+              const SizedBox(height: 20),
+              const Center(
+                child: Text(
+                  'You can also contact us at support@fixibot.com',textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: AppColors.textColor2),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

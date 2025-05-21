@@ -51,9 +51,9 @@ class SignupScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: screenSize.height * 0.02),
-                      Text("Sign Up For Smart Repairs!", style: AppFonts.montserratBlackHeading),
+                      Text("Sign Up For Smart Repairs!", style: AppFonts.montserratBlackHeading, textAlign: TextAlign.center,),
                       SizedBox(height: screenSize.height * 0.02),
-                      // Username Field
+                      
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),

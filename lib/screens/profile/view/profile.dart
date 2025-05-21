@@ -72,7 +72,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(userName, style: AppFonts.montserratHeading),
-                            Text(userEmail, style: AppFonts.montserratText),
+                            Text( (userEmail.length > 12)
+                      ? "${userEmail.substring(0, 15)}..."
+                      : userEmail,
+              
+                  maxLines: 1, style: AppFonts.montserratText,),
                           ],
                         ),
                       ),

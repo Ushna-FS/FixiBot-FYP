@@ -12,41 +12,56 @@ class MechanicScreen extends GetView<MechanicController> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
+    final bool isSmallScreen = screenSize.width < 600;
+    final bool isMediumScreen = screenSize.width >= 600 && screenSize.width < 1200;
+    final bool isLargeScreen = screenSize.width >= 1200;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.secondaryColor,
         title: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
           child: Center(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
                   "assets/icons/locationIcon.png",
                   color: AppColors.mainColor,
+                  width: isSmallScreen ? 20 : 24,
+                  height: isSmallScreen ? 20 : 24,
                 ),
-                Text(
-                  (controller.location.value.length > 16)
-                      ? "${controller.location.value.substring(0, 20)}..."
-                      : controller.location.value,
-                  style: AppFonts.montserratText4,
-                  maxLines: 1,
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: isSmallScreen ? screenSize.width * 0.4 : screenSize.width * 0.3,
+                  child: Text(
+                    (controller.location.value.length > 16)
+                        ? "${controller.location.value.substring(0, 20)}..."
+                        : controller.location.value,
+                    style: isSmallScreen 
+                        ? AppFonts.montserratText4 
+                        : AppFonts.montserratText4.copyWith(fontSize: 18),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
           ),
         ),
-      leading: IconButton(
-                    onPressed: () {
-                      Get.back();
-                    }, 
-                    icon: Image.asset('assets/icons/back.png',
-                    width: 30,
-                    height:30),
-                    ),
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          }, 
+          icon: Image.asset('assets/icons/back.png',
+            width: isSmallScreen ? 24 : 30,
+            height: isSmallScreen ? 24 : 30,
+          ),
+        ),
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
             child: Obx(() => GestureDetector(
                   onTap: () {
                     controller.notificationSelection();
@@ -55,10 +70,14 @@ class MechanicScreen extends GetView<MechanicController> {
                       ? Image.asset(
                           "assets/icons/notification.png",
                           color: AppColors.mainColor,
+                          width: isSmallScreen ? 24 : 30,
+                          height: isSmallScreen ? 24 : 30,
                         )
                       : Image.asset(
                           "assets/icons/notification.png",
                           color: AppColors.textColor2,
+                          width: isSmallScreen ? 24 : 30,
+                          height: isSmallScreen ? 24 : 30,
                         ),
                 )),
           )
@@ -67,71 +86,123 @@ class MechanicScreen extends GetView<MechanicController> {
       backgroundColor: AppColors.secondaryColor,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0, bottom: 16.0),
-                  child: Text(
-                    "Breakdown Category",
-                    style: AppFonts.montserratBlackHeading,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isLargeScreen ? 1200 : double.infinity,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: isSmallScreen ? 12.0 : 24.0, 
+                      bottom: isSmallScreen ? 16.0 : 24.0
+                    ),
+                    child: Text(
+                      "Breakdown Category",
+                      style: isSmallScreen 
+                          ? AppFonts.montserratBlackHeading 
+                          : AppFonts.montserratBlackHeading.copyWith(fontSize: 24),
+                    ),
                   ),
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CategoryChips(
-                          icon: "assets/icons/engine.png", category: "Engine"),
-                      CategoryChips(
-                          icon: "assets/icons/tyre.png", category: "Tyre"),
-                      CategoryChips(
-                          icon: "assets/icons/brake.png", category: "Brakes"),
-                      CategoryChips(
-                          icon: "assets/icons/brake.png", category: "category"),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CategoryChips(
+                              icon: "assets/icons/engine.png", 
+                              category: "Engine",
+                              isSmallScreen: isSmallScreen),
+                          CategoryChips(
+                              icon: "assets/icons/tyre.png", 
+                              category: "Tyre",
+                              isSmallScreen: isSmallScreen),
+                          CategoryChips(
+                              icon: "assets/icons/brake.png", 
+                              category: "Brakes",
+                              isSmallScreen: isSmallScreen),
+                          CategoryChips(
+                              icon: "assets/icons/brake.png", 
+                              category: "category",
+                              isSmallScreen: isSmallScreen),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: screenSize.height * 0.05,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    "Suggested Mechanics",
-                    style: AppFonts.montserratBlackHeading,
+                  SizedBox(
+                    height: isSmallScreen 
+                        ? screenSize.height * 0.05 
+                        : screenSize.height * 0.07,
                   ),
-                ),
-                const MechanicCard(
-                  mechanic: "mechanic",
-                  expertise: "expertise",
-                  phNum: "phNum",
-                  distance: "distance",
-                  imageSource: "assets/icons/mechanicShop.png",
-                  rating: "4.4",
-                ),
-                const MechanicCard(
-                  mechanic: "mechanic",
-                  expertise: "expertise",
-                  phNum: "phNum",
-                  distance: "distance",
-                  imageSource: "assets/icons/mechanicShop.png",
-                  rating: "",
-                ),
-                const MechanicCard(
-                  mechanic: "mechanic",
-                  expertise: "expertise",
-                  phNum: "phNum",
-                  distance: "distance",
-                  imageSource: "assets/icons/mechanicShop.png",
-                  rating: "",
-                ),
-              ],
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: isSmallScreen ? 12.0 : 24.0,
+                      bottom: isSmallScreen ? 8.0 : 16.0
+                    ),
+                    child: Text(
+                      "Suggested Mechanics",
+                      style: isSmallScreen 
+                          ? AppFonts.montserratBlackHeading 
+                          : AppFonts.montserratBlackHeading.copyWith(fontSize: 24),
+                    ),
+                  ),
+                  if (isLargeScreen) ...[
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 3,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                      ),
+                      itemCount: 3,
+                      itemBuilder: (context, index) {
+                        return MechanicCard(
+                          mechanic: "mechanic",
+                          expertise: "expertise",
+                          phNum: "phNum",
+                          distance: "distance",
+                          imageSource: "assets/icons/mechanicShop.png",
+                          rating: index == 0 ? "4.4" : "",
+                        );
+                      },
+                    ),
+                  ] else ...[
+                    const MechanicCard(
+                      mechanic: "mechanic",
+                      expertise: "expertise",
+                      phNum: "phNum",
+                      distance: "distance",
+                      imageSource: "assets/icons/mechanicShop.png",
+                      rating: "4.4",
+                    ),
+                    const MechanicCard(
+                      mechanic: "mechanic",
+                      expertise: "expertise",
+                      phNum: "phNum",
+                      distance: "distance",
+                      imageSource: "assets/icons/mechanicShop.png",
+                      rating: "",
+                    ),
+                    const MechanicCard(
+                      mechanic: "mechanic",
+                      expertise: "expertise",
+                      phNum: "phNum",
+                      distance: "distance",
+                      imageSource: "assets/icons/mechanicShop.png",
+                      rating: "",
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),

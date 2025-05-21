@@ -118,8 +118,8 @@ class _SplashScreenState extends State<SplashScreen> {
                       child: Padding(
                         padding: EdgeInsets.only(
                           left: isPortrait
-                              ? screenSize.width * 0.05
-                              : screenSize.height * 0.05,
+                              ? screenSize.width * 0.17
+                              : screenSize.height * 0.17,
                         ),
                         child: Transform.translate(
                           offset: _animateLogo

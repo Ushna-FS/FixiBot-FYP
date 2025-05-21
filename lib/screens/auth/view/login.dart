@@ -50,7 +50,7 @@ class Login extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: screenSize.height * 0.05),
-                      Text("Start Your Journey Here!", style: AppFonts.montserratBlackHeading),
+                      Text("Start Your Journey Here!", style: AppFonts.montserratBlackHeading, textAlign: TextAlign.center,),
                       SizedBox(height: screenSize.height * 0.04),
                       EmailTextField(
                         controller: controller.emailController,

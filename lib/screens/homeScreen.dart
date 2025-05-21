@@ -243,7 +243,7 @@ class _HomePageState extends State<HomeScreen> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
       padding: EdgeInsets.all(screenWidth * 0.04),
-      height: screenHeight * 0.2,
+      height: screenHeight * 0.27,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),

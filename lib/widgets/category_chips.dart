@@ -7,100 +7,80 @@ import 'package:get/get.dart';
 class CategoryChips extends StatelessWidget {
   final String icon;
   final String category;
+  final bool isSmallScreen;
   final MechanicController mechanicController = Get.find<MechanicController>();
 
   CategoryChips({
     super.key,
     required this.icon,
     required this.category,
+    required this.isSmallScreen,
   });
+  
   var isSelected = RxBool(false);
+  
   void categorySelection() {
-    print("category selection");
     if (isSelected.value == false) {
       isSelected.value = true;
-      print("category selected $category");
       mechanicController.mechanicCategories.add(category);
-      print("category selected ${mechanicController.mechanicCategories}");
     } else {
       isSelected.value = false;
       mechanicController.mechanicCategories.remove(category);
-      print("category selected ${mechanicController.mechanicCategories}");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
+    
     return Obx(() => Padding(
-          padding: const EdgeInsets.only(top: 2.0, left: 10.0),
+          padding: EdgeInsets.only(
+            top: 2.0, 
+            left: isSmallScreen ? 10.0 : 16.0,
+            right: isSmallScreen ? 0 : 8.0,
+          ),
           child: GestureDetector(
-            onTap: () {
-              categorySelection();
-            },
-            child: isSelected.value
-                ? Container(
-                    decoration: const BoxDecoration(
-                        color: AppColors.mainColor,
-                        border: Border(
-                          top: BorderSide(color: AppColors.mainColor),
-                          left: BorderSide(color: AppColors.mainColor),
-                          bottom: BorderSide(color: AppColors.mainColor),
-                          right: BorderSide(color: AppColors.mainColor),
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    width: screenSize.width * 0.3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            icon,
-                            color: AppColors.textColor,
-                          ),
-                          SizedBox(
-                            width: screenSize.width * 0.01,
-                          ),
-                          Text(
-                            category,
-                            style: AppFonts.montserratWhiteText,
-                          )
-                        ],
-                      ),
+            onTap: categorySelection,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isSelected.value ? AppColors.mainColor : AppColors.textColor,
+                border: Border.all(
+                  color: AppColors.mainColor,
+                  width: isSmallScreen ? 1.0 : 1.5,
+                ),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
+              ),
+              width: isSmallScreen 
+                  ? screenSize.width * 0.4 
+                  : screenSize.width * 0.3,
+              child: Padding(
+                padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      icon,
+                      color: isSelected.value 
+                          ? AppColors.textColor 
+                          : AppColors.mainColor,
+                      width: isSmallScreen ? 20 : 24,
+                      height: isSmallScreen ? 20 : 24,
                     ),
-                  )
-                : Container(
-                    decoration: const BoxDecoration(
-                        color: AppColors.textColor,
-                        border: Border(
-                          top: BorderSide(color: AppColors.mainColor),
-                          left: BorderSide(color: AppColors.mainColor),
-                          bottom: BorderSide(color: AppColors.mainColor),
-                          right: BorderSide(color: AppColors.mainColor),
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    width: screenSize.width * 0.3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            icon,
-                            color: AppColors.mainColor,
-                          ),
-                          SizedBox(
-                            width: screenSize.width * 0.01,
-                          ),
-                          Text(
-                            category,
-                            style: AppFonts.montserratMainText,
-                          )
-                        ],
-                      ),
+                    SizedBox(width: isSmallScreen ? 6 : 10),
+                    Text(
+                      category,
+                      style: isSelected.value
+                          ? AppFonts.montserratWhiteText.copyWith(
+                              fontSize: isSmallScreen ? null : 16,
+                            )
+                          : AppFonts.montserratMainText.copyWith(
+                              fontSize: isSmallScreen ? null : 16,
+                            ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ));
   }

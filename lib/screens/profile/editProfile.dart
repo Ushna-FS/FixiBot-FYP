@@ -47,46 +47,48 @@ class _EditProfileState extends State<EditProfile> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: CircleAvatar(
-                backgroundColor: AppColors.textColor4,
-                radius: 40,
-                child: Image.asset("assets/icons/profileImg.png"),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  backgroundColor: AppColors.textColor4,
+                  radius: 40,
+                  child: Image.asset("assets/icons/profileImg.png"),
+                ),
               ),
+              const SizedBox(height: 20),
+              Text("Name", style: AppFonts.montserratText),
+          CustomTextField(
+            controller: nameController,
+            hintText: "Enter your name",
+            icon: Icons.person,
+            keyboardType: TextInputType.name,
+          ),
+          const SizedBox(height: 20),
+          Text("Email", style: AppFonts.montserratText3),
+          CustomTextField(
+            controller: emailController,
+            hintText: "Enter your email",
+            icon: Icons.email,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 40),
+          Align(
+            alignment: Alignment.center,
+            child: CustomButton(
+              text: "Save Changes",
+              onPressed: () {
+                Get.back(result: {
+          'name': nameController.text,
+          'email': emailController.text,
+                });
+                Get.snackbar("Profile Updated", "Your profile has been updated successfully.",colorText: Colors.white,backgroundColor: AppColors.minorColor);
+              },
             ),
-            const SizedBox(height: 20),
-            Text("Name", style: AppFonts.montserratText),
-CustomTextField(
-  controller: nameController,
-  hintText: "Enter your name",
-  icon: Icons.person,
-  keyboardType: TextInputType.name,
-),
-const SizedBox(height: 20),
-Text("Email", style: AppFonts.montserratText3),
-CustomTextField(
-  controller: emailController,
-  hintText: "Enter your email",
-  icon: Icons.email,
-  keyboardType: TextInputType.emailAddress,
-),
-const SizedBox(height: 40),
-Align(
-  alignment: Alignment.center,
-  child: CustomButton(
-    text: "Save Changes",
-    onPressed: () {
-      Get.back(result: {
-        'name': nameController.text,
-        'email': emailController.text,
-      });
-      Get.snackbar("Profile Updated", "Your profile has been updated successfully.",colorText: Colors.white,backgroundColor: AppColors.minorColor);
-    },
-  ),
-),          ],
+          ),          ],
+          ),
         ),
       ),
     );

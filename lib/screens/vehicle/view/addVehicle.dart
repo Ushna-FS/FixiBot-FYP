@@ -46,7 +46,7 @@ class AddVehicle extends GetView<VehicleController> {
               ),
             ),
             Positioned(
-              top: screenSize.height * 0.06,
+              top: screenSize.height * 0.03,
               left: screenSize.width * 0.05,
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
