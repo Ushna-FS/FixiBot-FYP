@@ -3,6 +3,7 @@ import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
+import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/search/searchScreen.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/screens/location/location_popup.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,8 +29,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  var location = 'COMSATS UNIVERSITY ISLAMABAD'.obs;
   int currentIndex = 0;
+  final LocationController locationController = Get.put(LocationController());
+
   final List<List<String>> issuesList = [
     ["Flat Tire", "Engine Overheat", "Weak AC", "Strange Noises"],
     ["Battery Issues", "Brake Failure", "Oil Leak", "Transmission Fault"]
@@ -59,6 +62,7 @@ class _HomePageState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _checkAndShowPopup();
+  locationController.fetchCurrentLocation();
   }
 
   void _checkAndShowPopup() async {
@@ -66,17 +70,20 @@ class _HomePageState extends State<HomeScreen> {
     bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
 
     if (isFirstTime) {
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(const Duration(seconds: 0), () {
         LocationPopup.showLocationPopup(context);
       });
       await prefs.setBool('isFirstTimeHome', false);
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = screenSize.width < 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,16 +97,26 @@ class _HomePageState extends State<HomeScreen> {
             Image.asset("assets/icons/locationIcon.png",
                 color: AppColors.textColor),
             TextButton(
-                onPressed: () {
-                  Get.to(LocationScreen());
-                },
-                child: Text(
-                  (location.value.length > 16)
-                      ? "${location.value.substring(0, 20)}..."
-                      : location.value,
-                  style: AppFonts.montserratHomeAppbar,
-                  maxLines: 1,
-                )),
+              onPressed: () {
+                Get.to(LocationScreen());
+              },
+              child: Obx(() {
+                final location = locationController.userLocation.value;
+                print(location);
+                return Text(
+                  location.isEmpty
+                      ? 'No location selected'
+                      : (location.length > 18
+                          ? "${location.substring(0, 18)}..."
+                          : location),
+                  style: isSmallScreen 
+                        ? AppFonts.montserratWhiteText 
+                        : AppFonts.montserratWhiteText.copyWith(fontSize: 18),
+                   maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                );
+              }),
+            ),
             IconButton(
               onPressed: () {
                 Get.to(const ViewNotificationsScreen());

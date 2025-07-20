@@ -1,3 +1,6 @@
+import 'package:fixibot_app/screens/location/location_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'bindings/initialBinding.dart';
 import 'screens/splashScreen.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +18,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  Get.put<SharedPreferences>(prefs);
 
+  Get.put(LocationController()); 
   runApp(const MyApp());
 }
 

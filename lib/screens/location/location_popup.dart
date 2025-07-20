@@ -1,3 +1,5 @@
+import 'package:fixibot_app/screens/location/location_controller.dart';
+
 import '../../constants/app_fontStyles.dart';
 import 'locationScreen.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import '../../widgets/custom_buttons.dart';
 
 class LocationPopup {
   static void showLocationPopup(BuildContext context) {
+    final LocationController locationController = Get.put(LocationController());
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -41,7 +44,10 @@ class LocationPopup {
                   ),
                   const SizedBox(width: 10),
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+    await locationController.fetchCurrentLocation();
+    Navigator.pop(context); // or Get.back();
+  },
                       child: Text(
                         "Use current location",
                         style: AppFonts.customTextStyle(

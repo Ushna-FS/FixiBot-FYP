@@ -132,9 +132,10 @@ class LoginController extends GetxController {
   }
 
   void googleSignIn() async {
-    final userCredential = await AuthHelper.signInWithGoogle();
-    if (userCredential != null) {
-      Get.to(const UserJourney());
-    }
+    // final userCredential = await AuthHelper.signInWithGoogle();
+    // if (userCredential != null) {
+    //   Get.to(const UserJourney());
+    // }
+    Get.to(const UserJourney());
   }
 }
