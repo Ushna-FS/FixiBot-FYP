@@ -1,5 +1,4 @@
 import 'package:fixibot_app/screens/location/location_controller.dart';
-
 import '../../constants/app_fontStyles.dart';
 import 'locationScreen.dart';
 import 'package:flutter/material.dart';
@@ -38,16 +37,15 @@ class LocationPopup {
               Row(
                 children: [
                   const ImageIcon(
-                    AssetImage('assets/icons/currentLocation.png'),
-                    size: 24,
-                    color: AppColors.mainColor
-                  ),
+                      AssetImage('assets/icons/currentLocation.png'),
+                      size: 24,
+                      color: AppColors.mainColor),
                   const SizedBox(width: 10),
                   TextButton(
                       onPressed: () async {
-    await locationController.fetchCurrentLocation();
-    Navigator.pop(context); // or Get.back();
-  },
+                        await locationController.fetchCurrentLocation();
+                        Navigator.pop(context); 
+                      },
                       child: Text(
                         "Use current location",
                         style: AppFonts.customTextStyle(
@@ -61,12 +59,11 @@ class LocationPopup {
               Row(
                 children: [
                   const ImageIcon(
-                    AssetImage(
-                      'assets/icons/newLocation.png',
-                    ),
-                    size: 24,
-                    color: AppColors.mainColor
-                  ),
+                      AssetImage(
+                        'assets/icons/newLocation.png',
+                      ),
+                      size: 24,
+                      color: AppColors.mainColor),
                   const SizedBox(width: 10),
                   TextButton(
                     onPressed: () {

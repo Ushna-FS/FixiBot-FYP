@@ -62,21 +62,25 @@ class _HomePageState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _checkAndShowPopup();
-  locationController.fetchCurrentLocation();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocationPopup.showLocationPopup(context);
+    });
+     Get.find<LocationController>().fetchCurrentLocation();
   }
+ 
 
   void _checkAndShowPopup() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isFirstTime = prefs.getBool('isFirstTimeHome') ?? true;
 
-    if (isFirstTime) {
-      Future.delayed(const Duration(seconds: 0), () {
-        LocationPopup.showLocationPopup(context);
-      });
-      await prefs.setBool('isFirstTimeHome', false);
-    }
+  if (isFirstTime) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocationPopup.showLocationPopup(context);
+    });
+    await prefs.setBool('isFirstTimeHome', true);
   }
-  
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -101,19 +105,19 @@ class _HomePageState extends State<HomeScreen> {
                 Get.to(LocationScreen());
               },
               child: Obx(() {
-                final location = locationController.userLocation.value;
-                print(location);
+                final location =
+                    Get.find<LocationController>().userLocation.value;
                 return Text(
                   location.isEmpty
                       ? 'No location selected'
                       : (location.length > 18
                           ? "${location.substring(0, 18)}..."
                           : location),
-                  style: isSmallScreen 
-                        ? AppFonts.montserratWhiteText 
+                  style: isSmallScreen
+                        ? AppFonts.montserratWhiteText
                         : AppFonts.montserratWhiteText.copyWith(fontSize: 18),
                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                   overflow: TextOverflow.ellipsis,
                 );
               }),
             ),

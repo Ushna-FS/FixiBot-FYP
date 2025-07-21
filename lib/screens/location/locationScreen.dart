@@ -164,9 +164,7 @@ class _LocationScreenState extends State<LocationScreen> {
   void initState() {
     super.initState();
     _checkPermissionsAndGetLocation();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocationPopup.showLocationPopup(context);
-    });
+   
   }
 
   @override
@@ -311,21 +309,22 @@ class _LocationScreenState extends State<LocationScreen> {
                   child: CustomButton(
                     text: "Confirm Location",
                     onPressed: () async {
-                      LatLng selectedLatLng =
-                          _currentLocation!; // from your map
-                      List<Placemark> placemarks =
-                          await placemarkFromCoordinates(
-                              selectedLatLng.latitude,
-                              selectedLatLng.longitude);
-                      Placemark place = placemarks[0];
-                      String address =
-                          '${place.name}, ${place.locality}, ${place.administrativeArea}';
+                      if (_currentLocation != null) {
+                        List<Placemark> placemarks =
+                            await placemarkFromCoordinates(
+                          _currentLocation!.latitude,
+                          _currentLocation!.longitude,
+                        );
 
-                      locationController.updateLocation(address);
-                      Navigator.pop(context);
-                      // locationController.updateLocation(
-                      //   _locationName); // replace with actual value
-                      //   Get.back();
+                        Placemark place = placemarks.first;
+
+                        String newAddress =
+                            '${place.name ?? ''}, ${place.street ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''}';
+
+                        Get.find<LocationController>()
+                            .updateLocationFromMap(newAddress);
+                        Get.back();
+                      }
                     },
                   ),
                 ),

@@ -1,23 +1,13 @@
-// import 'package:get/get.dart';
-
-// class LocationController extends GetxController {
-//   RxString userLocation = ''.obs;
-
-//   void updateLocation(String newLocation) {
-//     userLocation.value = newLocation;
-//   }
-// }
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class LocationController extends GetxController {
-  // Human-readable address
-  final RxString userLocation = 'No location selected'.obs;
+  final RxString userLocation = 'Fetching location...'.obs;
 
+  // 1. Fetch Current Location with readable address
   Future<void> fetchCurrentLocation() async {
     try {
-      // Request location permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
@@ -29,31 +19,25 @@ class LocationController extends GetxController {
         }
       }
 
-      // Get current coordinates
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-
-      // Convert to address
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
+        desiredAccuracy: LocationAccuracy.high,
       );
 
-      if (placemarks.isNotEmpty) {
-        final place = placemarks[0];
-        userLocation.value =
-            '${place.name}, ${place.locality}, ${place.administrativeArea}';
-      } else {
-        userLocation.value = 'Address not found';
-      }
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude, position.longitude,
+      );
+
+      Placemark place = placemarks.first;
+
+      userLocation.value =
+          ' ${place.street ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''}';
     } catch (e) {
-      userLocation.value = 'Failed to get location';
-      print('Location Error: $e');
+      userLocation.value = 'Fail to get location';
     }
   }
 
-  // Optional: manually update location
-  void updateLocation(String address) {
-    userLocation.value = address;
+  // 2. Update from Map Screen
+  void updateLocationFromMap(String newAddress) {
+    userLocation.value = newAddress;
   }
 }
