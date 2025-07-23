@@ -24,13 +24,19 @@ class LocationController extends GetxController {
       );
 
       List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude, position.longitude,
+        position.latitude,
+        position.longitude,
       );
 
       Placemark place = placemarks.first;
+      print('Name: ${place.name}');
+      print('Street: ${place.street}');
+      print('SubLocality: ${place.subLocality}');
+      print('Locality: ${place.locality}');
+      print('Admin Area: ${place.administrativeArea}');
 
       userLocation.value =
-          ' ${place.street ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''}';
+          '${place.subLocality ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''}';
     } catch (e) {
       userLocation.value = 'Fail to get location';
     }

@@ -140,23 +140,33 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Future<void> _getLocationName(LatLng latLng) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.latitude},${latLng.longitude}&key=$_apiKey';
-
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['results'].isNotEmpty) {
-          if (!mounted)
-            return; // Check if the widget is still mounted before updating the state
-          setState(() {
-            _locationName = data['results'][0]['formatted_address'];
-          });
-        }
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+
+      if (placemarks.isNotEmpty && mounted) {
+        final place = placemarks.first;
+
+        final parts = <String>{
+          if (place.name != null && !place.name!.contains(RegExp(r'\+')))
+            place.name!,
+          place.street ?? '',
+          place.subLocality ?? '',
+          place.locality ?? '',
+          place.administrativeArea ?? '',
+        };
+
+        // Remove empty strings
+        parts.removeWhere((p) => p.trim().isEmpty);
+
+        setState(() {
+          _locationName = parts.join(', ');
+        });
       }
     } catch (e) {
-      print('Error fetching location name: $e');
+      print('Error fetching readable address: $e');
     }
   }
 
@@ -164,7 +174,6 @@ class _LocationScreenState extends State<LocationScreen> {
   void initState() {
     super.initState();
     _checkPermissionsAndGetLocation();
-   
   }
 
   @override

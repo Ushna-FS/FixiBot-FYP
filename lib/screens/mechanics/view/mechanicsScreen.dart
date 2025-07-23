@@ -1,5 +1,7 @@
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/screens/location/locationScreen.dart';
+import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/mechanics/view/controller/mechanicController.dart';
 import 'package:fixibot_app/widgets/category_chips.dart';
 import 'package:fixibot_app/widgets/mechanic_card.dart';
@@ -8,9 +10,10 @@ import 'package:get/get.dart';
 
 class MechanicScreen extends GetView<MechanicController> {
   const MechanicScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
+
     final Size screenSize = MediaQuery.of(context).size;
     final bool isSmallScreen = screenSize.width < 600;
     final bool isMediumScreen = screenSize.width >= 600 && screenSize.width < 1200;
@@ -34,15 +37,26 @@ class MechanicScreen extends GetView<MechanicController> {
                 const SizedBox(width: 8),
                 SizedBox(
                   width: isSmallScreen ? screenSize.width * 0.4 : screenSize.width * 0.3,
-                  child: Text(
-                    (controller.location.value.length > 16)
-                        ? "${controller.location.value.substring(0, 20)}..."
-                        : controller.location.value,
-                    style: isSmallScreen 
-                        ? AppFonts.montserratText4 
-                        : AppFonts.montserratText4.copyWith(fontSize: 18),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: TextButton(
+                    onPressed: (){
+                      Get.to(LocationScreen());
+                    },
+                    child: Obx(() {
+                                    final location =
+                      Get.find<LocationController>().userLocation.value;
+                                    return Text(
+                    location.isEmpty
+                        ? 'No location selected'
+                        : (location.length > 20
+                            ? "${location.substring(0, 20)}..."
+                            : location),
+                    style: isSmallScreen
+                          ? AppFonts.montserratMainText14
+                          : AppFonts.montserratMainText14.copyWith(fontSize: 18),
+                     maxLines: 1,
+                     overflow: TextOverflow.ellipsis,
+                                    );
+                                  }),
                   ),
                 ),
               ],
