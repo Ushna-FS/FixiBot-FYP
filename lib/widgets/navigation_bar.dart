@@ -1,4 +1,5 @@
 import 'package:fixibot_app/constants/app_colors.dart';
+import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/chatbot/chatView.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -88,39 +89,66 @@ class _CustomNavBarState extends State<CustomNavBar> {
     );
   }
 
-  Widget _buildNavItem({required String iconPath, required int index}) {
-    bool isSelected = widget.currentIndex == index;
-    bool isHovered = hoveredIndex == index;
+ 
+Widget _buildNavItem({required String iconPath, required int index}) {
+bool isSelected = false;
+switch (Get.currentRoute) {
+  case AppRoutes.home:
+    isSelected = index == 0;
+    break;
+  case AppRoutes.search:
+    isSelected = index == 1;
+    break;
+  case AppRoutes.mechanics:
+    isSelected = index == 2;
+    break;
+  case AppRoutes.profile:
+    isSelected = index == 3;
+    break;
+}
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => hoveredIndex = index),
-      onExit: (_) => setState(() => hoveredIndex = -1),
-      child: GestureDetector(
-        onTap: () => widget.onTap(index),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              iconPath,
-              
-              color: isSelected || isHovered ? AppColors.mainColor : Colors.grey,
-            ),
-            if (isHovered || isSelected) 
-              Text(
-                _getNavLabel(index),
-                style: const TextStyle(fontSize: 12, color: AppColors.mainColor),
+  bool isHovered = hoveredIndex == index;
+
+  return MouseRegion(
+    onEnter: (_) => setState(() => hoveredIndex = index),
+    onExit: (_) => setState(() => hoveredIndex = -1),
+    child: GestureDetector(
+      onTap: () => widget.onTap(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            iconPath,
+            width: 24,
+            height: 24,
+            color: isSelected || isHovered ? AppColors.mainColor : Colors.grey,
+          ),
+          SizedBox(
+            height: 16,
+            width: 50, 
+            child: Center(
+              child: FittedBox( 
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  (isHovered || isSelected) ? _getNavLabel(index) : "",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: AppColors.mainColor),
+                ),
               ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   String _getNavLabel(int index) {
     switch (index) {
       case 0: return "Home";
       case 1: return "Search";
-      case 2: return "Find Mechanic";
+      case 2: return "FindMech";
       case 3: return "Profile";
       default: return "";
     }

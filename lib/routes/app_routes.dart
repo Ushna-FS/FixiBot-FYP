@@ -14,5 +14,6 @@ class AppRoutes {
   static const String mechanicsDetails = '/mechanicsDetails';
   static const String selfHelpSolutions = '/selfHelpSolutions';
   static const String addVehicle = '/addVehicle';
+  static const String profile = '/profile';
 
 }

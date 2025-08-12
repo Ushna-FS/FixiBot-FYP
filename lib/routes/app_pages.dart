@@ -1,5 +1,7 @@
 import 'package:fixibot_app/bindings/initialBinding.dart';
 import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
+import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
+import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/bindings/binding.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
@@ -56,6 +58,13 @@ GetPage(
       binding: VehicleBinding(),
     ),
 
-
+ GetPage(
+      name: AppRoutes.mechanics,
+      page: () => const MechanicScreen(),
+    ),
+     GetPage(
+      name: AppRoutes.profile,
+      page: () => const ProfileScreen(),
+    ),
   ];
 }
