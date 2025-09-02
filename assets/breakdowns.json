@@ -1,0 +1,280 @@
+{
+  "Breakdowns": [
+    {
+      "Name": "Flat Tires / Punctures",
+      "In Cars": {
+        "Tools Required": [
+          "Spare tire",
+          "Jack",
+          "Wheel spanner",
+          "Warning triangle"
+        ],
+        "Steps": [
+          "Park the car safely off the road and turn on hazard lights.",
+          "Place the warning triangle 30-40m behind your car for safety.",
+          "Loosen the wheel nuts slightly (do not remove yet).",
+          "Place the jack under the car at the lifting point and raise it until the tire is off the ground.",
+          "Remove the loosened nuts fully and take off the flat tire.",
+          "Mount the spare tire and tighten nuts with your hand.",
+          "Lower the jack and tighten nuts fully in a criss-cross pattern.",
+          "Store tools and flat tire in trunk, continue driving safely."
+        ],
+        "Images": {
+          "t1": "assets/images/selfHelp/t1.png",
+          "jackCar": "assets/images/selfHelp/jackCar.png",
+          "flatTyre": "assets/images/selfHelp/flat-tyreCar.png",
+          "carSpanner": "assets/images/selfHelp/carSapnner.png",
+          "triangleCar": "assets/images/selfHelp/Trainglecar.png"
+        }
+      },
+      "In Bikes": {
+        "Tools Required": [
+          "Puncture kit",
+          "Spare tube",
+          "Tire lever",
+          "Hand pump"
+        ],
+        "Steps": [
+          "Put bike on main stand. Remove the wheel (front or rear).",
+          "Use tire lever to open one side of the tire.",
+          "Remove the tube and find puncture (inflate & listen/feel air).",
+          "If small hole, use patch kit; if big tear, replace tube.",
+          "Put tube back, fit tire properly, inflate with pump.",
+          "Refit wheel and test ride slowly."
+        ],
+        "Images": {
+          "flatTyrebike": "assets/images/selfHelp/t2.png",
+          "punturekitBike": "assets/images/selfHelp/B-kit.png",
+          "bikeSpareTube": "assets/images/selfHelp/b-tube.png",
+          "bikeHandpump": "assets/images/selfHelp/bPump.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Tools Required": [
+          "Warning cones",
+          "Jack (heavy-duty)",
+          "Wheel brace"
+        ],
+        "Steps": [
+          "Stop on safe flat ground, place cones behind truck.",
+          "Loosen wheel nuts of punctured tire.",
+          "Use hydraulic jack to lift axle.",
+          "Remove tire (may need extra help due to size/weight).",
+          "Mount spare tire, tighten nuts by hand.",
+          "Lower jack, fully tighten nuts with wheel brace.",
+          "If no spare tire, call professional roadside service."
+        ],
+        "Images": {
+          "tr-flat": "assets/images/selfHelp/t3.png",
+          "warningCone": "assets/images/selfHelp/tr-cone.png",
+          "wheelBraceTRuck": "assets/images/selfHelp/tr-wheelbrace.png"
+        }
+      }
+    },
+    {
+      "Name": "Battery Failure / Dead Battery",
+      "In Cars": {
+        "Tools Required": [
+          "Jumper cables",
+          "Another car with good battery"
+        ],
+        "Steps": [
+          "Park the assisting car close, turn both ignitions OFF.",
+          "Connect red jumper cable to dead battery's +ve terminal, then to good battery's +ve terminal.",
+          "Connect black cable to good battery's -ve terminal, and the other end to car body (metal ground) of dead car.",
+          "Start the working car, let it run for 2-3 minutes.",
+          "Try starting your car. Once it starts, remove cables in reverse order.",
+          "Drive for at least 15-20 mins to recharge."
+        ],
+        "Images": {
+          "carBattery": "assets/images/selfHelp/carDeadbattery.png",
+          "batteryshare": "assets/images/selfHelp/carBatteryshare.png",
+          "jumperCablesCar": "assets/images/selfHelp/carJumpercable.png"
+        }
+      },
+    
+      "In Bikes": {
+        "Tools Required": [
+          "Portable battery booster",
+          "Jumper cables"
+        ],
+        "Steps": [
+          "Switch ignition OFF.",
+          "Connect red cable to dead battery +ve, then to donor bike +ve.",
+          "Connect black cable to donor -ve terminal, then to dead bike frame.",
+          "Start donor bike, then try starting your bike.",
+          "Once started, disconnect cables carefully and ride to recharge."
+        ],
+        "Images": {
+          "defectedbatteryBike": "assets/images/selfHelp/B_batteryFailure.png",
+          "BikebatteryBooster": "assets/images/selfHelp/B_batteryBooster.png",
+          "bikejumperCable": "assets/images/selfHelp/B_jumperCable.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Tools Required": [
+          "Heavy-duty jump cables",
+          "Second truck battery"
+        ],
+        "Steps": [
+          "Park assisting vehicle close, ignition OFF.",
+          "Connect red to +ve of both batteries, black to -ve and ground.",
+          "Start assisting vehicle, run for a few minutes.",
+          "Try starting truck; once on, remove cables safely.",
+          "If battery keeps failing, get alternator or wiring checked."
+        ],
+        "Images": {
+          "defectedbatterytruck": "assets/images/selfHelp/T_batteryFailure.png",
+          "truckbatteryBooster": "assets/images/selfHelp/T_batteryBooster.png"
+          }
+      }
+    },
+    {
+      "Name": "Engine Overheating",
+      "In Cars": {
+        "Tools Required": [
+          "Gloves",
+          "Water/coolant",
+          "Cloth"
+        ],
+        "Steps": [
+          "Stop car immediately, switch off engine. Do NOT open radiator cap while hot.",
+          "Wait 15-20 minutes until engine cools down.",
+          "Open bonnet and check coolant reservoir.",
+          "If low, add coolant or water up to the required level.",
+          "Check for visible leaks in radiator or hoses.",
+          "Restart gently, drive to nearest workshop."
+        ],
+        "Images": {
+          "carengine": "assets/images/selfHelp/carengineoverhea.png",
+          "heat": "assets/images/selfHelp/carHeat.png",
+          "carCoolant": "assets/images/selfHelp/carCoolant.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "Stop in shade, turn off engine.",
+          "Check oil level; refill if low.",
+          "Inspect air-cooling fins , clean properly if blocked with mud/dust.",
+          "Avoid high revving; ride slowly to nearest mechanic.",
+          "If still overheating, do not ride further, instead tow bike."
+        ],
+        "Images": {
+          "BikeEngine": "assets/images/selfHelp/bikeOverheat.png",
+          "bikecoolant": "assets/images/selfHelp/b_coolant.png",
+          "bikeoverheat": "assets/images/selfHelp/B_overheat.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "Park safely, engine OFF, wait until cooled.",
+          "Check coolant level, refill with water/coolant.",
+          "Inspect radiator for leaks or scaling.",
+          "Check coolant pump/belts for breakage.",
+          "Continue only if temperature is stable; otherwise call service."
+        ],
+        "Images": {
+          "truckengine": "assets/images/selfHelp/T_engine.png",
+          "truckcoolant": "assets/images/selfHelp/T_coolant.png"
+        }
+      }
+    },
+    {
+      "Name": "Brake Failure / Weak Brakes",
+      "In Cars": {
+        "Tools Required": [
+          "Brake fluid",
+          "Wrench"
+        ],
+        "Steps": [
+          "If brakes fail while driving, pump pedal repeatedly to build pressure.",
+          "Downshift to lower gear, use handbrake gradually.",
+          "Pull over safely.",
+          "Check brake fluid reservoir; refill if empty.",
+          "Inspect under car for fluid leaks.",
+          "If brake pads worn out, get replaced at workshop."
+        ],
+        "Images": {
+          
+          "carBrakefailure": "assets/images/selfHelp/cC_brakefailure.png",
+          "carBrakeFluid": "assets/images/selfHelp/carBrakefluid.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "If brakes weak, use engine braking by downshifting.",
+          "Check brake cable (for drum) or fluid (for disc).",
+          "Tighten cable or refill fluid if needed.",
+          "Replace brake pads/shoes if worn out.",
+          "Avoid riding until brakes feel firm."
+        ],
+        "Images": {
+          "bikeBrakefailure": "assets/images/selfHelp/B_brakeFailure.png",
+          "BikeBrakepad": "assets/images/selfHelp/B_brakePad.png"
+          
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "Use engine braking and downshift immediately.",
+          "Apply parking brake slowly if service brakes fail.",
+          "Inspect air brake system; check compressor and air pressure gauge.",
+          "Drain water/oil from air tanks if blocked.",
+          "Do not continue long-distance driving without brake repair."
+        ],
+        "Images": {
+          "truckBrakefail": "assets/images/selfHelp/T_brakefailure.png",
+          "truckBrakePad": "assets/images/selfHelp/T_brakepad.png"
+        }
+      }
+    },
+    {
+      "Name": "Electrical Wiring Issues",
+      "In Cars": {
+        "Tools Required": [
+          "Spare fuses",
+          "Tape",
+          "Basic toolkit"
+        ],
+        "Steps": [
+          "If headlights/indicators fail, check fuse box. Replace blown fuse.",
+          "Inspect wiring for loose connections near battery/ECU.",
+          "Use electrical tape to cover exposed wires.",
+          "If lights still fail, use hazard lights and drive to service."
+        ],
+        "Images": {
+          "carWiring": "assets/images/selfHelp/carWiring.png",
+          "carFuses": "assets/images/selfHelp/carFuses.png",
+          
+          "carToolkit": "assets/images/selfHelp/carToolkit.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "Check battery connection and ignition wiring.",
+          "Tighten any loose connectors.",
+          "Replace small blown fuse (if equipped).",
+          "If lights/ignition still fail, push start bike temporarily."
+        ],
+        "Images": {
+          "BikeWiring": "assets/images/selfHelp/b_wiring.png",
+          "BikeFuses": "assets/images/selfHelp/b_fuses.png"
+          
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "Check alternator output and main wiring harness.",
+          "Inspect relays/fuses in fuse box.",
+          "Secure loose wires with tape or clamps.",
+          "If major wiring fault, do not drive further, instead call mechanic."
+        ],
+        "Images": {
+         
+          "truckWiring": "assets/images/selfHelp/T_wiring.png",
+           "truckFuses": "assets/images/selfHelp/T_fuses.png"
+        }
+      }
+    }
+  ]
+}
