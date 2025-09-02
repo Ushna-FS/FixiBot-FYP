@@ -2,7 +2,7 @@ import 'package:fixibot_app/bindings/initialBinding.dart';
 import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
-import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
+import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/bindings/binding.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:get/get.dart';
@@ -47,10 +47,11 @@ class AppPages {
     GetPage(
         name: AppRoutes.verification,
         page: () => const VerificationSentScreen()),
-    GetPage(
-      name: AppRoutes.selfhelp,
-      page: () => SelfHelpSolutions(issueTitle: Get.arguments),
-    ),
+  GetPage(
+  name: AppRoutes.selfhelp,
+  page: () => SelfHelpSolutions(issueData: Get.arguments as Map<String, dynamic>),
+),
+
 
 GetPage(
       name: AppRoutes.addVehicle,

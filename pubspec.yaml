@@ -70,8 +70,10 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
+    - assets/
     - assets/icons/
     - assets/images/
+    - assets/images/selfHelp/
     - assets/icons/nav-icons/
 
   uses-material-design: true

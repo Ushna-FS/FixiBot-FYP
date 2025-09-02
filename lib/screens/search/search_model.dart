@@ -4,7 +4,7 @@ import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/editProfile.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
-import 'package:fixibot_app/screens/selfHelpSolutionScreen.dart';
+import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
 import 'package:flutter/material.dart';
