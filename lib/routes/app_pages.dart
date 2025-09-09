@@ -1,6 +1,8 @@
 import 'package:fixibot_app/bindings/initialBinding.dart';
 import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
+import 'package:fixibot_app/screens/otp/controller/otpController.dart';
+import 'package:fixibot_app/screens/otp/view/otpScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/bindings/binding.dart';
@@ -44,9 +46,9 @@ class AppPages {
       name: AppRoutes.home,
       page: () => const HomeScreen(),
     ),
-    GetPage(
-        name: AppRoutes.verification,
-        page: () => const VerificationSentScreen()),
+    // GetPage(
+    //     name: AppRoutes.verification,
+    //     page: () => const VerificationSentScreen()),
   GetPage(
   name: AppRoutes.selfhelp,
   page: () => SelfHelpSolutions(issueData: Get.arguments as Map<String, dynamic>),
@@ -67,5 +69,14 @@ GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileScreen(),
     ),
+GetPage(
+  name: AppRoutes.otp,
+  page: () => const OtpScreen(),
+  binding: BindingsBuilder(() {
+    Get.put(OtpController());
+  }),
+),
+
+
   ];
 }

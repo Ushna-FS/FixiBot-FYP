@@ -20,23 +20,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   String userEmail = "email@email.com";
   String userName = 'Guest';
-  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    _loadUserInfo();
   }
 
-  Future<void> _loadUserName() async {
-    final user = await _sharedPrefs.getUserData();
-    final email = await _sharedPrefs.getUserEmail();
+  Future<void> _loadUserInfo() async {
+    final email = await _sharedPrefs.getString("email");
+    final fullName = await _sharedPrefs.getString("full_name");
+
     if (mounted) {
       setState(() {
-        userName = user?['name'] ?? 'User';
-        userEmail = email ?? '';
+        userName = (fullName != null && fullName.trim().isNotEmpty)
+            ? fullName
+            : "User";
+        userEmail = email ?? "";
       });
     }
+
+    print("📥 Profile loaded → full_name=$fullName , email=$email");
   }
 
   @override
@@ -72,11 +76,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(userName, style: AppFonts.montserratHeading),
-                            Text( (userEmail.length > 12)
-                      ? "${userEmail.substring(0, 15)}..."
-                      : userEmail,
-              
-                  maxLines: 1, style: AppFonts.montserratText,),
+                            Text(
+                              (userEmail.length > 15)
+                                  ? "${userEmail.substring(0, 15)}..."
+                                  : userEmail,
+                              maxLines: 1,
+                              style: AppFonts.montserratText,
+                            ),
                           ],
                         ),
                       ),
@@ -96,8 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 decoration: const BoxDecoration(
                   color: AppColors.textColor,
-                  borderRadius:
-                      BorderRadius.only(topRight: Radius.circular(250)),
+                  borderRadius: BorderRadius.only(topRight: Radius.circular(250)),
                 ),
                 width: double.infinity,
                 padding: const EdgeInsets.all(20.0),
@@ -116,13 +121,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Image.asset("assets/icons/editText.png"),
                       title: InkWell(
                         onTap: () async {
-                          // Wait for the result from EditProfile screen
                           final updatedData = await Get.to(EditProfile(
                             currentName: userName,
                             currentEmail: userEmail,
                           ));
-
-                          // If data is returned, update the profile
+                          if (updatedData != null) {
+                            _loadUserInfo(); // refresh if updated
+                          }
                         },
                         child: Text("Edit Profile",
                             style: AppFonts.montserratText2),
@@ -140,8 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
-                        padding:
-                            const EdgeInsets.only(bottom: 20.0, right: 20.0),
+                        padding: const EdgeInsets.only(bottom: 20.0, right: 20.0),
                         child: GestureDetector(
                           onTap: () => Get.to(Login()),
                           child: Row(

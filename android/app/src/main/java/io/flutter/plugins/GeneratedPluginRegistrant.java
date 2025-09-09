@@ -51,6 +51,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin google_maps_flutter_android, io.flutter.plugins.googlemaps.GoogleMapsPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new com.vishnuworld.google_sign_in_all_platforms_mobile.GoogleSignInAllPlatformsMobilePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin google_sign_in_all_platforms_mobile, com.vishnuworld.google_sign_in_all_platforms_mobile.GoogleSignInAllPlatformsMobilePlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.googlesignin.GoogleSignInPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin google_sign_in_android, io.flutter.plugins.googlesignin.GoogleSignInPlugin", e);
@@ -79,6 +84,11 @@ public final class GeneratedPluginRegistrant {
       flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin shared_preferences_android, io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.urllauncher.UrlLauncherPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin url_launcher_android, io.flutter.plugins.urllauncher.UrlLauncherPlugin", e);
     }
   }
 }

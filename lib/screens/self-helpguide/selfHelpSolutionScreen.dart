@@ -1,6 +1,3 @@
-
-//lat
-
 import 'package:fixibot_app/screens/self-helpguide/breakdownDetailedSteps.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
-
 import '../screens/auth/controller/shared_pref_helper.dart';
 
 class HomeHeaderBox extends StatefulWidget {
@@ -16,22 +15,25 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
 
   int? selectedIndex;
   String userName = 'Guest';
+
   @override
   void initState() {
     super.initState();
     _loadUserName();
   }
 
-  Future<void> _loadUserName() async {
-    final user = await _sharedPrefs.getUserData();
+ Future<void> _loadUserName() async {
+  final name = await _sharedPrefs.getString("full_name");
 
-    print(user?['name']);
-    if (mounted) {
-      setState(() {
-        userName = user?['name'] ?? 'User';
-      });
-    }
+  if (mounted) {
+    setState(() {
+      userName = (name != null && name.trim().isNotEmpty) ? name : "User";
+    });
   }
+  print("Loaded from prefs: full_name=$name");
+
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Hello ${userName}",
+            "Hello $userName",
             style: AppFonts.HomeheaderBox,
           ),
           Text(

@@ -1,5 +1,6 @@
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
+import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
 import 'package:fixibot_app/screens/auth/controller/signUp_controller.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/email_textField.dart';
@@ -16,7 +17,9 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    final SignupController controller = Get.find<SignupController>();
+    // final SignupController controller = Get.find<SignupController>();
+    final SignupController controller = Get.put(SignupController());
+
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -149,24 +152,24 @@ class SignupScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Text("Save password", style: TextStyle(color: AppColors.mainColor)),
-                          Switch(
-                            inactiveThumbColor: AppColors.mainColor,
-                            activeColor: AppColors.mainColor,
-                            value: controller.savePassword.value,
-                            onChanged: (value) => controller.toggleSavePassword(),
-                          ),
+                          // Switch(
+                          //   inactiveThumbColor: AppColors.mainColor,
+                          //   activeColor: AppColors.mainColor,
+                          //   value: controller.savePassword.value,
+                          //   onChanged: (value) => controller.toggleSavePassword(),
+                          // ),
                         ],
                       )),
                       SizedBox(height: screenSize.height * 0.001),
-                      CustomButton(
-                        text: "Sign Up",
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            controller.signup();
-                          }
-                        },
-                        isLoading: controller.isLoading.value,
-                      ),
+                     CustomButton(
+  onPressed: () {
+    final controller = Get.find<SignupController>();
+    controller.signup();
+  },
+  text: "Sign Up",
+  isLoading: controller.isLoading.value,
+),
+
                       SizedBox(height: screenSize.height * 0.015),
                       Row(
                         children: [
@@ -179,12 +182,16 @@ class SignupScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: screenSize.height * 0.015),
-                      CustomButton(
-                        text: "Continue With Google",
-                        onPressed: controller.googleSignIn,
-                        isOutlined: true,
-                        icon: Image.asset('assets/icons/google.png', width: 20, height: 20),
-                      ),
+                     CustomButton(
+  text: "Continue With Google",
+  onPressed: () {
+    final googleController = Get.put(GoogleSignInController());
+    googleController.signInWithGoogle();
+  },
+  isOutlined: true,
+  icon: Image.asset('assets/icons/google.png', width: 20, height: 20),
+),
+
                       SizedBox(height: screenSize.height * 0.02),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

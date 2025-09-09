@@ -1,60 +1,70 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:get/get.dart';
+import 'dart:convert';
+import 'package:fixibot_app/routes/app_routes.dart';
+import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:google_sign_in_all_platforms/google_sign_in_all_platforms.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
-import 'shared_pref_helper.dart';
+class GoogleSignInController extends GetxController {
+  final _sharedPrefs = SharedPrefsHelper();
+  final String baseUrl = "http://127.0.0.1:8000";
+  final isLoading = false.obs;
 
-class AuthHelper {
-  static final SharedPrefsHelper _sharedPrefs = SharedPrefsHelper();
+  late GoogleSignIn _googleSignIn;
 
-  static Future<UserCredential?> signInWithGoogle() async {
-    print('[Google Sign-In] Starting Google sign-in process');
+  @override
+  void onInit() {
+    super.onInit();
+    _googleSignIn = GoogleSignIn(
+      params: GoogleSignInParams(
+        clientId: "322656333921-71gd3s8sckaacb7mj5cshq5ftg48fqjr.apps.googleusercontent.com",
+        clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",  // ensure you have it
+        redirectPort: 3000,
+      ),
+    );
+  }
 
+  Future<void> _openUrl(Uri url) async {
+  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+    throw Exception("Could not launch $url");
+  }
+}
+
+  Future<void> signInWithGoogle() async {
     try {
-      print('[Google Sign-In] Attempting to sign in with Google');
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      isLoading.value = true;
+      final credentials = await _googleSignIn.signIn();
+      if (credentials == null) return;
 
-      if (googleUser == null) {
-        print('[Google Sign-In] User cancelled Google sign-in');
-        return null;
-      }
+      // You now have an accessToken and ID token in credentials
+      final idToken = credentials.idToken;
 
-      final GoogleSignInAuthentication googleAuth = 
-          await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      final response = await http.post(
+        Uri.parse("$baseUrl/auth/google"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": idToken}),
       );
 
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-      if (userCredential.user != null) {
-        final user = userCredential.user!;
-        await _sharedPrefs.saveUserData(
-          email: user.email ?? '',
-          name: user.displayName,
-          photoUrl: user.photoURL,
-        );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        await _sharedPrefs.saveString("access_token", data["access_token"]);
+        await _sharedPrefs.saveString("email", data["email"] ?? "");
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        throw Exception("Google login failed: ${response.body}");
       }
-
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      print('[Google Sign-In] FirebaseAuthException: ${e.code} - ${e.message}');
-      Get.snackbar("Error", "Google sign-in failed: ${e.message}",
+    } catch (e) {
+      Get.snackbar("Error", e.toString(),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white);
-      return null;
-    } catch (e, s) {
-      print('[Google Sign-In] Error: $e\n$s');
-      Get.snackbar("Error", "An unexpected error occurred during Google sign-in",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-      return null;
+    } finally {
+      isLoading.value = false;
     }
   }
 }

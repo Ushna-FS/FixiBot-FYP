@@ -17,27 +17,6 @@ class SharedPrefsHelper {
   static const String _userDataKey = 'user_data';
   static const String _rememberUserKey = 'remember_user';
 
-  /// Saves user data to SharedPreferences as a JSON object
-  Future<void> saveUserData({
-    required String email,
-    String? name,
-    String? photoUrl,
-  }) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userData = {
-        'email': email,
-        'name': name,
-        'photoUrl': photoUrl,
-      };
-      await prefs.setString(_userDataKey, jsonEncode(userData));
-      print('User data saved to SharedPreferences');
-    } catch (e) {
-      print('Error saving user data: $e');
-      rethrow;
-    }
-  }
-
   /// Sets whether the user wants to be remembered
   Future<void> setRememberUser(bool remember) async {
     try {
@@ -112,4 +91,21 @@ class SharedPrefsHelper {
     final email = await getUserEmail();
     return email != null && email.isNotEmpty;
   }
+
+  /// Save a single string value
+Future<void> saveString(String key, String value) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(key, value);
+  print("✅ Saved [$key] = $value");
+}
+
+/// Get a single string value
+Future<String?> getString(String key) async {
+  final prefs = await SharedPreferences.getInstance();
+  final value = prefs.getString(key);
+  print("📥 Loaded [$key] = $value");
+  return value;
+}
+
+
 }

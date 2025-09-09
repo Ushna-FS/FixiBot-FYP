@@ -1,123 +1,142 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fixibot_app/routes/app_routes.dart';
-import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
-import 'package:fixibot_app/screens/homeScreen.dart';
-import 'package:fixibot_app/screens/userJourney.dart';
-import 'package:get/get.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../routes/app_routes.dart';
 import 'shared_pref_helper.dart';
 
 class LoginController extends GetxController {
   final SharedPrefsHelper _sharedPrefs = SharedPrefsHelper();
-  var emailController = TextEditingController();
-  var passwordController = TextEditingController();
 
-  var isPasswordVisible = false.obs;
-  var isLoading = false.obs;
+  // Text controllers
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  void togglePasswordVisibility() {
-    isPasswordVisible.value = !isPasswordVisible.value;
-  }
+  // State
+  final isPasswordVisible = false.obs;
+  final isLoading = false.obs;
+  final savePassword = false.obs;
 
-  void login() async {
-    print('[Login] Function started');
-    print('[Login] Email: ${emailController.text.trim()}');
-    print('[Login] Password: [hidden]');
+  // API Base URL
+  final String baseUrl = "http://127.0.0.1:8000";
 
-    // Validate inputs
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      print('[Login] Validation failed: Empty fields');
-      Get.snackbar("Error", "Please fill in all fields",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+  void togglePasswordVisibility() =>
+      isPasswordVisible.value = !isPasswordVisible.value;
+  void toggleSavePassword() => savePassword.value = !savePassword.value;
+
+  /// ================== LOGIN ==================
+  Future<void> login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showError("Email and password are required");
       return;
     }
 
-    print('[Login] Input validation passed');
     isLoading.value = true;
-    print('[Login] Loading state set to true');
-
     try {
-      print('[Login] Attempting Firebase authentication');
-      final email = emailController.text.trim().toLowerCase();
-      final password = passwordController.text.trim();
+      final url = Uri.parse("$baseUrl/auth/token");
 
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: {
+          "username": email,
+          "password": password,
+        },
       );
-      print('[Login] Authentication successful');
 
-      await _sharedPrefs.setRememberUser(true);
-      print('[Login] User remembered');
+      print("Login API response: ${response.statusCode} -> ${response.body}");
 
-      // Check if email is verified
-      if (userCredential.user?.emailVerified == false) {
-        print('[Login] Email not verified');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-        // Send verification email if not verified
-        await userCredential.user?.sendEmailVerification();
+        final accessToken = data["access_token"];
+        final tokenType = data["token_type"];
 
-        // Sign out the user since email isn't verified
-        await FirebaseAuth.instance.signOut();
+        // Save token + email
+        await _sharedPrefs.saveString("access_token", accessToken);
+        await _sharedPrefs.saveString("token_type", tokenType);
+        await _sharedPrefs.saveString("email", email);
 
-        Get.snackbar(
-          "Email Not Verified",
-          "We've sent a new verification link. Then try logging in again.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          duration: Duration(seconds: 5),
-        );
+        // 🔹 Fetch current user profile
+        await _fetchUserProfile(accessToken, tokenType);
 
-        // Optionally navigate to a verification reminder screen
-        // Get.to(() => EmailVerificationScreen(email: email));
+        _showSuccess("Login successful!");
 
-        return;
+        // Navigate to dashboard/home
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error["detail"]?.toString() ?? "Login failed");
       }
-
-      // Save user data to SharedPreferences
-      await _sharedPrefs.saveUserData(email: email);
-      print('[Login] User data saved to SharedPreferences');
-
-      print('[Login] Navigating to User Journey');
-      Get.offAll(const UserJourney());
-    } on FirebaseAuthException catch (e) {
-      print('[Login] FirebaseAuthException caught: ${e.code}');
-      String message = "Login failed";
-
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided.';
-      } else if (e.code == 'too-many-requests') {
-        message = 'Too many attempts. Try again later.';
-      } else if (e.code == 'user-disabled') {
-        message = 'This account has been disabled.';
-      } else if (e.code == 'invalid-email') {
-        message = 'The email address is invalid.';
-      } else if (e.code == 'requires-recent-login') {
-        message =
-            'This operation requires recent authentication. Please log in again.';
-      }
-
-      Get.snackbar("Error", message,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
     } catch (e) {
-      print('[Login] Unexpected error: $e');
-      Get.snackbar("Error", "An unexpected error occurred",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      print("Login exception: $e");
+      _showError("Unable to connect to server. Check your network.");
     } finally {
       isLoading.value = false;
-      print('[Login] Loading state set to false');
     }
+  }
+
+Future<void> _fetchUserProfile(String accessToken, String tokenType) async {
+  try {
+    final url = Uri.parse("$baseUrl/auth/users/me");
+    final response = await http.get(
+      url,
+      headers: {
+        "Authorization": "$tokenType $accessToken",
+        "Content-Type": "application/json",
+      },
+    );
+
+    print("Profile API response: ${response.statusCode} -> ${response.body}");
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+
+      final firstName = user["first_name"] ?? "";
+      final lastName = user["last_name"] ?? "";
+      final fullName = "$firstName $lastName".trim().isEmpty
+          ? user["email"] // fallback if name is missing
+          : "$firstName $lastName".trim();
+
+      await _sharedPrefs.saveString("user_id", user["_id"] ?? "");
+      await _sharedPrefs.saveString("first_name", firstName);
+      await _sharedPrefs.saveString("last_name", lastName);
+      await _sharedPrefs.saveString("phone_number", user["phone_number"] ?? "");
+      await _sharedPrefs.saveString("full_name", fullName);
+
+      print("✅ Saved user full_name: $fullName");
+      
+    } else {
+      print("❌ Failed to fetch profile: ${response.body}");
+    }
+  } catch (e) {
+    print("Profile fetch exception: $e");
+  }
+  
+}
+
+  void _showError(String message) {
+    Get.snackbar(
+      "Error",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+
+  void _showSuccess(String message) {
+    Get.snackbar(
+      "Success",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
   }
 
   @override
@@ -125,17 +144,5 @@ class LoginController extends GetxController {
     emailController.dispose();
     passwordController.dispose();
     super.onClose();
-  }
-
-  void LogInNavigation() {
-    Get.offAllNamed(AppRoutes.signup);
-  }
-
-  void googleSignIn() async {
-    // final userCredential = await AuthHelper.signInWithGoogle();
-    // if (userCredential != null) {
-    //   Get.to(const UserJourney());
-    // }
-    Get.to(const UserJourney());
   }
 }
