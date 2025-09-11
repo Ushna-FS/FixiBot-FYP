@@ -15,6 +15,8 @@ class AppRoutes {
   static const String selfHelpSolutions = '/selfHelpSolutions';
   static const String addVehicle = '/addVehicle';
   static const String profile = '/profile';
+  static const String myVehicle = '/my-vehicles';
+  static const String editVehicle = '/editvehicles';
   static const String otp = '/otp';
 
 }

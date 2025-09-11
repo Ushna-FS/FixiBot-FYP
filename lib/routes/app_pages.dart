@@ -7,6 +7,8 @@ import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/bindings/binding.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
+import 'package:fixibot_app/screens/vehicle/view/editVehicle.dart';
+import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
 import 'package:get/get.dart';
 import '../screens/auth/view/login.dart';
 import '../screens/auth/view/signup.dart';
@@ -60,7 +62,14 @@ GetPage(
       page: () => AddVehicle(),
       binding: VehicleBinding(),
     ),
-
+// In your routes
+GetPage(
+  name: AppRoutes.myVehicle,
+  page: () => MyVehicleScreen(),
+),GetPage(
+  name: AppRoutes.editVehicle,
+  page: () => EditVehicle(),
+),
  GetPage(
       name: AppRoutes.mechanics,
       page: () => const MechanicScreen(),
