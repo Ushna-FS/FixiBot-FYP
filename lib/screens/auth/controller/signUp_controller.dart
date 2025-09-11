@@ -108,28 +108,6 @@ class SignupController extends GetxController {
 
       print("Signup API response: ${response.statusCode} -> ${response.body}");
 
-      // if (response.statusCode == 200 || response.statusCode == 201) {
-      //   final data = jsonDecode(response.body);
-
-      //   // Save all user info locally
-      //   await _sharedPrefs.saveString("user_id", data["_id"] ?? "");
-      //   await _sharedPrefs.saveString("email", data["email"] ?? "");
-      //   await _sharedPrefs.saveString("first_name", data["first_name"] ?? "");
-      //   await _sharedPrefs.saveString("last_name", data["last_name"] ?? "");
-      //   await _sharedPrefs.saveString(
-      //       "phone_number", data["phone_number"] ?? "");
-
-      //   // Save full name for Home header
-      //   final fullName =
-      //       "${data["first_name"] ?? ""} ${data["last_name"] ?? ""}".trim();
-      //   await _sharedPrefs.saveString("full_name", fullName);
-
-      //   showSuccess("Registration successful! Please verify your email.");
-
-      //   // 🔹 Navigate to OTP screen and pass email
-      //   Get.offNamed(AppRoutes.otp, arguments: {"email": email});
-      // }
-      //
       if (response.statusCode == 200 || response.statusCode == 201) {
   final data = jsonDecode(response.body);
 

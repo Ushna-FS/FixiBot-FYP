@@ -50,26 +50,6 @@ class LoginController extends GetxController {
 
       print("Login API response: ${response.statusCode} -> ${response.body}");
 
-      // if (response.statusCode == 200) {
-      //   final data = jsonDecode(response.body);
-
-      //   final accessToken = data["access_token"];
-      //   final tokenType = data["token_type"];
-
-      //   // Save token + email
-      //   await _sharedPrefs.saveString("access_token", accessToken);
-      //   await _sharedPrefs.saveString("token_type", tokenType);
-      //   await _sharedPrefs.saveString("email", email);
-
-      //   // 🔹 Fetch current user profile
-      //   await _fetchUserProfile(accessToken, tokenType);
-
-      //   _showSuccess("Login successful!");
-
-      //   // Navigate to dashboard/home
-      //   Get.offAllNamed(AppRoutes.home);
-      // } 
-
       if (response.statusCode == 200) {
   final data = jsonDecode(response.body);
 
