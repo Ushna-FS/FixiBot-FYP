@@ -9,17 +9,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   SignupScreen({super.key});
 
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
+  late final SignupController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Register / get the controller exactly once
+    controller = Get.put(SignupController());
+  }
+
+  @override
+  void dispose() {
+    
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    // final SignupController controller = Get.find<SignupController>();
-    final SignupController controller = Get.put(SignupController());
-
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -56,7 +72,8 @@ class SignupScreen extends StatelessWidget {
                       SizedBox(height: screenSize.height * 0.02),
                       Text("Sign Up For Smart Repairs!", style: AppFonts.montserratBlackHeading, textAlign: TextAlign.center,),
                       SizedBox(height: screenSize.height * 0.02),
-                      
+
+                      // Username
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
@@ -96,22 +113,27 @@ class SignupScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: screenSize.height * 0.012),
+
+                      // Email
                       EmailTextField(controller: controller.emailController),
                       SizedBox(height: screenSize.height * 0.012),
-                      Obx(() => PasswordTextField(
-                        controller: controller.passwordController,
-                        isPasswordVisible: controller.isPasswordVisible.value,
-                        hintText: "Password",
-                      )),
-                      SizedBox(height: screenSize.height * 0.012),
-                      Obx(() => PasswordTextField(
-                        controller: controller.confirmPasswordController,
-                        isPasswordVisible: controller.isConfirmPasswordVisible.value,
-                        hintText: "Confirm Password",
-                      )),
-                      SizedBox(height: screenSize.height * 0.012),
-                      // Phone Field
-                      Container(
+
+
+// Passwords (reactive toggles)
+Obx(() => PasswordTextField(
+  controller: controller.passwordController,
+  isPasswordVisible: controller.isPasswordVisible.value,
+  hintText: "Password",
+)),
+SizedBox(height: screenSize.height * 0.012),
+Obx(() => PasswordTextField(
+  controller: controller.confirmPasswordController,
+  isPasswordVisible: controller.isConfirmPasswordVisible.value,
+  hintText: "Confirm Password",
+)),
+SizedBox(height: screenSize.height * 0.012),
+
+  Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: const [
@@ -148,29 +170,31 @@ class SignupScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: screenSize.height * 0.001),
-                      Obx(() => Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text("Save password", style: TextStyle(color: AppColors.mainColor)),
-                          // Switch(
-                          //   inactiveThumbColor: AppColors.mainColor,
-                          //   activeColor: AppColors.mainColor,
-                          //   value: controller.savePassword.value,
-                          //   onChanged: (value) => controller.toggleSavePassword(),
-                          // ),
-                        ],
-                      )),
-                      SizedBox(height: screenSize.height * 0.001),
-                     CustomButton(
+
+      Row(
+  mainAxisAlignment: MainAxisAlignment.end,
+  children: [
+    const Text("Save password", style: TextStyle(color: AppColors.mainColor)),
+    // add a Switch here if you bind to an observable later
+  ],
+),
+SizedBox(height: screenSize.height * 0.001),
+
+// Sign Up button (reactive on isLoading)
+Obx(() => CustomButton(
   onPressed: () {
-    final controller = Get.find<SignupController>();
-    controller.signup();
+    if (!controller.isLoading.value) {
+      if (_formKey.currentState?.validate() ?? false) {
+        controller.signup();
+      }
+    }
   },
   text: "Sign Up",
   isLoading: controller.isLoading.value,
-),
+)),
 
                       SizedBox(height: screenSize.height * 0.015),
+
                       Row(
                         children: [
                           const Expanded(child: Divider(thickness: 1)),
@@ -182,15 +206,16 @@ class SignupScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: screenSize.height * 0.015),
-                     CustomButton(
-  text: "Continue With Google",
-  onPressed: () {
-    final googleController = Get.put(GoogleSignInController());
-    googleController.signInWithGoogle();
-  },
-  isOutlined: true,
-  icon: Image.asset('assets/icons/google.png', width: 20, height: 20),
-),
+
+                      CustomButton(
+                        text: "Continue With Google",
+                        onPressed: () {
+                          final googleController = Get.put(GoogleSignInController());
+                          googleController.signInWithGoogle();
+                        },
+                        isOutlined: true,
+                        icon: Image.asset('assets/icons/google.png', width: 20, height: 20),
+                      ),
 
                       SizedBox(height: screenSize.height * 0.02),
                       Row(
