@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/vehicleController.dart';
 import '../../../constants/app_fontStyles.dart';
 import '../../../constants/app_colors.dart';
@@ -10,6 +11,78 @@ import '../../../widgets/custom_textField.dart';
 
 class AddVehicle extends GetView<VehicleController> {
   const AddVehicle({super.key});
+
+  // Helper functions should be defined here, outside build() but inside class
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  int? _validateYear(String yearText) {
+    final year = int.tryParse(yearText);
+    if (year == null) return null;
+
+    if (year < 1900 || year > 2026) {
+      Get.snackbar('Error', 'Year must be between 1900 and 2026');
+      return null;
+    }
+    return year;
+  }
+
+  Future<void> _onAddVehiclePressed() async {
+    if (controller.selectedVehicleType.value.isEmpty) {
+      Get.snackbar("Error", "Please select a vehicle type");
+      return;
+    }
+    if (controller.carModel.text.trim().isEmpty) {
+      Get.snackbar("Error", "Please enter vehicle model");
+      return;
+    }
+
+    // Validate year if provided
+    if (controller.carModelYear.text.trim().isNotEmpty) {
+      final validatedYear = _validateYear(controller.carModelYear.text.trim());
+      if (validatedYear == null) {
+        return; // Don't proceed if year is invalid
+      }
+    }
+
+    // ADD FUEL TYPE VALIDATION FOR MOTORIZED VEHICLES
+    final motorizedVehicles = ['car', 'truck', 'van', 'suv', 'bus', 'other'];
+    if (motorizedVehicles.contains(controller.selectedVehicleType.value) &&
+        controller.fuelType.text.trim().isEmpty) {
+      Get.snackbar("Error", "Please specify fuel type for motorized vehicles");
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString("user_id");
+    final accessToken = prefs.getString("access_token");
+
+    print('🔍 Debug - User ID from prefs: $userId');
+    print('🔍 Debug - Access token from prefs: $accessToken');
+
+    if (userId == null || userId.isEmpty) {
+      Get.snackbar("Error", "User not logged in. Please log in again.");
+      return;
+    }
+
+    await controller.saveVehicle(
+      userId: userId,
+      isPrimary: true,
+      isActive: true,
+    );
+  }
+
+  VoidCallback _getOnPressed() {
+    if (controller.isLoading.value) {
+      return () {}; // Return an empty function when loading
+    } else {
+      return () {
+        _onAddVehiclePressed();
+      };
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +93,15 @@ class AddVehicle extends GetView<VehicleController> {
     final double verticalPadding =
         isPortrait ? screenSize.height * 0.02 : screenSize.height * 0.03;
 
-    // Vehicle types for dropdown
+    // Move the list inside build method since it's used in the UI
     final List<String> vehicleTypes = [
-      'Car',
-      'Truck',
-      'Motorcycle',
-      'SUV',
-      'Van'
+      'bike',
+      'car',
+      'truck',
+      'van',
+      'suv',
+      'bus',
+      'other'
     ];
 
     return Scaffold(
@@ -51,7 +126,7 @@ class AddVehicle extends GetView<VehicleController> {
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  print('Back arrow tapped'); // Debugging
+                  print('Back arrow tapped');
                   Get.back();
                 },
                 child: Image.asset(
@@ -203,48 +278,51 @@ class AddVehicle extends GetView<VehicleController> {
                         ),
                       ),
                       SizedBox(height: verticalPadding),
-                      // Vehicle Type Dropdown
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isPortrait
-                              ? screenSize.width * 0.05
-                              : screenSize.width * 0.02,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: AppColors.mainColor,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            hint: Text(
-                              "Select Vehicle Type",
-                              style: AppFonts.montserratMainText14.copyWith(
-                                color: AppColors.mainColor.withOpacity(0.9),
+                      Obx(() => Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isPortrait
+                                  ? screenSize.width * 0.05
+                                  : screenSize.width * 0.02,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                  color: AppColors.mainColor, width: 1.5),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value:
+                                    controller.selectedVehicleType.value.isEmpty
+                                        ? null
+                                        : controller.selectedVehicleType.value,
+                                hint: Text(
+                                  "Select Vehicle Type",
+                                  style: AppFonts.montserratMainText14.copyWith(
+                                    color: AppColors.mainColor.withOpacity(0.9),
+                                  ),
+                                ),
+                                items: vehicleTypes.map((String backendValue) {
+                                  return DropdownMenuItem<String>(
+                                    value: backendValue,
+                                    child: Text(
+                                      _capitalize(backendValue),
+                                      style: AppFonts.montserratMainText14,
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  if (newValue != null)
+                                    controller.selectedVehicleType.value =
+                                        newValue;
+                                },
                               ),
                             ),
-                            items: vehicleTypes.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: AppFonts.montserratMainText14,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              // Handle vehicle type selection
-                            },
-                          ),
-                        ),
-                      ),
+                          )),
                       SizedBox(height: verticalPadding),
                       CustomTextField(
-                        hintText: "Vehicle Manufacturer",
+                        hintText: "Vehicle Brand",
                         icon: Icons.car_rental,
                         controller: controller.carManufacturer,
                       ),
@@ -256,9 +334,15 @@ class AddVehicle extends GetView<VehicleController> {
                       ),
                       SizedBox(height: verticalPadding),
                       CustomTextField(
-                        hintText: "Vehicle Model Year",
+                        hintText: "Model Year",
                         icon: Icons.car_rental,
                         controller: controller.carModelYear,
+                      ),
+                      SizedBox(height: verticalPadding),
+                      CustomTextField(
+                        hintText: "Fuel Type (e.g., Petrol, Diesel, Electric)",
+                        icon: Icons.local_gas_station,
+                        controller: controller.fuelType,
                       ),
                       SizedBox(height: verticalPadding),
                       Obx(() => Row(
@@ -266,8 +350,8 @@ class AddVehicle extends GetView<VehicleController> {
                             children: [
                               Text(
                                 controller.transmissionAuto.value
-                                    ? "Manual"
-                                    : "Auto",
+                                    ? "automatic"
+                                    : "manual",
                                 style: AppFonts.montserratMainText14.copyWith(
                                   fontSize: isPortrait
                                       ? screenSize.height * 0.018
@@ -284,12 +368,12 @@ class AddVehicle extends GetView<VehicleController> {
                             ],
                           )),
                       SizedBox(height: verticalPadding),
-                      CustomButton(
-                        text: 'Add Vehicle',
-                        onPressed: () {
-                          // TODO: Add Vehicle function
-                        },
-                      )
+                      Obx(() => CustomButton(
+                            text: controller.isLoading.value
+                                ? 'Adding Vehicle...'
+                                : 'Add Vehicle',
+                            onPressed: _getOnPressed(),
+                          )),
                     ],
                   ),
                 ),
