@@ -25,57 +25,42 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Future<void> _loadVehicles() async {
-    try {
-      setState(() => isLoading = true);
-
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString("user_id");
-      final accessToken = prefs.getString("access_token");
-
-      print('🔍 Loading vehicles for user: $userId');
-      print(
-          '🔍 Access token: ${accessToken != null ? "Available" : "Missing"}');
-
-      if (userId == null || userId.isEmpty) {
-        print('❌ User not logged in');
-        Get.snackbar("Error", "User not logged in");
-        setState(() {
-          isLoading = false;
-          vehicles = [];
-        });
-        return;
-      }
-
-      if (accessToken == null) {
-        print('❌ No access token found');
-        Get.snackbar("Error", "Authentication required. Please login again.");
-        setState(() {
-          isLoading = false;
-          vehicles = [];
-        });
-        return;
-      }
-
-      final result = await vehicleController.getUserVehicles(userId);
-
-      print('✅ Vehicles loaded: ${result?.length ?? 0} vehicles');
-
-      setState(() {
-        vehicles = result;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('❌ Error loading vehicles: $e');
-      print('❌ Error type: ${e.runtimeType}');
-
+  try {
+    setState(() => isLoading = true);
+    
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString("user_id");
+    
+    if (userId == null || userId.isEmpty) {
+      Get.snackbar("Error", "User not logged in");
       setState(() {
         isLoading = false;
         vehicles = [];
       });
-
-      Get.snackbar("Error", "Failed to load vehicles. Please try again.");
+      return;
     }
+
+    final result = await vehicleController.getUserVehicles(userId);
+    
+    // Ensure all vehicles are properly typed
+    final typedVehicles = result?.map((vehicle) {
+      return vehicle is Map<String, dynamic> 
+          ? vehicle 
+          : Map<String, dynamic>.from(vehicle);
+    }).toList() ?? [];
+    
+    setState(() {
+      vehicles = typedVehicles;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+      vehicles = [];
+    });
+    Get.snackbar("Error", "Failed to load vehicles: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -330,34 +315,44 @@ void _editVehicle(Map<String, dynamic> vehicle) {
 
 Future<void> _updateVehicleInList(Map<String, dynamic> updatedVehicle) async {
   try {
+    // Quick null check
+    if (vehicles == null) return;
+    
     final vehicleId = updatedVehicle['_id'];
     if (vehicleId == null) return;
 
-    // Find the index of the vehicle in the list
-    final index = vehicles!.indexWhere((v) => v['_id'] == vehicleId);
+    // Find index with null-safe access
+    int index = -1;
+    for (int i = 0; i < vehicles!.length; i++) {
+      final v = vehicles![i];
+      final currentId = v['_id'];
+      if (currentId == vehicleId) {
+        index = i;
+        break;
+      }
+    }
+    
     if (index != -1) {
       setState(() {
-        vehicles![index] = {...vehicles![index], ...updatedVehicle};
+        // Simple merge with type casting
+        vehicles![index] = {
+          ...(vehicles![index] as Map<String, dynamic>), 
+          ...(updatedVehicle as Map<String, dynamic>)
+        };
       });
       
-      Get.snackbar(
-        "Success", 
-        "Vehicle updated successfully",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      Future.delayed(Duration(milliseconds: 100), () {
+        Get.snackbar("Success", "Vehicle updated successfully");
+      });
     }
   } catch (e) {
-    Get.snackbar(
-      "Error", 
-      "Failed to update vehicle in list: $e",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
+    print('❌ Error: $e');
+    Future.delayed(Duration(milliseconds: 100), () {
+      Get.snackbar("Error", "Failed to update vehicle");
+    });
   }
 }
+
 
   Future<void> _deleteVehicle(String? vehicleId) async {
     if (vehicleId == null) return;

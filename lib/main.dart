@@ -9,15 +9,8 @@ import 'package:get/get.dart';
 import 'constants/app_colors.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs);

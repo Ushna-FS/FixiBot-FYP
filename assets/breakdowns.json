@@ -275,6 +275,204 @@
            "truckFuses": "assets/images/selfHelp/T_fuses.png"
         }
       }
+    },
+    {
+      "Name": "Fuel Leakage",
+      "In Cars": {
+        "Tools Required": [
+          "Fuel can (5–10 liters)",
+          "Funnel",
+          "Cloth / Tissue (to wipe spills)"
+        ],
+        "Steps": [
+          "If your car suddenly stops or stutters, first check the fuel gauge on the dashboard.",
+          "Step outside and visually inspect under the car — if you see wet patches or smell strong petrol/diesel, suspect a leakage.",
+          "If the fuel tank is simply empty (no leakage), fetch fuel in a safe-approved container (fuel can) from the nearest station.",
+          "Open the fuel cap carefully, and place the funnel to avoid spillage.",
+          "Pour the fuel slowly into the tank and tighten the cap securely.",
+          "Wipe any spills with a cloth before starting the car.",
+          "If leakage is detected from the tank or pipes, do not attempt to start the vehicle — call roadside assistance immediately, as there is a fire hazard."
+        ],
+        "Images": {
+          "carFuelLeak": "assets/images/selfHelp/carFuelLeak.png",
+          "carFuelCan": "assets/images/selfHelp/carFuelCan.png",
+          "carFunnel": "assets/images/selfHelp/carFunnel.png"
+        }
+      },
+      "In Bikes": {
+        "Tools Required": [
+          "1–2 liter fuel bottle",
+          "Small funnel",
+          "Tape (for minor leaks)"
+        ],
+        "Steps": [
+          "If the bike stalls, check whether the fuel tap is in ON or RESERVE position.",
+          "Inspect the fuel pipe — if cracked or dripping, use tape as a temporary fix.",
+          "If the tank is empty, arrange fuel in a plastic or metal bottle (safely stored).",
+          "Pour petrol using a small funnel into the bike’s fuel tank.",
+          "Secure the cap tightly, and wipe away spills.",
+          "Ride slowly to the nearest petrol station or mechanic for a permanent fix if leakage exists."
+        ],
+        "Images": {
+          "bikeFuelLeak": "assets/images/selfHelp/bikeFuelLeak.png",
+          "bikeFuelBottle": "assets/images/selfHelp/bikeFuelBottle.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "If the engine stalls or loses power, check the diesel gauge first.",
+          "Step out and look beneath the truck for diesel leakage — often visible as a strong-smelling puddle.",
+          "If leakage is found, place a container beneath to reduce spillage, and avoid starting the engine.",
+          "If the tank is simply empty, arrange diesel in a proper container and refill using a funnel.",
+          "After refueling, prime the diesel pump (if required) to remove air bubbles.",
+          "Drive only to the nearest service station for further checks — never continue long distance with a leak."
+        ],
+        "Images": {
+          "truckFuelLeak": "assets/images/selfHelp/truckFuelLeak.png",
+          "truckDieselCan": "assets/images/selfHelp/truckDieselCan.png"
+        }
+      }
+    },
+    {
+      "Name": "Clutch Failure",
+      "In Cars": {
+        "Tools Required": [
+          "Brake fluid (for hydraulic systems)",
+          "Basic toolkit"
+        ],
+        "Steps": [
+          "If pressing the clutch pedal feels unusually soft, spongy, or it doesn’t return, safely pull over immediately.",
+          "Check under the dashboard and in the engine bay for any obvious fluid leaks.",
+          "Locate the clutch fluid reservoir (usually near the brake master cylinder).",
+          "If it is low or empty, carefully top it up with brake fluid (as a temporary fix).",
+          "If your car has a cable clutch and the cable snaps, you cannot engage gears normally — call for towing.",
+          "If clutch partially works after fluid top-up, engage gears gently and drive only to the nearest mechanic."
+        ],
+        "Images": {
+          "carClutch": "assets/images/selfHelp/carClutch.png",
+          "carFluid": "assets/images/selfHelp/carClutchFluid.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "If clutch lever feels loose or unresponsive, check the clutch cable near the lever.",
+          "Sometimes, the cable end slips out of its slot — reattach it carefully if intact.",
+          "If the cable has snapped, replace it with a spare cable (many riders carry one).",
+          "Without a spare, you can push-start the bike in neutral and ride slowly without using the clutch.",
+          "Shift gears carefully by matching throttle and engine speed (clutchless shifting)."
+        ],
+        "Images": {
+          "bikeClutch": "assets/images/selfHelp/bikeClutch.png",
+          "bikeCable": "assets/images/selfHelp/bikeClutchCable.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "If the clutch pedal doesn’t respond, stop immediately and switch off the engine.",
+          "Check for hydraulic leaks around the clutch master/slave cylinder.",
+          "If fluid is low, refill temporarily with brake fluid.",
+          "If mechanical linkage or plate is broken, do not attempt to continue driving.",
+          "Call for roadside service or towing — heavy vehicles require professional repair."
+        ],
+        "Images": {
+          "truckClutch": "assets/images/selfHelp/truckClutch.png"
+        }
+      }
+    },
+    {
+      "Name": "Starter Motor Failure",
+      "In Cars": {
+        "Tools Required": [
+          "Hammer or wrench (for tapping)",
+          "Jumper cables"
+        ],
+        "Steps": [
+          "If you turn the key and hear a click but the engine doesn’t crank, check that the battery is fully charged.",
+          "If the battery is good, suspect the starter motor is stuck.",
+          "Locate the starter motor (usually near the bottom of the engine).",
+          "Use a hammer or wrench to gently tap the starter while another person turns the key — this can unjam it temporarily.",
+          "If this doesn’t work, try using jumper cables with another vehicle to rule out weak battery supply.",
+          "If still unresponsive, call roadside assistance — do not keep cranking as it may drain the battery."
+        ],
+        "Images": {
+          "carStarter": "assets/images/selfHelp/carStarter.png",
+          "carHammer": "assets/images/selfHelp/carHammer.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "If pressing the starter button does nothing, check if the battery is charged.",
+          "Try using the kick-starter (if available).",
+          "If the kick works but the button doesn’t, check the starter relay and wiring.",
+          "If the starter motor is jammed, push-start the bike in 2nd gear with clutch released suddenly.",
+          "If the starter is burnt out, it must be replaced at a workshop."
+        ],
+        "Images": {
+          "bikeStarter": "assets/images/selfHelp/bikeStarter.png",
+          "bikeKick": "assets/images/selfHelp/bikeKick.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "If the ignition key produces only a click, first confirm battery health.",
+          "Check heavy-duty starter relay and cables for looseness.",
+          "If the starter motor spins slowly, tap gently with a hammer to unjam it.",
+          "If it fails completely, professional heavy-vehicle mechanics are required.",
+          "Avoid repeated attempts, as it may overheat the system and drain batteries."
+        ],
+        "Images": {
+          "truckStarter": "assets/images/selfHelp/truckStarter.png"
+        }
+      }
+    },
+    {
+      "Name": "Headlight / Indicator Failure",
+      "In Cars": {
+        "Tools Required": [
+          "Spare bulbs",
+          "Fuse kit",
+          "Screwdriver"
+        ],
+        "Steps": [
+          "If headlights or indicators stop working suddenly, first check if multiple lights are affected — this usually indicates a blown fuse.",
+          "Locate the fuse box (often under dashboard or bonnet).",
+          "Replace the blown fuse with one of the same rating.",
+          "If only one bulb is fused, replace it by removing the light cover with a screwdriver and inserting a spare bulb.",
+          "If wiring is loose or exposed, temporarily secure it with tape.",
+          "Until fixed, use hazard lights and drive slowly."
+        ],
+        "Images": {
+          "carHeadlight": "assets/images/selfHelp/carHeadlight.png",
+          "carIndicator": "assets/images/selfHelp/carIndicator.png"
+        }
+      },
+      "In Bikes": {
+        "Steps": [
+          "If the headlight doesn’t turn on, check the bulb by opening the headlamp housing.",
+          "Replace the fused bulb if you have a spare.",
+          "Inspect the small fuse under the seat or near the battery (if present).",
+          "If indicators fail, check the relay and connections inside the headlamp casing.",
+          "If unable to fix roadside, use hand signals and avoid night riding until repaired."
+        ],
+        "Images": {
+          "bikeHeadlight": "assets/images/selfHelp/bikeHeadlight.png",
+          "bikeIndicator": "assets/images/selfHelp/bikeIndicator.png"
+        }
+      },
+      "In Trucks/Heavy Vehicles": {
+        "Steps": [
+          "Check the truck’s fuse panel for headlight/indicator circuits.",
+          "Replace the blown fuse with the correct rating.",
+          "If bulbs are fused, replace them with spares (commonly carried in trucks).",
+          "If no lights work at all, check alternator output or wiring harness.",
+          "Use reflective triangles and hazard lights until repairs are done."
+        ],
+        "Images": {
+          "truckHeadlight": "assets/images/selfHelp/truckHeadlight.png",
+          "truckIndicator": "assets/images/selfHelp/truckIndicator.png"
+        }
+      }
     }
+
   ]
 }

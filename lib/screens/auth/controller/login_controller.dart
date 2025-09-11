@@ -107,6 +107,7 @@ Future<void> _fetchUserProfile(String accessToken, String tokenType) async {
       await _sharedPrefs.saveString("last_name", lastName);
       await _sharedPrefs.saveString("phone_number", user["phone_number"] ?? "");
       await _sharedPrefs.saveString("full_name", fullName);
+      print("Saving user_id: ${user["_id"]}");
 
       print("✅ Saved user full_name: $fullName");
       
