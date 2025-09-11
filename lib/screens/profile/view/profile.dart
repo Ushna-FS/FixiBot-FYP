@@ -1,4 +1,5 @@
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
 import 'package:fixibot_app/screens/help/support.dart';
 import 'package:fixibot_app/screens/profile/editProfile.dart';
@@ -112,7 +113,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ListTile(
                       leading: Image.asset("assets/icons/profile.png"),
                       title: InkWell(
-                        onTap: () => Get.to(const MyVehicleScreen()),
+                        onTap: () => {
+                          Get.put(VehicleController()),
+                          Get.to(const MyVehicleScreen())},
                         child: Text("My Vehicles",
                             style: AppFonts.montserratText2),
                       ),
