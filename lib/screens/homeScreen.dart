@@ -11,6 +11,8 @@ import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/search/searchScreen.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
+import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
+import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart'; // ADD THIS
 import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:fixibot_app/services/breakdown-serv.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
@@ -32,11 +34,22 @@ class _HomePageState extends State<HomeScreen> {
   int currentIndex = 0;
   final LocationController locationController = Get.put(LocationController());
 
+
   late Future<List<BreakdownModel>> futureBreakdowns;
 
   final List<List<String>> issuesList = [
-    ["Flat Tire","Battery Failure", "Engine Overheat", "Brake failure",],
-    ["Electrical Wiring Issues", "hhBrake Failure", "Oil Leak", "Transmission Fault"]
+    [
+      "Flat Tire",
+      "Battery Failure",
+      "Engine Overheat",
+      "Brake failure",
+    ],
+    [
+      "Fuel Leakage",
+      "Clutch Failure",
+      "Starter Motor Failure",
+      "Headlight/Indicator Failure"
+    ]
   ];
 
   @override
@@ -49,6 +62,8 @@ class _HomePageState extends State<HomeScreen> {
     });
     Get.find<LocationController>().fetchCurrentLocation();
   }
+
+
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -83,6 +98,72 @@ class _HomePageState extends State<HomeScreen> {
     }
   }
 
+  Widget _buildVehicleChip(Map<String, dynamic> vehicle) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 400;
+
+    // Add null safety for vehicle data
+    final vehicleType = vehicle['type']?.toString().toLowerCase() ?? 'car';
+    final brand = vehicle['brand'] ?? 'Vehicle';
+    final model = vehicle['model'] ?? '';
+
+    // Get vehicle type for icon
+    IconData vehicleIcon;
+    switch (vehicleType) {
+      case 'car':
+        vehicleIcon = Icons.directions_car;
+        break;
+      case 'bike':
+      case 'motorcycle':
+        vehicleIcon = Icons.motorcycle;
+        break;
+      case 'truck':
+        vehicleIcon = Icons.local_shipping;
+        break;
+      case 'suv':
+        vehicleIcon = Icons.airport_shuttle;
+        break;
+      default:
+        vehicleIcon = Icons.directions_car;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed('/my-vehicles');
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.secondaryColor.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(vehicleIcon, size: 16, color: AppColors.mainColor),
+            SizedBox(width: 6),
+            Text(
+              '$brand $model',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 10 : 12,
+                color: AppColors.mainColor,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (vehicle['is_primary'] == true)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.star, size: 12, color: Colors.amber),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -95,40 +176,46 @@ class _HomePageState extends State<HomeScreen> {
         backgroundColor: AppColors.mainColor,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircleAvatar(radius: 20),
-            Image.asset("assets/icons/locationIcon.png",
-                color: AppColors.textColor),
-            TextButton(
-              onPressed: () {
-                Get.to(const LocationScreen());
-              },
-              child: Obx(() {
-                final location =
-                    Get.find<LocationController>().userLocation.value;
-                return Text(
-                  location.isEmpty
-                      ? 'No location selected'
-                      : (location.length > 18
-                          ? "${location.substring(0, 18)}..."
-                          : location),
-                  style: isSmallScreen
-                      ? AppFonts.montserratWhiteText
-                      : AppFonts.montserratWhiteText.copyWith(fontSize: 18),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                );
-              }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const CircleAvatar(radius: 20),
+                Image.asset("assets/icons/locationIcon.png",
+                    color: AppColors.textColor),
+                TextButton(
+                  onPressed: () {
+                    Get.to(const LocationScreen());
+                  },
+                  child: Obx(() {
+                    final location =
+                        Get.find<LocationController>().userLocation.value;
+                    return Text(
+                      location.isEmpty
+                          ? 'No location selected'
+                          : (location.length > 18
+                              ? "${location.substring(0, 18)}..."
+                              : location),
+                      style: isSmallScreen
+                          ? AppFonts.montserratWhiteText
+                          : AppFonts.montserratWhiteText.copyWith(fontSize: 18),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  }),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Get.to(const ViewNotificationsScreen());
+                  },
+                  icon: Image.asset('assets/icons/notification.png',
+                      width: 30, height: 30, color: AppColors.textColor),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () {
-                Get.to(const ViewNotificationsScreen());
-              },
-              icon: Image.asset('assets/icons/notification.png',
-                  width: 30, height: 30, color: AppColors.textColor),
-            ),
+            
           ],
         ),
       ),
@@ -142,7 +229,8 @@ class _HomePageState extends State<HomeScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator(color: AppColors.mainColor));
+                      child: CircularProgressIndicator(
+                          color: AppColors.mainColor));
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -261,7 +349,7 @@ class _HomePageState extends State<HomeScreen> {
               "Save details for quick fixes and smart assistance.",
               "assets/images/AddVeh-illustration.png",
               () {
-                Get.offNamed(AppRoutes.addVehicle);
+                Get.to(const AddVehicle());
               },
               buttonText: "Add Vehicle",
             ),
@@ -341,6 +429,3 @@ class _HomePageState extends State<HomeScreen> {
     );
   }
 }
-
-
-
