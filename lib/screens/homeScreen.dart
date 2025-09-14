@@ -1,3 +1,5 @@
+
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
@@ -34,7 +36,6 @@ class _HomePageState extends State<HomeScreen> {
   int currentIndex = 0;
   final LocationController locationController = Get.put(LocationController());
 
-
   late Future<List<BreakdownModel>> futureBreakdowns;
 
   final List<List<String>> issuesList = [
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomeScreen> {
       "Fuel Leakage",
       "Clutch Failure",
       "Starter Motor Failure",
-      "Headlight/Indicator Failure"
+      "Indicator Failure"
     ]
   ];
 
@@ -62,8 +63,6 @@ class _HomePageState extends State<HomeScreen> {
     });
     Get.find<LocationController>().fetchCurrentLocation();
   }
-
-
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -98,70 +97,8 @@ class _HomePageState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildVehicleChip(Map<String, dynamic> vehicle) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 400;
-
-    // Add null safety for vehicle data
-    final vehicleType = vehicle['type']?.toString().toLowerCase() ?? 'car';
-    final brand = vehicle['brand'] ?? 'Vehicle';
-    final model = vehicle['model'] ?? '';
-
-    // Get vehicle type for icon
-    IconData vehicleIcon;
-    switch (vehicleType) {
-      case 'car':
-        vehicleIcon = Icons.directions_car;
-        break;
-      case 'bike':
-      case 'motorcycle':
-        vehicleIcon = Icons.motorcycle;
-        break;
-      case 'truck':
-        vehicleIcon = Icons.local_shipping;
-        break;
-      case 'suv':
-        vehicleIcon = Icons.airport_shuttle;
-        break;
-      default:
-        vehicleIcon = Icons.directions_car;
-    }
-
-    return GestureDetector(
-      onTap: () {
-        Get.toNamed('/my-vehicles');
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.secondaryColor.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(vehicleIcon, size: 16, color: AppColors.mainColor),
-            SizedBox(width: 6),
-            Text(
-              '$brand $model',
-              style: TextStyle(
-                fontSize: isSmallScreen ? 10 : 12,
-                color: AppColors.mainColor,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (vehicle['is_primary'] == true)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.star, size: 12, color: Colors.amber),
-              ),
-          ],
-        ),
-      ),
-    );
+  void _refreshHomeHeader() {
+    setState(() {});
   }
 
   @override
@@ -215,14 +152,15 @@ class _HomePageState extends State<HomeScreen> {
                 ),
               ],
             ),
-            
           ],
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const HomeHeaderBox(),
+            HomeHeaderBox(
+              onRefresh: _refreshHomeHeader,
+            ),
             SizedBox(height: screenHeight * 0.02),
             FutureBuilder<List<BreakdownModel>>(
               future: futureBreakdowns,
@@ -349,7 +287,9 @@ class _HomePageState extends State<HomeScreen> {
               "Save details for quick fixes and smart assistance.",
               "assets/images/AddVeh-illustration.png",
               () {
-                Get.to(const AddVehicle());
+                Get.to(const AddVehicle())?.then((_) {
+                  _refreshHomeHeader();
+                });
               },
               buttonText: "Add Vehicle",
             ),
