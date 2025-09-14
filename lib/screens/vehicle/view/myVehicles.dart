@@ -1,5 +1,6 @@
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/screens/vehicle/view/editVehicle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -90,11 +91,6 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
           : showEmptyState
               ? _buildEmptyState()
               : _buildVehicleList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed('/add-vehicle'),
-        backgroundColor: AppColors.mainColor,
-        child: Icon(Icons.add, color: AppColors.secondaryColor),
-      ),
     );
   }
 
@@ -121,7 +117,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () => Get.toNamed('/add-vehicle'),
+            onPressed: () => Get.to(const AddVehicle()),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.mainColor,
               shape: RoundedRectangleBorder(

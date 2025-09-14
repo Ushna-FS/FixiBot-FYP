@@ -72,6 +72,7 @@ class AddVehicle extends GetView<VehicleController> {
       isPrimary: true,
       isActive: true,
     );
+    
   }
 
   VoidCallback _getOnPressed() {

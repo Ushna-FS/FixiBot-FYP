@@ -10,7 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class VehicleController extends GetxController {
-  final String baseUrl = "http://127.0.0.1:8000";
+   final String baseUrl = "http://127.0.0.1:8000";
+    RxList<Map<String,dynamic>> userVehicles = <Map<String,dynamic>>[].obs;
+
+  // final String baseUrl = "http://10.135.54.128:8000";
   var transmissionAuto = false.obs;
   final carManufacturer = TextEditingController();
   final carModel = TextEditingController();
@@ -22,6 +25,11 @@ class VehicleController extends GetxController {
 
   var image = Rx<File?>(null);
   var imageBytes = Rx<Uint8List?>(null);
+
+    void notifyVehicleDataChanged() {
+    update(); // This will notify all listeners
+  }
+
 
   void _debugJsonBody(String jsonBody) {
     print('🔍 JSON Body Debug:');
@@ -163,6 +171,8 @@ class VehicleController extends GetxController {
         if (response.statusCode == 200 || response.statusCode == 201) {
           break;
         }
+        
+      notifyVehicleDataChanged();
       } catch (e) {
         print('❌ Error with endpoint $endpoint: $e');
         continue; // Try next endpoint
@@ -185,6 +195,8 @@ class VehicleController extends GetxController {
             colorText: Colors.white,
           );
 
+
+      Get.back(); 
           // Clear form after successful submission
           clearForm();
         } catch (e) {
@@ -295,6 +307,13 @@ Future<List<dynamic>> getUserVehicles(String userId) async {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      
+    userVehicles.assignAll(
+  (jsonDecode(response.body) as List)
+      .map((e) => e as Map<String, dynamic>)
+      .toList(),
+);
+
       return data is List ? data : [];
     } else if (response.statusCode == 401) {
       print('❌ Unauthorized - token may be expired');
@@ -328,6 +347,8 @@ Future<List<dynamic>> getUserVehicles(String userId) async {
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Failed to delete vehicle: ${response.statusCode}');
       }
+      
+      notifyVehicleDataChanged();
     } catch (e) {
       throw Exception('Failed to delete vehicle: $e');
     }
@@ -388,6 +409,8 @@ Future<void> updateVehicle({
     } else {
       throw Exception('Failed to update vehicle: ${response.statusCode} - ${response.body}');
     }
+    
+      notifyVehicleDataChanged();
   } catch (e) {
     print('❌ Update vehicle error: $e');
     rethrow;
