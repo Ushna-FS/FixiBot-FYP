@@ -8,7 +8,7 @@ import '../../constants/app_colors.dart';
 import '../../widgets/custom_buttons.dart';
 
 class LocationPopup {
-  static void showLocationPopup(BuildContext context) {
+  static Future<void> showLocationPopup(BuildContext context) async{
     final LocationController locationController = Get.put(LocationController());
     showModalBottomSheet(
       context: context,

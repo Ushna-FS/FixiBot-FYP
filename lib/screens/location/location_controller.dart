@@ -5,6 +5,20 @@ import 'package:geocoding/geocoding.dart';
 class LocationController extends GetxController {
   final RxString userLocation = 'Fetching location...'.obs;
 
+  var userLatitude = RxDouble(0.0);
+  var userLongitude = RxDouble(0.0);
+ 
+  
+  // Update just coordinates (for when user moves on map)
+  void updateCoordinates(double lat, double lng) {
+    userLatitude.value = lat;
+    userLongitude.value = lng;
+  }
+  
+  // Update just address (if needed)
+  void updateAddress(String address) {
+    userLocation.value = address;
+  }
   // 1. Fetch Current Location with readable address
   Future<void> fetchCurrentLocation() async {
     try {
@@ -43,7 +57,9 @@ class LocationController extends GetxController {
   }
 
   // 2. Update from Map Screen
-  void updateLocationFromMap(String newAddress) {
+  void updateLocationFromMap(String newAddress, double lat, double lng) {
+        userLatitude.value = lat;
+    userLongitude.value = lng;
     userLocation.value = newAddress;
   }
 }

@@ -294,9 +294,7 @@
           "If leakage is detected from the tank or pipes, do not attempt to start the vehicle — call roadside assistance immediately, as there is a fire hazard."
         ],
         "Images": {
-          "carFuelLeak": "assets/images/selfHelp/carFuelLeak.png",
-          "carFuelCan": "assets/images/selfHelp/carFuelCan.png",
-          "carFunnel": "assets/images/selfHelp/carFunnel.png"
+          "carFuelLeak": "assets/images/selfHelp/C_FuelLeak.png"
         }
       },
       "In Bikes": {
@@ -314,8 +312,7 @@
           "Ride slowly to the nearest petrol station or mechanic for a permanent fix if leakage exists."
         ],
         "Images": {
-          "bikeFuelLeak": "assets/images/selfHelp/bikeFuelLeak.png",
-          "bikeFuelBottle": "assets/images/selfHelp/bikeFuelBottle.png"
+          "bikeFuelLeak": "assets/images/selfHelp/B_Fuel.png"
         }
       },
       "In Trucks/Heavy Vehicles": {
@@ -328,8 +325,7 @@
           "Drive only to the nearest service station for further checks — never continue long distance with a leak."
         ],
         "Images": {
-          "truckFuelLeak": "assets/images/selfHelp/truckFuelLeak.png",
-          "truckDieselCan": "assets/images/selfHelp/truckDieselCan.png"
+          "truckFuelLeak": "assets/images/selfHelp/T_FuelLeak.png"
         }
       }
     },
@@ -349,8 +345,7 @@
           "If clutch partially works after fluid top-up, engage gears gently and drive only to the nearest mechanic."
         ],
         "Images": {
-          "carClutch": "assets/images/selfHelp/carClutch.png",
-          "carFluid": "assets/images/selfHelp/carClutchFluid.png"
+          "carClutch": "assets/images/selfHelp/C_clutch.png"
         }
       },
       "In Bikes": {
@@ -362,8 +357,7 @@
           "Shift gears carefully by matching throttle and engine speed (clutchless shifting)."
         ],
         "Images": {
-          "bikeClutch": "assets/images/selfHelp/bikeClutch.png",
-          "bikeCable": "assets/images/selfHelp/bikeClutchCable.png"
+          "bikeClutch": "assets/images/selfHelp/B_Clutch.png"
         }
       },
       "In Trucks/Heavy Vehicles": {
@@ -375,7 +369,7 @@
           "Call for roadside service or towing — heavy vehicles require professional repair."
         ],
         "Images": {
-          "truckClutch": "assets/images/selfHelp/truckClutch.png"
+          "truckClutch": "assets/images/selfHelp/T_Clutch.png"
         }
       }
     },
@@ -395,8 +389,7 @@
           "If still unresponsive, call roadside assistance — do not keep cranking as it may drain the battery."
         ],
         "Images": {
-          "carStarter": "assets/images/selfHelp/carStarter.png",
-          "carHammer": "assets/images/selfHelp/carHammer.png"
+          "carStarter": "assets/images/selfHelp/C_motor.png"
         }
       },
       "In Bikes": {
@@ -408,8 +401,7 @@
           "If the starter is burnt out, it must be replaced at a workshop."
         ],
         "Images": {
-          "bikeStarter": "assets/images/selfHelp/bikeStarter.png",
-          "bikeKick": "assets/images/selfHelp/bikeKick.png"
+          "bikeStarter": "assets/images/selfHelp/B_motor.png"
         }
       },
       "In Trucks/Heavy Vehicles": {
@@ -421,12 +413,12 @@
           "Avoid repeated attempts, as it may overheat the system and drain batteries."
         ],
         "Images": {
-          "truckStarter": "assets/images/selfHelp/truckStarter.png"
+          "truckStarter": "assets/images/selfHelp/T_motor.png"
         }
       }
     },
     {
-      "Name": "Headlight / Indicator Failure",
+      "Name": "Indicator Failure",
       "In Cars": {
         "Tools Required": [
           "Spare bulbs",
@@ -442,8 +434,7 @@
           "Until fixed, use hazard lights and drive slowly."
         ],
         "Images": {
-          "carHeadlight": "assets/images/selfHelp/carHeadlight.png",
-          "carIndicator": "assets/images/selfHelp/carIndicator.png"
+          "carHeadlight": "assets/images/selfHelp/C_indicator.png"
         }
       },
       "In Bikes": {
@@ -455,8 +446,7 @@
           "If unable to fix roadside, use hand signals and avoid night riding until repaired."
         ],
         "Images": {
-          "bikeHeadlight": "assets/images/selfHelp/bikeHeadlight.png",
-          "bikeIndicator": "assets/images/selfHelp/bikeIndicator.png"
+          "bikeHeadlight": "assets/images/selfHelp/B_indicator.png"
         }
       },
       "In Trucks/Heavy Vehicles": {
@@ -468,8 +458,7 @@
           "Use reflective triangles and hazard lights until repairs are done."
         ],
         "Images": {
-          "truckHeadlight": "assets/images/selfHelp/truckHeadlight.png",
-          "truckIndicator": "assets/images/selfHelp/truckIndicator.png"
+          "truckHeadlight": "assets/images/selfHelp/T_indicator.png"
         }
       }
     }

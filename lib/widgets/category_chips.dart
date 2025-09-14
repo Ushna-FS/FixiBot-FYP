@@ -1,3 +1,5 @@
+import 'package:fixibot_app/model/mechanicModel.dart';
+
 import '../constants/app_colors.dart';
 import '../constants/app_fontStyles.dart';
 import '../screens/mechanics/view/controller/mechanicController.dart';
@@ -22,7 +24,7 @@ class CategoryChips extends StatelessWidget {
   void categorySelection() {
     if (isSelected.value == false) {
       isSelected.value = true;
-      mechanicController.mechanicCategories.add(category);
+      mechanicController.mechanicCategories.add(category as Mechanic);
     } else {
       isSelected.value = false;
       mechanicController.mechanicCategories.remove(category);
