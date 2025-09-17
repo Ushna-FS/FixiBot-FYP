@@ -1,4 +1,6 @@
 import 'package:fixibot_app/bindings/initialBinding.dart';
+import 'package:fixibot_app/screens/auth/view/confirm_forgetPassword.dart';
+import 'package:fixibot_app/screens/auth/view/forgotPassword.dart';
 import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/otp/controller/otpController.dart';
@@ -48,9 +50,7 @@ class AppPages {
       name: AppRoutes.home,
       page: () => const HomeScreen(),
     ),
-    // GetPage(
-    //     name: AppRoutes.verification,
-    //     page: () => const VerificationSentScreen()),
+    
   GetPage(
   name: AppRoutes.selfhelp,
   page: () => SelfHelpSolutions(issueData: Get.arguments as Map<String, dynamic>),
@@ -85,7 +85,14 @@ GetPage(
     Get.put(OtpController());
   }),
 ),
+ GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => ForgotPasswordScreen(),
+    ),
 
-
+  GetPage(
+  name: "/password-reset-confirm",
+  page: () =>ConfirmResetScreen(),
+),
   ];
 }
