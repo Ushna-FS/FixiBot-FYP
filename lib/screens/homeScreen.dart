@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
@@ -10,6 +12,7 @@ import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/location/location_popup.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
+import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/search/searchScreen.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
@@ -22,6 +25,7 @@ import 'package:fixibot_app/widgets/home_header.dart';
 import 'package:fixibot_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,9 +38,13 @@ class HomeScreen extends StatefulWidget {
 class _HomePageState extends State<HomeScreen> {
   int _selectedIndex = 0;
   int currentIndex = 0;
+   final Rx<File?> image = Rx<File?>(null);
+
   final LocationController locationController = Get.put(LocationController());
 
   late Future<List<BreakdownModel>> futureBreakdowns;
+  final userController = Get.put(UserController()); 
+  
 
   final List<List<String>> issuesList = [
     [
@@ -96,7 +104,38 @@ class _HomePageState extends State<HomeScreen> {
       await prefs.setBool('isFirstTimeHome', true);
     }
   }
+  Future<void> pickImage(ImageSource source) async {
+  final picker = ImagePicker();
+  final picked = await picker.pickImage(source: source, imageQuality: 75);
+  if (picked != null) {
+    userController.updateProfileImage(File(picked.path));
+  }
+}
 
+
+  void _showImagePickerDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Select Image Source"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+              pickImage(ImageSource.camera);
+            },
+            child: const Text("Camera"),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              pickImage(ImageSource.gallery);
+            },
+            child: const Text("Gallery"),
+          ),
+        ],
+      ),
+    );
+  }
   void _refreshHomeHeader() {
     setState(() {});
   }
@@ -119,7 +158,23 @@ class _HomePageState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const CircleAvatar(radius: 20),
+               CircleAvatar(
+  radius: 15,
+  backgroundColor: AppColors.textColor4,
+  backgroundImage: userController.profileImage.value != null
+      ? FileImage(userController.profileImage.value!)
+      : (userController.profileImageUrl.value.isNotEmpty
+          ? NetworkImage(userController.profileImageUrl.value) as ImageProvider
+          : null),
+  child: userController.profileImage.value == null &&
+         userController.profileImageUrl.value.isEmpty
+      ? IconButton(
+          icon: const Icon(Icons.add, size: 10),
+          color: Colors.white,
+          onPressed: _showImagePickerDialog,
+        )
+      : null,
+),
                 Image.asset("assets/icons/locationIcon.png",
                     color: AppColors.textColor),
                 TextButton(

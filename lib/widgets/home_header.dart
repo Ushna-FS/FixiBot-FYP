@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:flutter/material.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
@@ -18,9 +19,10 @@ class HomeHeaderBox extends StatefulWidget {
 class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   final SharedPrefsHelper _sharedPrefs = SharedPrefsHelper();
   final VehicleController vehicleController = Get.find<VehicleController>();
+  final UserController userController = Get.find<UserController>();
 
   int? selectedIndex;
-  String userName = 'Guest';
+
 
   @override
   void initState() {
@@ -40,15 +42,16 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   //   }
   // }
 
+
+
+
   Future<void> _loadUserName() async {
     final name = await _sharedPrefs.getString("full_name");
-    if (mounted) {
-      setState(() {
-        userName = (name != null && name.trim().isNotEmpty) ? name : "User";
-      });
+    final email = await _sharedPrefs.getString("email");
+    if (name != null && name.isNotEmpty) {
+      userController.updateUser(name, email ?? "");
     }
   }
-
 
 Future<void> _fetchVehicles() async {
   final prefs = await SharedPreferences.getInstance();
@@ -157,10 +160,10 @@ Future<void> _fetchVehicles() async {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Hello $userName",
-            style: AppFonts.HomeheaderBox,
-          ),
+          Obx(() => Text(
+                "Hello ${userController.fullName.value}",
+                style: AppFonts.HomeheaderBox,
+              )),
           Text(
             "Start Your Smart Journey.",
             style: AppFonts.montserratHomeAppbar,
