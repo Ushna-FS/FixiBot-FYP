@@ -236,6 +236,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
 import 'package:get/get.dart';
@@ -370,14 +371,10 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.secondaryColor,
-        title: Text("Edit Profile", style: AppFonts.montserrathomecardText),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Image.asset('assets/icons/back.png', width: 30, height: 30),
-        ),
+      appBar: CustomAppBar(
+        
+        title: "Notificatons",
+        
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),

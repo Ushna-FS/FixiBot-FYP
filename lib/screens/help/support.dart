@@ -1,5 +1,6 @@
 
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/custom_textField.dart';
 import 'package:flutter/material.dart';
@@ -18,18 +19,10 @@ class HelpSupportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       
-      appBar: AppBar(
-        elevation: 1,
-        title: Text("Help Center", style: AppFonts.montserrathomecardText),
-        centerTitle: true,
-        leading: IconButton(
-                    onPressed: () {
-                      Get.back();
-                    }, 
-                    icon: Image.asset('assets/icons/back.png',
-                    width: 30,
-                    height:30),
-                    ),
+     appBar: CustomAppBar(
+        
+        title: "Help Center",
+        
       ),
       backgroundColor: AppColors.secondaryColor,
       body: 

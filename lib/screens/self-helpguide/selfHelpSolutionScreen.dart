@@ -22,7 +22,14 @@ class SelfHelpSolutions extends StatelessWidget {
             fontSize: 20,
             color: AppColors.mainColor,
             fontWeight: FontWeight.bold,
-          ),
+          ),),
+         leading: IconButton(
+                    onPressed: () {
+                      Get.back();
+                    }, 
+                    icon: Image.asset('assets/icons/back.png',
+                    width: 30,
+                    height:30),
         ),
         centerTitle: true,
       ),

@@ -4,6 +4,7 @@ import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/mechanics/view/controller/mechanicController.dart';
 import 'package:fixibot_app/widgets/category_chips.dart';
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:fixibot_app/widgets/mechanic_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,7 +31,7 @@ final userLng = locationController.userLongitude.value;
 // }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.secondaryColor,
+        backgroundColor: AppColors.mainColor,
         title: Padding(
           padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
           child: Center(
@@ -39,7 +40,7 @@ final userLng = locationController.userLongitude.value;
               children: [
                 Image.asset(
                   "assets/icons/locationIcon.png",
-                  color: AppColors.mainColor,
+                  color: AppColors.textColor,
                   width: isSmallScreen ? 20 : 24,
                   height: isSmallScreen ? 20 : 24,
                 ),
@@ -62,8 +63,8 @@ final userLng = locationController.userLongitude.value;
                                 ? "${location.substring(0, 20)}..."
                                 : location),
                         style: isSmallScreen
-                            ? AppFonts.montserratMainText14
-                            : AppFonts.montserratMainText14
+                            ? AppFonts.montserratWhiteText
+                            : AppFonts.montserratWhiteText
                                 .copyWith(fontSize: 18),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -80,7 +81,7 @@ final userLng = locationController.userLongitude.value;
             Get.back();
           },
           icon: Image.asset(
-            'assets/icons/back.png',
+            'assets/icons/back.png',color: AppColors.secondaryColor,
             width: isSmallScreen ? 24 : 30,
             height: isSmallScreen ? 24 : 30,
           ),
@@ -96,7 +97,7 @@ final userLng = locationController.userLongitude.value;
                   child: controller.isNotified.value
                       ? Image.asset(
                           "assets/icons/notification.png",
-                          color: AppColors.mainColor,
+                          color: AppColors.secondaryColor,
                           width: isSmallScreen ? 24 : 30,
                           height: isSmallScreen ? 24 : 30,
                         )
@@ -110,6 +111,7 @@ final userLng = locationController.userLongitude.value;
           )
         ],
       ),
+   
       backgroundColor: AppColors.secondaryColor,
       body: Obx(() {
         if (controller.isLoading.value) {

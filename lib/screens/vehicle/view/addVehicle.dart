@@ -1,3 +1,4 @@
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -106,7 +107,11 @@ class AddVehicle extends GetView<VehicleController> {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.secondaryColor,
+      appBar: CustomAppBar(
+        
+        title: "Add Your Vehicles",
+        
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -121,23 +126,9 @@ class AddVehicle extends GetView<VehicleController> {
                     : screenSize.height * 0.5,
               ),
             ),
-            Positioned(
-              top: screenSize.height * 0.03,
-              left: screenSize.width * 0.05,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  print('Back arrow tapped');
-                  Get.back();
-                },
-                child: Image.asset(
-                  "assets/icons/backArrow.png",
-                  width: isPortrait
-                      ? screenSize.width * 0.08
-                      : screenSize.height * 0.08,
-                ),
-              ),
-            ),
+            
+              
+            
             Positioned(
               bottom: 0,
               left: 0,

@@ -1,3 +1,5 @@
+import 'package:fixibot_app/widgets/customAppBar.dart';
+
 import '../constants/app_colors.dart';
 import 'homeScreen.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +19,10 @@ class _ViewNotificationsScreenState extends State<ViewNotificationsScreen> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.secondaryColor,
-        title: const Text("Notificatons"),
-        titleTextStyle: AppFonts.customTextStyle(fontSize: 20, color: AppColors.mainColor, fontWeight: FontWeight.bold),
-        leading: IconButton(
-                    onPressed: () {
-                      Get.to(const HomeScreen());
-                    }, 
-                    icon: Image.asset('assets/icons/back.png',
-                    width: 30,
-                    height:30),
-                    ),
-        centerTitle: true,
+      appBar: CustomAppBar(
+        
+        title: "Notificatons",
+        
       ),
       body: Container(
         height: screenSize.height * 1,

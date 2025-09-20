@@ -1,3 +1,4 @@
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_fontStyles.dart';
@@ -29,11 +30,11 @@ class BreakdownDetailScreen extends StatelessWidget {
         : {};
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.mainColor,
-        title: Text("$issueName - $vehicleType"),
-        centerTitle: true,
-      ),
+      appBar: CustomAppBar(
+
+  title: "$issueName - $vehicleType",
+),
+      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -80,21 +81,7 @@ class BreakdownDetailScreen extends StatelessWidget {
                       color: AppColors.mainColor,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              // Wrap(
-              //   spacing: 12,
-              //   runSpacing: 12,
-              //   children: images.values
-              //       .map((imgPath) => ClipRRect(
-              //             borderRadius: BorderRadius.circular(12),
-              //             child: Image.asset(
-              //               imgPath,
-              //               height: 250,
-              //               width: 250,
-              //               fit: BoxFit.cover,
-              //             ),
-              //           ))
-              //       .toList(),
-              // ),
+            
               Center(
   child: Wrap(
     spacing: 12,

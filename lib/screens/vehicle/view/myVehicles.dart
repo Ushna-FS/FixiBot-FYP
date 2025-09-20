@@ -2,6 +2,7 @@ import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/screens/vehicle/view/editVehicle.dart';
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,21 +70,11 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
     final bool showEmptyState = vehicles == null || vehicles!.isEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 1,
-        title: Text("Vehicles Information",
-            style: AppFonts.montserrathomecardText),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Image.asset('assets/icons/back.png', width: 30, height: 30),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: AppColors.mainColor),
-            onPressed: _loadVehicles,
-          ),
-        ],
+      appBar: CustomAppBar(
+      
+        title: "Vehicles Information",
+          
+        
       ),
       backgroundColor: AppColors.secondaryColor,
       body: isLoading
