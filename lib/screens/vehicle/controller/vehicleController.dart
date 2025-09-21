@@ -89,7 +89,7 @@ class VehicleController extends GetxController {
     print('is_active: $isActive');
     print('mileage_km: ${carMileage.text.trim()}');
 
-    final List<String> possibleEndpoints = ['$baseUrl/vehicles'];
+    final List<String> possibleEndpoints = ['$baseUrl/vehicles/create'];
     http.Response? response;
 
     for (var endpoint in possibleEndpoints) {
@@ -292,10 +292,10 @@ Future<List<dynamic>> getUserVehicles(String userId) async {
       throw Exception('No authentication token found');
     }
 
-    print('🌐 Calling API: $baseUrl/vehicles/user/$userId');
+    print('🌐 Calling API: $baseUrl/vehicles');
     
     final response = await http.get(
-      Uri.parse('$baseUrl/vehicles'),
+      Uri.parse('$baseUrl/vehicles/all'),
       headers: {
         "Authorization": "Bearer $accessToken",
         "Content-Type": "application/json",
@@ -418,6 +418,21 @@ Future<void> updateVehicle({
     isLoading.value = false;
   }
 }
+Future<void> fetchUserVehicles() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString("user_id"); // make sure you save this at login
+
+    if (userId == null) {
+      throw Exception("No userId found in storage");
+    }
+
+    await getUserVehicles(userId); // reuse your existing method
+  } catch (e) {
+    print("❌ fetchUserVehicles error: $e");
+  }
+}
+
 
 Future<Map<String, dynamic>?> getVehicleById(String vehicleId) async {
   try {
