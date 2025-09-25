@@ -155,11 +155,15 @@ class CustomTextField extends StatefulWidget {
   final bool isPassword;
   final TextEditingController? controller;
   final TextInputType keyboardType;
-  final VoidCallback? onIconPressed; // ✅ optional callback
+  final VoidCallback? onIconPressed; 
+  final TextCapitalization;
+  final onChanged;// ✅ optional callback
 
   const CustomTextField({
     super.key,
     required this.hintText,
+    this.TextCapitalization,
+    this.onChanged,
     this.icon,
     this.isPassword = false,
     this.controller,
