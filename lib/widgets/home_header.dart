@@ -28,19 +28,14 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   void initState() {
     super.initState();
     _loadUserName();
-    // _loadUserVehicles();
-    
   _fetchVehicles();
   }
 
-  // @override
-  // void didUpdateWidget(HomeHeaderBox oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   // Refresh when the callback changes (usually means parent wants refresh)
-  //   if (widget.onRefresh != oldWidget.onRefresh) {
-  //     _loadUserVehicles();
-  //   }
-  // }
+  @override
+  void didUpdateWidget(HomeHeaderBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _fetchVehicles();
+  }
 
 
 
@@ -61,30 +56,6 @@ Future<void> _fetchVehicles() async {
   }
 }
 
-  // Future<void> _loadUserVehicles() async {
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final userId = prefs.getString("user_id");
-
-  //     if (userId != null && userId.isNotEmpty) {
-  //       final vehicles = await vehicleController.getUserVehicles(userId);
-  //       print('Fetched vehicles: $vehicles');
-
-  //       if (mounted) {
-  //         setState(() {
-  //           userVehicles = vehicles ?? [];
-  //         });
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('Error loading vehicles for home header: $e');
-  //     if (mounted) {
-  //       setState(() {
-  //         userVehicles = [];
-  //       });
-  //     }
-  //   }
-  // }
 
   // Build vehicle chip widget
   Widget _buildVehicleChip(Map<String, dynamic> vehicle, bool isPrimary) {
