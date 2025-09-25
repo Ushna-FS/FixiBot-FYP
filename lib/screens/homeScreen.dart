@@ -65,7 +65,6 @@ class _HomePageState extends State<HomeScreen> {
   void initState() {
     super.initState();
     futureBreakdowns = BreakdownService.loadBreakdowns();
-    _checkAndShowPopup();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LocationPopup.showLocationPopup(context);
     });
