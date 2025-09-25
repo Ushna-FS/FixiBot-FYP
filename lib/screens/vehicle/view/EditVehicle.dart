@@ -1,3 +1,5 @@
+import 'package:fixibot_app/screens/vehicle/model/vehiclebrandModel.dart';
+import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,8 +31,8 @@ class _EditVehicleState extends State<EditVehicle> {
 
   void _populateForm() {
     // Pre-fill the form with existing vehicle data
-    controller.carManufacturer.text = vehicleData['brand'] ?? '';
-    controller.carModel.text = vehicleData['model'] ?? '';
+    controller.selectedBrand.value= vehicleData['brand'] ?? '';
+    controller.selectedModel.value= vehicleData['model'] ?? '';
     controller.carModelYear.text = vehicleData['year']?.toString() ?? '';
     controller.carMileage.text = vehicleData['mileage_km']?.toString() ?? '';
     controller.fuelType.text = vehicleData['fuel_type'] ?? '';
@@ -41,89 +43,91 @@ class _EditVehicleState extends State<EditVehicle> {
     // TODO: Load existing images if available
   }
 
-Future<void> _updateVehicle() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString("user_id");
+  Future<void> _updateVehicle() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString("user_id");
 
-    if (userId == null || userId.isEmpty) {
-      Get.snackbar("Error", "User not logged in");
-      return;
+      if (userId == null || userId.isEmpty) {
+        Get.snackbar("Error", "User not logged in");
+        return;
+      }
+
+      // Show loading
+      Get.dialog(
+        Center(
+          child: CircularProgressIndicator(color: AppColors.mainColor),
+        ),
+        barrierDismissible: false,
+      );
+
+      // Call the update API
+      await controller.updateVehicle(
+        vehicleId: vehicleData['_id'],
+        userId: userId,
+        model: controller.selectedModel.value,
+        brand: controller.selectedBrand.value,
+        year: int.tryParse(controller.carModelYear.text),
+        type: controller.selectedVehicleType.value,
+        fuelType: controller.fuelType.text.trim(),
+        transmission:
+            controller.transmissionAuto.value ? "automatic" : "manual",
+        mileageKm: int.tryParse(controller.carMileage.text),
+        isPrimary: vehicleData['is_primary'] ?? false,
+        isActive: vehicleData['is_active'] ?? true,
+      );
+
+      // Close loading
+      Get.back();
+
+      // Prepare updated vehicle data with proper typing
+      final updatedVehicle = Map<String, dynamic>.from({
+        '_id': vehicleData['_id'],
+        'brand': controller.selectedBrand.value,
+        'model': controller.selectedModel.value,
+        'year': int.tryParse(controller.carModelYear.text),
+        'type': controller.selectedVehicleType.value,
+        'fuel_type': controller.fuelType.text.trim(),
+        'transmission':
+            controller.transmissionAuto.value ? "automatic" : "manual",
+        'mileage_km': int.tryParse(controller.carMileage.text),
+        'is_primary': vehicleData['is_primary'] ?? false,
+        'is_active': vehicleData['is_active'] ?? true,
+      });
+
+      // Call the update callback
+      onUpdate(updatedVehicle);
+
+      // Go back to previous screen
+      Get.back();
+
+      // Add delay to avoid snackbar conflict
+      Future.delayed(Duration(milliseconds: 100), () {
+        Get.snackbar(
+          "Success",
+          "Vehicle updated successfully",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      });
+    } catch (e) {
+      Get.back(); // Close loading if still open
+      print('❌ Error updating vehicle: $e');
+
+      Future.delayed(Duration(milliseconds: 100), () {
+        Get.snackbar(
+          "Update Failed",
+          "Failed to update vehicle: ${e.toString()}",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: Duration(seconds: 5),
+        );
+      });
     }
-
-    // Show loading
-    Get.dialog(
-      Center(
-        child: CircularProgressIndicator(color: AppColors.mainColor),
-      ),
-      barrierDismissible: false,
-    );
-
-    // Call the update API
-    await controller.updateVehicle(
-      vehicleId: vehicleData['_id'],
-      userId: userId,
-      model: controller.carModel.text.trim(),
-      brand: controller.carManufacturer.text.trim(),
-      year: int.tryParse(controller.carModelYear.text),
-      type: controller.selectedVehicleType.value,
-      fuelType: controller.fuelType.text.trim(),
-      transmission: controller.transmissionAuto.value ? "automatic" : "manual",
-      mileageKm: int.tryParse(controller.carMileage.text),
-      isPrimary: vehicleData['is_primary'] ?? false,
-      isActive: vehicleData['is_active'] ?? true,
-    );
-
-    // Close loading
-    Get.back();
-
-    // Prepare updated vehicle data with proper typing
-    final updatedVehicle = Map<String, dynamic>.from({
-      '_id': vehicleData['_id'],
-      'brand': controller.carManufacturer.text.trim(),
-      'model': controller.carModel.text.trim(),
-      'year': int.tryParse(controller.carModelYear.text),
-      'type': controller.selectedVehicleType.value,
-      'fuel_type': controller.fuelType.text.trim(),
-      'transmission': controller.transmissionAuto.value ? "automatic" : "manual",
-      'mileage_km': int.tryParse(controller.carMileage.text),
-      'is_primary': vehicleData['is_primary'] ?? false,
-      'is_active': vehicleData['is_active'] ?? true,
-    });
-
-    // Call the update callback
-    onUpdate(updatedVehicle);
-
-    // Go back to previous screen
-    Get.back();
-
-    // Add delay to avoid snackbar conflict
-    Future.delayed(Duration(milliseconds: 100), () {
-      Get.snackbar(
-        "Success", 
-        "Vehicle updated successfully",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-    });
-
-  } catch (e) {
-    Get.back(); // Close loading if still open
-    print('❌ Error updating vehicle: $e');
-    
-    Future.delayed(Duration(milliseconds: 100), () {
-      Get.snackbar(
-        "Update Failed", 
-        "Failed to update vehicle: ${e.toString()}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: Duration(seconds: 5),
-      );
-    });
   }
-}
+
   void OpenDialog(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isPortrait = screenSize.height > screenSize.width;
@@ -203,6 +207,9 @@ Future<void> _updateVehicle() async {
     }
 
     return Scaffold(
+      appBar: CustomAppBar(
+        title: "Edit Your Vehicles",
+      ),
       backgroundColor: AppColors.secondaryColor,
       body: SafeArea(
         child: Stack(
@@ -216,22 +223,6 @@ Future<void> _updateVehicle() async {
                 width: isPortrait
                     ? screenSize.width * 0.5
                     : screenSize.height * 0.5,
-              ),
-            ),
-            Positioned(
-              top: screenSize.height * 0.03,
-              left: screenSize.width * 0.05,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  Get.back();
-                },
-                child: Image.asset(
-                  "assets/icons/backArrow.png",
-                  width: isPortrait
-                      ? screenSize.width * 0.08
-                      : screenSize.height * 0.08,
-                ),
               ),
             ),
             Positioned(
@@ -415,17 +406,103 @@ Future<void> _updateVehicle() async {
                             ),
                           )),
                       SizedBox(height: verticalPadding),
-                      CustomTextField(
-                        hintText: "Vehicle Manufacturer",
-                        icon: Icons.car_rental,
-                        controller: controller.carManufacturer,
-                      ),
-                      SizedBox(height: verticalPadding),
-                      CustomTextField(
-                        hintText: "Vehicle Model",
-                        icon: Icons.car_rental,
-                        controller: controller.carModel,
-                      ),
+                      // ===== Vehicle Brand Dropdown =====
+                      if (controller.selectedVehicleType.value == 'car') ...[
+                        SizedBox(height: verticalPadding),
+                        Obx(() => Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isPortrait
+                                    ? screenSize.width * 0.05
+                                    : screenSize.width * 0.02,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: AppColors.mainColor, width: 1.5),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: controller.selectedBrand.value.isEmpty
+                                      ? null
+                                      : controller.selectedBrand.value,
+                                  hint: Text(
+                                    "Select Brand",
+                                    style:
+                                        AppFonts.montserratMainText14.copyWith(
+                                      color:
+                                          AppColors.mainColor.withOpacity(0.9),
+                                    ),
+                                  ),
+                                  items: carBrandData
+                                      .map((e) => DropdownMenuItem<String>(
+                                            value: e['brand'],
+                                            child: Text(e['brand'],
+                                                style: AppFonts
+                                                    .montserratMainText14),
+                                          ))
+                                      .toList(),
+                                  onChanged: (value) {
+                                    controller.selectedBrand.value =
+                                        value ?? '';
+                                    controller.selectedModel.value =
+                                        ''; // reset model
+                                  },
+                                ),
+                              ),
+                            )),
+                        // ===== Vehicle Model Dropdown (depends on brand) =====
+                        SizedBox(height: verticalPadding),
+                        Obx(() {
+                          final selectedBrandMap = carBrandData.firstWhere(
+                            (e) => e['brand'] == controller.selectedBrand.value,
+                            orElse: () => {},
+                          );
+                          final models = selectedBrandMap.isNotEmpty
+                              ? List<String>.from(selectedBrandMap['models'])
+                              : <String>[];
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isPortrait
+                                  ? screenSize.width * 0.05
+                                  : screenSize.width * 0.02,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                  color: AppColors.mainColor, width: 1.5),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: controller.selectedModel.value.isEmpty
+                                    ? null
+                                    : controller.selectedModel.value,
+                                hint: Text(
+                                  "Select Model",
+                                  style: AppFonts.montserratMainText14.copyWith(
+                                    color: AppColors.mainColor.withOpacity(0.9),
+                                  ),
+                                ),
+                                items: models
+                                    .map((m) => DropdownMenuItem<String>(
+                                          value: m,
+                                          child: Text(m,
+                                              style: AppFonts
+                                                  .montserratMainText14),
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  controller.selectedModel.value = value ?? '';
+                                },
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+
                       SizedBox(height: verticalPadding),
                       CustomTextField(
                         hintText: "Vehicle Model Year",

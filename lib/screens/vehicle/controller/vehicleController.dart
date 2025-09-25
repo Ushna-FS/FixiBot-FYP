@@ -15,13 +15,16 @@ class VehicleController extends GetxController {
 
   // final String baseUrl = "http://10.135.54.128:8000";
   var transmissionAuto = false.obs;
-  final carManufacturer = TextEditingController();
-  final carModel = TextEditingController();
+
   final carModelYear = TextEditingController();
   final carMileage = TextEditingController();
   final fuelType = TextEditingController();
+var selectedModel = ''.obs;
+var selectedBrand= ''.obs;
   var selectedVehicleType = ''.obs;
   var isLoading = false.obs;
+  
+  Future<SharedPreferences> get sharedPrefs async => await SharedPreferences.getInstance();
 
   var image = Rx<File?>(null);
   var imageBytes = Rx<Uint8List?>(null);
@@ -70,7 +73,7 @@ class VehicleController extends GetxController {
       isLoading.value = false;
       return;
     }
-    if (carModel.text.trim().isEmpty) {
+    if (selectedModel.value.isEmpty) {
       Get.snackbar('Error', 'Vehicle model is required');
       isLoading.value = false;
       return;
@@ -79,8 +82,8 @@ class VehicleController extends GetxController {
     // Debug: Print all form data
     print('📋 Vehicle Data to be sent:');
     print('user_id: $userId');
-    print('model: ${carModel.text.trim()}');
-    print('brand: ${carManufacturer.text.trim()}');
+    print('model: ${selectedModel}');
+    print('brand: ${selectedBrand}');
     print('year: ${carModelYear.text.trim()}');
     print('type: ${selectedVehicleType.value}');
     print('fuel_type: ${fuelType.text.trim()}');
@@ -111,12 +114,12 @@ class VehicleController extends GetxController {
 
         // Add required form fields
         request.fields['user_id'] = userId;
-        request.fields['model'] = carModel.text.trim();
+        request.fields['model'] = selectedModel.value;
         request.fields['type'] = selectedVehicleType.value;
 
         // Add optional fields if they have values
-        if (carManufacturer.text.trim().isNotEmpty) {
-          request.fields['brand'] = carManufacturer.text.trim();
+        if (selectedBrand.value.isNotEmpty) {
+          request.fields['brand'] = selectedBrand.value;
         }
         if (carModelYear.text.trim().isNotEmpty) {
           request.fields['year'] = carModelYear.text.trim();
@@ -249,8 +252,8 @@ class VehicleController extends GetxController {
   }
 
   void clearForm() {
-    carManufacturer.clear();
-    carModel.clear();
+    selectedBrand.value = '';
+    selectedModel.value = '';
     carModelYear.clear();
     carMileage.clear();
     fuelType.clear();
@@ -462,11 +465,6 @@ Future<Map<String, dynamic>?> getVehicleById(String vehicleId) async {
 
   @override
   void onClose() {
-    carManufacturer.dispose();
-    carModel.dispose();
-    carModelYear.dispose();
-    carMileage.dispose();
-    fuelType.dispose();
     super.onClose();
   }
 }

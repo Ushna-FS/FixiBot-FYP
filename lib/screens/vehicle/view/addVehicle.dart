@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/vehicle/model/vehiclebrandModel.dart';
 import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,9 @@ import '../../../widgets/custom_buttons.dart';
 import '../../../widgets/custom_textField.dart';
 
 class AddVehicle extends GetView<VehicleController> {
+  
   const AddVehicle({super.key});
+  
 
   // Helper functions should be defined here, outside build() but inside class
   String _capitalize(String text) {
@@ -35,8 +38,13 @@ class AddVehicle extends GetView<VehicleController> {
       Get.snackbar("Error", "Please select a vehicle type");
       return;
     }
-    if (controller.carModel.text.trim().isEmpty) {
+    if (controller.selectedModel.value.isEmpty) {
       Get.snackbar("Error", "Please enter vehicle model");
+      return;
+    }
+
+    if (controller.selectedBrand.value.isEmpty) {
+      Get.snackbar("Error", "Please enter vehicle Brand Name");
       return;
     }
 
@@ -73,7 +81,6 @@ class AddVehicle extends GetView<VehicleController> {
       isPrimary: true,
       isActive: true,
     );
-    
   }
 
   VoidCallback _getOnPressed() {
@@ -88,6 +95,7 @@ class AddVehicle extends GetView<VehicleController> {
 
   @override
   Widget build(BuildContext context) {
+    final motorizedVehicles = ['car','bike', 'truck', 'van', 'suv', 'bus', 'other'];
     final Size screenSize = MediaQuery.of(context).size;
     final bool isPortrait = screenSize.height > screenSize.width;
     final double horizontalPadding =
@@ -95,22 +103,9 @@ class AddVehicle extends GetView<VehicleController> {
     final double verticalPadding =
         isPortrait ? screenSize.height * 0.02 : screenSize.height * 0.03;
 
-    // Move the list inside build method since it's used in the UI
-    final List<String> vehicleTypes = [
-      'bike',
-      'car',
-      'truck',
-      'van',
-      'suv',
-      'bus',
-      'other'
-    ];
-
     return Scaffold(
       appBar: CustomAppBar(
-        
         title: "Add Your Vehicles",
-        
       ),
       body: SafeArea(
         child: Stack(
@@ -126,9 +121,6 @@ class AddVehicle extends GetView<VehicleController> {
                     : screenSize.height * 0.5,
               ),
             ),
-            
-              
-            
             Positioned(
               bottom: 0,
               left: 0,
@@ -313,17 +305,116 @@ class AddVehicle extends GetView<VehicleController> {
                             ),
                           )),
                       SizedBox(height: verticalPadding),
-                      CustomTextField(
-                        hintText: "Vehicle Brand",
-                        icon: Icons.car_rental,
-                        controller: controller.carManufacturer,
-                      ),
-                      SizedBox(height: verticalPadding),
-                      CustomTextField(
-                        hintText: "Vehicle Model",
-                        icon: Icons.car_rental,
-                        controller: controller.carModel,
-                      ),
+                      // ===== Vehicle Brand Dropdown =====
+                      
+                      Obx(() {
+                        if (motorizedVehicles.contains(controller.selectedVehicleType.value.toLowerCase())) {
+                          return Column(
+                            children: [
+                              // Brand Dropdown
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isPortrait
+                                      ? screenSize.width * 0.05
+                                      : screenSize.width * 0.02,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                      color: AppColors.mainColor, width: 1.5),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    value:
+                                        controller.selectedBrand.value.isEmpty
+                                            ? null
+                                            : controller.selectedBrand.value,
+                                    hint: Text(
+                                      "Select Brand",
+                                      style: AppFonts.montserratMainText14
+                                          .copyWith(
+                                              color: AppColors.mainColor
+                                                  .withOpacity(0.9)),
+                                    ),
+                                    items: carBrandData
+                                        .map((e) => DropdownMenuItem<String>(
+                                              value: e['brand'],
+                                              child: Text(e['brand'],
+                                                  style: AppFonts
+                                                      .montserratMainText14),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      controller.selectedBrand.value =
+                                          value ?? '';
+                                      controller.selectedModel.value = '';
+                                    },
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: verticalPadding),
+                              // Model Dropdown
+                              Obx(() {
+                                final selectedBrandMap =
+                                    carBrandData.firstWhere(
+                                  (e) =>
+                                      e['brand'] ==
+                                      controller.selectedBrand.value,
+                                  orElse: () => {},
+                                );
+                                final models = selectedBrandMap.isNotEmpty
+                                    ? List<String>.from(
+                                        selectedBrandMap['models'])
+                                    : <String>[];
+                                return Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isPortrait
+                                        ? screenSize.width * 0.05
+                                        : screenSize.width * 0.02,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                        color: AppColors.mainColor, width: 1.5),
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      value:
+                                          controller.selectedModel.value.isEmpty
+                                              ? null
+                                              : controller.selectedModel.value,
+                                      hint: Text("Select Model",
+                                          style: AppFonts.montserratMainText14
+                                              .copyWith(
+                                                  color: AppColors.mainColor
+                                                      .withOpacity(0.9))),
+                                      items: models
+                                          .map((m) => DropdownMenuItem<String>(
+                                                value: m,
+                                                child: Text(m,
+                                                    style: AppFonts
+                                                        .montserratMainText14),
+                                              ))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        controller.selectedModel.value =
+                                            value ?? '';
+                                      },
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
+
                       SizedBox(height: verticalPadding),
                       CustomTextField(
                         hintText: "Model Year",
@@ -332,10 +423,28 @@ class AddVehicle extends GetView<VehicleController> {
                       ),
                       SizedBox(height: verticalPadding),
                       CustomTextField(
-                        hintText: "Fuel Type (e.g., Petrol, Diesel, Electric)",
-                        icon: Icons.local_gas_station,
-                        controller: controller.fuelType,
-                      ),
+  hintText: "Fuel Type (e.g., Petrol, Diesel, Electric)",
+  icon: Icons.local_gas_station,
+  controller: controller.fuelType,
+  onChanged: (value) {
+    // Normalize the first letter to uppercase, rest lowercase
+    if (value.isNotEmpty) {
+      final normalized = value[0].toUpperCase() + value.substring(1).toLowerCase();
+      // Only update if text actually differs to avoid cursor jump
+      if (controller.fuelType.text != normalized) {
+        controller.fuelType.value = TextEditingValue(
+          text: normalized,
+          selection: TextSelection.fromPosition(
+            TextPosition(offset: normalized.length),
+          ),
+        );
+      }
+    }
+  },
+  TextCapitalization: TextCapitalization.none, // important to avoid conflicts
+),
+
+
                       SizedBox(height: verticalPadding),
                       Obx(() => Row(
                             mainAxisAlignment: MainAxisAlignment.end,
