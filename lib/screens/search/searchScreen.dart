@@ -42,7 +42,7 @@ class _SearchScreenState extends State<SearchScreen> {
       backgroundColor: AppColors.secondaryColor,
         leading: IconButton(
           onPressed: () {
-            Get.to(const HomeScreen());
+            Get.back();
           },
           icon: Image.asset('assets/icons/back.png', width: 30, height: 30),
         ),
