@@ -29,7 +29,7 @@
 //   late TextEditingController nameController;
 //   late TextEditingController emailController;
 //   final SharedPrefsHelper _prefs = SharedPrefsHelper();
-//   final String baseUrl = "http://127.0.0.1:8000";
+//   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
 //    final Rx<File?> image = Rx<File?>(null);
 
 //   @override
@@ -265,7 +265,7 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
-  final String baseUrl = "http://127.0.0.1:8000";
+  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
 
   final UserController userController = Get.find<UserController>();
 

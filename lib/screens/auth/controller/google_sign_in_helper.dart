@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class GoogleSignInController extends GetxController {
   final _sharedPrefs = SharedPrefsHelper();
-  final String baseUrl = "http://127.0.0.1:8000";
+  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
   final isLoading = false.obs;
 
   late GoogleSignIn _googleSignIn;

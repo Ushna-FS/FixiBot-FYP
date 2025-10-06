@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class VehicleController extends GetxController {
-   final String baseUrl = "http://127.0.0.1:8000";
+   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
     RxList<Map<String,dynamic>> userVehicles = <Map<String,dynamic>>[].obs;
 
   // final String baseUrl = "http://10.135.54.128:8000";

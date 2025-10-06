@@ -2,7 +2,7 @@ import 'package:fixibot_app/model/mechanicModel.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_fontStyles.dart';
-import '../screens/mechanics/view/controller/mechanicController.dart';
+import '../screens/mechanics/controller/mechanicController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

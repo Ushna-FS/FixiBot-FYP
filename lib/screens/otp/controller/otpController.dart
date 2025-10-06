@@ -10,7 +10,7 @@ class OtpController extends GetxController {
   final canResend = true.obs;
   final cooldownSeconds = 0.obs;
 
-  final String baseUrl = "http://127.0.0.1:8000";
+  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
   Timer? _cooldownTimer;
 
   void showError(String message) {

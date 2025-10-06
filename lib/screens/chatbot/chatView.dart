@@ -26,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  final String baseUrl = "http://127.0.0.1:8000";
+  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
 
   // Auth & session
   String? _accessToken;
