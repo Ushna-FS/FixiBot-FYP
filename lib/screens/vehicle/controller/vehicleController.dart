@@ -10,8 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class VehicleController extends GetxController {
-   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
+   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
     RxList<Map<String,dynamic>> userVehicles = <Map<String,dynamic>>[].obs;
+    
 
   // final String baseUrl = "http://10.135.54.128:8000";
   var transmissionAuto = false.obs;
@@ -33,6 +34,10 @@ var selectedBrand= ''.obs;
     update(); // This will notify all listeners
   }
 
+void resetForm() {
+  print('🔄 Resetting form for new vehicle...');
+  clearForm();
+}
 
   void _debugJsonBody(String jsonBody) {
     print('🔍 JSON Body Debug:');
@@ -55,214 +60,242 @@ var selectedBrand= ''.obs;
     transmissionAuto.value = !transmissionAuto.value;
   }
 
-  Future<void> saveVehicle({
-    required String userId,
-    required bool isPrimary,
-    required bool isActive,
-  }) async {
-    isLoading.value = true;
+ Future<void> saveVehicle({
+  required String userId,
+  required bool isPrimary,
+  required bool isActive,
+}) async {
+  isLoading.value = true;
 
-    // Input validation
-    if (userId.trim().isEmpty) {
-      Get.snackbar('Error', 'User ID is required');
-      isLoading.value = false;
-      return;
-    }
-    if (selectedVehicleType.value.isEmpty) {
-      Get.snackbar('Error', 'Please select a vehicle type');
-      isLoading.value = false;
-      return;
-    }
-    if (selectedModel.value.isEmpty) {
-      Get.snackbar('Error', 'Vehicle model is required');
-      isLoading.value = false;
-      return;
-    }
-
-    // Debug: Print all form data
-    print('📋 Vehicle Data to be sent:');
-    print('user_id: $userId');
-    print('model: ${selectedModel}');
-    print('brand: ${selectedBrand}');
-    print('year: ${carModelYear.text.trim()}');
-    print('type: ${selectedVehicleType.value}');
-    print('fuel_type: ${fuelType.text.trim()}');
-    print('transmission: ${transmissionAuto.value ? "automatic" : "manual"}');
-    print('is_primary: $isPrimary');
-    print('is_active: $isActive');
-    print('mileage_km: ${carMileage.text.trim()}');
-
-    final List<String> possibleEndpoints = ['$baseUrl/vehicles/create'];
-    http.Response? response;
-
-    for (var endpoint in possibleEndpoints) {
-      try {
-        final uri = Uri.parse(endpoint);
-        print('🔄 Trying endpoint: $endpoint');
-
-        // Get access token for authentication
-        final prefs = await SharedPreferences.getInstance();
-        final accessToken = prefs.getString('access_token');
-
-        // Create multipart request instead of JSON
-        var request = http.MultipartRequest('POST', uri);
-
-        // Add headers
-        if (accessToken != null) {
-          request.headers['Authorization'] = 'Bearer $accessToken';
-        }
-
-        // Add required form fields
-        request.fields['user_id'] = userId;
-        request.fields['model'] = selectedModel.value;
-        request.fields['type'] = selectedVehicleType.value;
-
-        // Add optional fields if they have values
-        if (selectedBrand.value.isNotEmpty) {
-          request.fields['brand'] = selectedBrand.value;
-        }
-        if (carModelYear.text.trim().isNotEmpty) {
-          request.fields['year'] = carModelYear.text.trim();
-        }
-        if (fuelType.text.trim().isNotEmpty) {
-          request.fields['fuel_type'] = fuelType.text.trim();
-        }
-        if (carMileage.text.trim().isNotEmpty) {
-          request.fields['mileage_km'] = carMileage.text.trim();
-        }
-
-        request.fields['transmission'] =
-            transmissionAuto.value ? "automatic" : "manual";
-        request.fields['is_primary'] = isPrimary.toString();
-        request.fields['is_active'] = isActive.toString();
-
-        // Add image if available
-        if (kIsWeb && imageBytes.value != null) {
-          final multipartFile = http.MultipartFile.fromBytes(
-            'images',
-            imageBytes.value!,
-            filename: 'vehicle_image.jpg',
-            contentType: MediaType('image', 'jpeg'),
-          );
-          request.files.add(multipartFile);
-          print('📸 Web image added to request');
-        } else if (!kIsWeb && image.value != null) {
-          final multipartFile = await http.MultipartFile.fromPath(
-            'images',
-            image.value!.path,
-            contentType: MediaType('image', 'jpeg'),
-          );
-          request.files.add(multipartFile);
-          print('📸 Mobile image added to request: ${image.value!.path}');
-        } else {
-          print('📸 No image selected');
-        }
-
-        print('📦 Sending form data with fields: ${request.fields}');
-        if (request.files.isNotEmpty) {
-          print('📦 With ${request.files.length} image files');
-        }
-
-        // Send the request
-        final streamedResponse = await request.send();
-        response = await http.Response.fromStream(streamedResponse);
-
-        print('📡 Response status: ${response.statusCode}');
-        print('📡 Response body: ${response.body}');
-
-        // If we get a successful response, break the loop
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          break;
-        }
-        
-      notifyVehicleDataChanged();
-      } catch (e) {
-        print('❌ Error with endpoint $endpoint: $e');
-        continue; // Try next endpoint
-      }
-    }
-
+  // Input validation
+  if (userId.trim().isEmpty) {
+    Get.snackbar('Error', 'User ID is required');
     isLoading.value = false;
+    return;
+  }
+  if (selectedVehicleType.value.isEmpty) {
+    Get.snackbar('Error', 'Please select a vehicle type');
+    isLoading.value = false;
+    return;
+  }
+  if (selectedModel.value.isEmpty) {
+    Get.snackbar('Error', 'Vehicle model is required');
+    isLoading.value = false;
+    return;
+  }
 
-    // Handle response
-    if (response != null) {
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Success
-        try {
-          final responseData = jsonDecode(response.body);
-          Get.snackbar(
-            "Success",
-            "Vehicle saved successfully!",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
+  // Debug: Print all form data
+  print('📋 Vehicle Data to be sent:');
+  print('user_id: $userId');
+  print('model: ${selectedModel.value}');
+  print('brand: ${selectedBrand.value}');
+  print('year: ${carModelYear.text.trim()}');
+  print('type: ${selectedVehicleType.value}');
+  print('fuel_type: ${fuelType.text.trim()}');
+  print('transmission: ${transmissionAuto.value ? "automatic" : "manual"}');
+  print('is_primary: $isPrimary');
+  print('is_active: $isActive');
+  print('mileage_km: ${carMileage.text.trim()}');
 
+  final List<String> possibleEndpoints = ['$baseUrl/vehicles/create'];
+  http.Response? response;
 
-      Get.back(); 
-          // Clear form after successful submission
-          clearForm();
-        } catch (e) {
-          Get.snackbar(
-            "Success",
-            "Vehicle saved successfully!",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
-        }
-      } else {
-        // Server error - show detailed error message
-        String errorMessage =
-            "Failed to save vehicle (Error: ${response.statusCode})";
+  for (var endpoint in possibleEndpoints) {
+    try {
+      final uri = Uri.parse(endpoint);
+      print('🔄 Trying endpoint: $endpoint');
 
-        try {
-          final errorData = jsonDecode(response.body);
-          if (errorData['detail'] != null) {
-            errorMessage = errorData['detail'];
-          } else if (errorData['message'] != null) {
-            errorMessage = errorData['message'];
-          } else if (errorData['error'] != null) {
-            errorMessage = errorData['error'];
-          }
-        } catch (e) {
-          errorMessage =
-              "Server error: ${response.statusCode}\n${response.body}";
-        }
+      // Get access token for authentication
+      final prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token');
 
-        Get.snackbar(
-          "Error",
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          duration: Duration(seconds: 5),
+      // Create multipart request instead of JSON
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add headers
+      if (accessToken != null) {
+        request.headers['Authorization'] = 'Bearer $accessToken';
+      }
+
+      // Add required form fields
+      request.fields['user_id'] = userId;
+      request.fields['model'] = selectedModel.value;
+      request.fields['type'] = selectedVehicleType.value;
+
+      // Add optional fields if they have values
+      if (selectedBrand.value.isNotEmpty) {
+        request.fields['brand'] = selectedBrand.value;
+      }
+      if (carModelYear.text.trim().isNotEmpty) {
+        request.fields['year'] = carModelYear.text.trim();
+      }
+      if (fuelType.text.trim().isNotEmpty) {
+        request.fields['fuel_type'] = fuelType.text.trim();
+      }
+      if (carMileage.text.trim().isNotEmpty) {
+        request.fields['mileage_km'] = carMileage.text.trim();
+      }
+
+      request.fields['transmission'] =
+          transmissionAuto.value ? "automatic" : "manual";
+      request.fields['is_primary'] = isPrimary.toString();
+      request.fields['is_active'] = isActive.toString();
+
+      // Add image if available
+      if (kIsWeb && imageBytes.value != null) {
+        final multipartFile = http.MultipartFile.fromBytes(
+          'images',
+          imageBytes.value!,
+          filename: 'vehicle_image.jpg',
+          contentType: MediaType('image', 'jpeg'),
         );
+        request.files.add(multipartFile);
+        print('📸 Web image added to request');
+      } else if (!kIsWeb && image.value != null) {
+        final multipartFile = await http.MultipartFile.fromPath(
+          'images',
+          image.value!.path,
+          contentType: MediaType('image', 'jpeg'),
+        );
+        request.files.add(multipartFile);
+        print('📸 Mobile image added to request: ${image.value!.path}');
+      } else {
+        print('📸 No image selected');
+      }
+
+      print('📦 Sending form data with fields: ${request.fields}');
+      if (request.files.isNotEmpty) {
+        print('📦 With ${request.files.length} image files');
+      }
+
+      // Send the request
+      final streamedResponse = await request.send();
+      response = await http.Response.fromStream(streamedResponse);
+
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
+      // If we get a successful response, break the loop
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        break;
+      }
+      
+      notifyVehicleDataChanged();
+    } catch (e) {
+      print('❌ Error with endpoint $endpoint: $e');
+      continue; // Try next endpoint
+    }
+  }
+
+  isLoading.value = false;
+
+  // Handle response
+  if (response != null) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Success
+      try {
+        final responseData = jsonDecode(response.body);
+        
+        // FIRST clear the form, THEN navigate back
+        clearForm();
+        
+        Get.snackbar(
+          "Success",
+          "Vehicle saved successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+
+        // Navigate back after a short delay to ensure form is cleared
+        Future.delayed(Duration(milliseconds: 500), () {
+          Get.back(); 
+        });
+        
+      } catch (e) {
+        // Still clear form even if JSON parsing fails
+        clearForm();
+        
+        Get.snackbar(
+          "Success",
+          "Vehicle saved successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        
+        Future.delayed(Duration(milliseconds: 500), () {
+          Get.back(); 
+        });
       }
     } else {
-      // No successful response from any endpoint
+      // Server error - show detailed error message
+      String errorMessage =
+          "Failed to save vehicle (Error: ${response.statusCode})";
+
+      try {
+        final errorData = jsonDecode(response.body);
+        if (errorData['detail'] != null) {
+          errorMessage = errorData['detail'];
+        } else if (errorData['message'] != null) {
+          errorMessage = errorData['message'];
+        } else if (errorData['error'] != null) {
+          errorMessage = errorData['error'];
+        }
+      } catch (e) {
+        errorMessage =
+            "Server error: ${response.statusCode}\n${response.body}";
+      }
+
       Get.snackbar(
         "Error",
-        "Failed to connect to server. Please check your connection and try again.",
+        errorMessage,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
+        duration: Duration(seconds: 5),
       );
     }
+  } else {
+    // No successful response from any endpoint
+    Get.snackbar(
+      "Error",
+      "Failed to connect to server. Please check your connection and try again.",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
   }
+}
 
-  void clearForm() {
-    selectedBrand.value = '';
-    selectedModel.value = '';
-    carModelYear.clear();
-    carMileage.clear();
-    fuelType.clear();
-    selectedVehicleType.value = '';
-    image.value = null;
-    imageBytes.value = null;
-    transmissionAuto.value = false;
-  }
-
+ void clearForm() {
+  print('🧹 Clearing form data...');
+  
+  // Clear Rx values
+  selectedBrand.value = '';
+  selectedModel.value = '';
+  selectedVehicleType.value = '';
+  transmissionAuto.value = false;
+  
+  // Clear text controllers
+  carModelYear.clear();
+  carMileage.clear();
+  fuelType.clear();
+  
+  // Clear images
+  image.value = null;
+  imageBytes.value = null;
+  
+  // Reset loading state
+  isLoading.value = false;
+  
+  print('✅ Form cleared successfully');
+  print('   - selectedBrand: ${selectedBrand.value}');
+  print('   - selectedModel: ${selectedModel.value}');
+  print('   - selectedVehicleType: ${selectedVehicleType.value}');
+  print('   - carModelYear: ${carModelYear.text}');
+  print('   - fuelType: ${fuelType.text}');
+}
   Future<void> pickImage(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -462,6 +495,8 @@ Future<Map<String, dynamic>?> getVehicleById(String vehicleId) async {
     throw Exception('Failed to fetch vehicle: $e');
   }
 }
+
+
 
   @override
   void onClose() {
