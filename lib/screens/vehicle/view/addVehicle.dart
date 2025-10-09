@@ -11,10 +11,24 @@ import '../../../constants/app_colors.dart';
 import '../../../widgets/custom_buttons.dart';
 import '../../../widgets/custom_textField.dart';
 
-class AddVehicle extends GetView<VehicleController> {
+class AddVehicle extends StatefulWidget {
   
   const AddVehicle({super.key});
   
+ State<AddVehicle> createState() => _AddVehicleState();
+}
+
+class _AddVehicleState extends State<AddVehicle> {
+  final VehicleController controller = Get.find<VehicleController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Reset form when screen is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.resetForm();
+    });
+  }
 
   // Helper functions should be defined here, outside build() but inside class
   String _capitalize(String text) {
@@ -92,7 +106,7 @@ class AddVehicle extends GetView<VehicleController> {
       };
     }
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final motorizedVehicles = ['car','bike', 'truck', 'van', 'suv', 'bus', 'other'];

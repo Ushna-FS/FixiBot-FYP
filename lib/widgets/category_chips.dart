@@ -1,89 +1,65 @@
-import 'package:fixibot_app/model/mechanicModel.dart';
-
-import '../constants/app_colors.dart';
-import '../constants/app_fontStyles.dart';
-import '../screens/mechanics/controller/mechanicController.dart';
+import 'package:fixibot_app/constants/app_colors.dart';
+import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CategoryChips extends StatelessWidget {
   final String icon;
   final String category;
   final bool isSmallScreen;
-  final MechanicController mechanicController = Get.find<MechanicController>();
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  CategoryChips({
+  const CategoryChips({
     super.key,
     required this.icon,
     required this.category,
     required this.isSmallScreen,
+    this.isSelected = false,
+    required this.onTap,
   });
-  
-  var isSelected = RxBool(false);
-  
-  void categorySelection() {
-    if (isSelected.value == false) {
-      isSelected.value = true;
-      mechanicController.mechanicCategories.add(category as Mechanic);
-    } else {
-      isSelected.value = false;
-      mechanicController.mechanicCategories.remove(category);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
-    
-    return Obx(() => Padding(
-          padding: EdgeInsets.only(
-            top: 2.0, 
-            left: isSmallScreen ? 10.0 : 16.0,
-            right: isSmallScreen ? 0 : 8.0,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 4.0 : 8.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12.0 : 16.0,
+          vertical: isSmallScreen ? 8.0 : 12.0,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.mainColor : AppColors.textColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.mainColor : AppColors.mainColor,
+            width: 1.5,
           ),
-          child: GestureDetector(
-            onTap: categorySelection,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isSelected.value ? AppColors.mainColor : AppColors.textColor,
-                border: Border.all(
-                  color: AppColors.mainColor,
-                  width: isSmallScreen ? 1.0 : 1.5,
-                ),
-                borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
-              ),
-              width: isSmallScreen 
-                  ? screenSize.width * 0.4 
-                  : screenSize.width * 0.3,
-              child: Padding(
-                padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      icon,
-                      color: isSelected.value 
-                          ? AppColors.textColor 
-                          : AppColors.mainColor,
-                      width: isSmallScreen ? 20 : 24,
-                      height: isSmallScreen ? 20 : 24,
-                    ),
-                    SizedBox(width: isSmallScreen ? 6 : 10),
-                    Text(
-                      category,
-                      style: isSelected.value
-                          ? AppFonts.montserratWhiteText.copyWith(
-                              fontSize: isSmallScreen ? null : 16,
-                            )
-                          : AppFonts.montserratMainText.copyWith(
-                              fontSize: isSmallScreen ? null : 16,
-                            ),
-                    ),
-                  ],
-                ),
-              ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              icon,
+              width: isSmallScreen ? 16 : 20,
+              height: isSmallScreen ? 16 : 20,
+              color: isSelected ? AppColors.textColor : AppColors.mainColor,
             ),
-          ),
-        ));
+            SizedBox(width: isSmallScreen ? 4 : 8),
+            Text(
+              category,
+              style: isSmallScreen
+                  ? AppFonts.montserratMainText14.copyWith(
+                      color: isSelected ? AppColors.textColor : AppColors.mainColor,
+                      fontSize: 12,
+                    )
+                  : AppFonts.montserratMainText14.copyWith(
+                      color: isSelected ? AppColors.textColor : AppColors.mainColor,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
