@@ -1,11 +1,10 @@
-
-
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/mechanics/controller/mechanicController.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicDetails.dart';
+import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/widgets/category_chips.dart';
 import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:fixibot_app/widgets/mechanic_card.dart';
@@ -26,6 +25,8 @@ class MechanicScreen extends GetView<MechanicController> {
     final locationController = Get.find<LocationController>();
     final userLat = locationController.userLatitude.value;
     final userLng = locationController.userLongitude.value;
+
+    final vehicleController = Get.find<VehicleController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -155,16 +156,223 @@ class MechanicScreen extends GetView<MechanicController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Vehicle Type Dropdown - Using user's vehicles
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: isSmallScreen ? 12.0 : 24.0,
+                        right: isSmallScreen ? 12.0 : 24.0,
+                        bottom: isSmallScreen ? 16.0 : 24.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Select Your Vehicle",
+                            style: isSmallScreen
+                                ? AppFonts.montserratBlackHeading.copyWith(fontSize: 16)
+                                : AppFonts.montserratBlackHeading.copyWith(fontSize: 18),
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(() {
+                            if (vehicleController.isLoading.value) {
+                              return Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isSmallScreen ? 12.0 : 16.0,
+                                  vertical: isSmallScreen ? 12.0 : 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.textColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.mainColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.mainColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Loading your vehicles...',
+                                      style: isSmallScreen
+                                          ? AppFonts.montserratMainText14
+                                          : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            if (vehicleController.userVehicles.isEmpty) {
+                              return Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isSmallScreen ? 12.0 : 16.0,
+                                  vertical: isSmallScreen ? 12.0 : 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.textColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.warning_amber_rounded,
+                                      color: Colors.orange,
+                                      size: isSmallScreen ? 20 : 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'No vehicles added',
+                                            style: isSmallScreen
+                                                ? AppFonts.montserratMainText14
+                                                : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                          ),
+                                          Text(
+                                            'Add a vehicle to filter mechanics',
+                                            style: isSmallScreen
+                                                ? AppFonts.montserratMainText14.copyWith(fontSize: 12)
+                                                : AppFonts.montserratMainText14.copyWith(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isSmallScreen ? 12.0 : 16.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.textColor,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.mainColor,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: DropdownButton<String>(
+                                value: controller.selectedVehicleType.value.isEmpty
+                                    ? null
+                                    : controller.selectedVehicleType.value,
+                                isExpanded: true,
+                                underline: const SizedBox(),
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppColors.mainColor,
+                                  size: isSmallScreen ? 24 : 28,
+                                ),
+                                hint: Text(
+                                  'Select your vehicle',
+                                  style: isSmallScreen
+                                      ? AppFonts.montserratMainText14
+                                      : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: '',
+                                    child: Text(
+                                      'All Vehicles',
+                                      style: isSmallScreen
+                                          ? AppFonts.montserratMainText14
+                                          : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                    ),
+                                  ),
+                                  ...vehicleController.userVehicles.map((vehicle) {
+                                    // Access map properties safely
+                                    final brand = vehicle['brand'] ?? 'Unknown Brand';
+                                    final model = vehicle['model'] ?? 'Unknown Model';
+                                    final vehicleType = vehicle['vehicle_type'] ?? vehicle['type'] ?? 'car';
+                                    final vehicleName = '$brand $model (${_formatVehicleType(vehicleType)})';
+                                    
+                                    return DropdownMenuItem(
+                                      value: vehicleType.toString().toLowerCase(),
+                                      child: Text(
+                                        vehicleName,
+                                        style: isSmallScreen
+                                            ? AppFonts.montserratMainText14
+                                            : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
+                                onChanged: (String? newValue) {
+                                  controller.selectedVehicleType.value = newValue ?? '';
+                                  controller.filterMechanics();
+                                },
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                
                     Padding(
                       padding: EdgeInsets.only(
                           left: isSmallScreen ? 12.0 : 24.0,
                           bottom: isSmallScreen ? 16.0 : 24.0),
-                      child: Text(
-                        "Breakdown Category",
-                        style: isSmallScreen
-                            ? AppFonts.montserratBlackHeading
-                            : AppFonts.montserratBlackHeading
-                                .copyWith(fontSize: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Breakdown Category",
+                            style: isSmallScreen
+                                ? AppFonts.montserratBlackHeading
+                                : AppFonts.montserratBlackHeading
+                                    .copyWith(fontSize: 24),
+                          ),
+                          if (controller.selectedCategory.value.isNotEmpty)
+                            GestureDetector(
+                              onTap: controller.clearCategoryFilter,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Clear',
+                                      style: AppFonts.montserratMainText14.copyWith(
+                                        fontSize: isSmallScreen ? 10 : 12,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.close,
+                                      size: isSmallScreen ? 14 : 16,
+                                      color: AppColors.mainColor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     SingleChildScrollView(
@@ -175,41 +383,157 @@ class MechanicScreen extends GetView<MechanicController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            CategoryChips(
-                                icon: "assets/icons/engine.png",
-                                category: "Engine",
-                                isSmallScreen: isSmallScreen),
-                            CategoryChips(
-                                icon: "assets/icons/tyre.png",
-                                category: "Tyre",
-                                isSmallScreen: isSmallScreen),
-                            CategoryChips(
-                                icon: "assets/icons/brake.png",
-                                category: "Brakes",
-                                isSmallScreen: isSmallScreen),
-                            CategoryChips(
-                                icon: "assets/icons/brake.png",
-                                category: "category",
-                                isSmallScreen: isSmallScreen),
+                            Obx(() => CategoryChips(
+                                  icon: "assets/icons/engine.png",
+                                  category: "Engine",
+                                  isSmallScreen: isSmallScreen,
+                                  isSelected: controller.selectedCategory.value == "Engine",
+                                  onTap: () => controller.selectCategory("Engine"),
+                                )),
+                            Obx(() => CategoryChips(
+                                  icon: "assets/icons/tyre.png",
+                                  category: "Tyre",
+                                  isSmallScreen: isSmallScreen,
+                                  isSelected: controller.selectedCategory.value == "Tyre",
+                                  onTap: () => controller.selectCategory("Tyre"),
+                                )),
+                            Obx(() => CategoryChips(
+                                  icon: "assets/icons/brake.png",
+                                  category: "Brakes",
+                                  isSmallScreen: isSmallScreen,
+                                  isSelected: controller.selectedCategory.value == "Brakes",
+                                  onTap: () => controller.selectCategory("Brakes"),
+                                )),
+                            // Obx(() => CategoryChips(
+                            //       icon: "assets/icons/battery.png",
+                            //       category: "Electrical",
+                            //       isSmallScreen: isSmallScreen,
+                            //       isSelected: controller.selectedCategory.value == "Electrical",
+                            //       onTap: () => controller.selectCategory("Electrical"),
+                            //     )),
+                            // Obx(() => CategoryChips(
+                            //       icon: "assets/icons/suspension.png",
+                            //       category: "Suspension",
+                            //       isSmallScreen: isSmallScreen,
+                            //       isSelected: controller.selectedCategory.value == "Suspension",
+                            //       onTap: () => controller.selectCategory("Suspension"),
+                            //     )),
                           ],
                         ),
                       ),
                     ),
+
+                    // Show active filters
+                    if (controller.selectedCategory.value.isNotEmpty || controller.selectedVehicleType.value.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: isSmallScreen ? 12.0 : 24.0,
+                          top: isSmallScreen ? 16.0 : 20.0,
+                          bottom: isSmallScreen ? 8.0 : 12.0,
+                        ),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (controller.selectedVehicleType.value.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.mainColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Vehicle: ${_formatVehicleType(controller.selectedVehicleType.value)}',
+                                      style: AppFonts.montserratWhiteText.copyWith(
+                                        fontSize: isSmallScreen ? 10 : 12,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: controller.clearVehicleFilter,
+                                      child: Icon(
+                                        Icons.close,
+                                        size: isSmallScreen ? 14 : 16,
+                                        color: AppColors.textColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            if (controller.selectedCategory.value.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[600],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Specialty: ${controller.selectedCategory.value}',
+                                      style: AppFonts.montserratWhiteText.copyWith(
+                                        fontSize: isSmallScreen ? 10 : 12,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: controller.clearCategoryFilter,
+                                      child: Icon(
+                                        Icons.close,
+                                        size: isSmallScreen ? 14 : 16,
+                                        color: AppColors.textColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+
                     SizedBox(
                       height: isSmallScreen
-                          ? screenSize.height * 0.05
-                          : screenSize.height * 0.07,
+                          ? screenSize.height * 0.03
+                          : screenSize.height * 0.05,
                     ),
                     Padding(
                       padding: EdgeInsets.only(
                           left: isSmallScreen ? 12.0 : 24.0,
                           bottom: isSmallScreen ? 8.0 : 16.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Suggested Mechanics",
+                            style: isSmallScreen
+                                ? AppFonts.montserratBlackHeading
+                                : AppFonts.montserratBlackHeading
+                                    .copyWith(fontSize: 24),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Show filtered mechanics count
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: isSmallScreen ? 12.0 : 24.0,
+                        bottom: isSmallScreen ? 16.0 : 20.0,
+                      ),
                       child: Text(
-                        "Suggested Mechanics",
+                        _getFilterMessage(controller),
                         style: isSmallScreen
-                            ? AppFonts.montserratBlackHeading
-                            : AppFonts.montserratBlackHeading
-                                .copyWith(fontSize: 24),
+                            ? AppFonts.montserratMainText14
+                            : AppFonts.montserratMainText14.copyWith(fontSize: 16),
                       ),
                     ),
 
@@ -224,9 +548,9 @@ class MechanicScreen extends GetView<MechanicController> {
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 20,
                         ),
-                        itemCount: controller.mechanicCategories.length,
+                        itemCount: controller.filteredMechanics.length,
                         itemBuilder: (context, index) {
-                          final mechanic = controller.mechanicCategories[index];
+                          final mechanic = controller.filteredMechanics[index];
                           return GestureDetector(
                             onTap: () {
                               _navigateToMechanicDetail(_mechanicToMap(mechanic));
@@ -247,7 +571,7 @@ class MechanicScreen extends GetView<MechanicController> {
                       ),
                     ] else ...[
                       Column(
-                        children: controller.mechanicCategories
+                        children: controller.filteredMechanics
                             .map((mechanic) => GestureDetector(
                                   onTap: () {
                                     _navigateToMechanicDetail(_mechanicToMap(mechanic));
@@ -267,6 +591,46 @@ class MechanicScreen extends GetView<MechanicController> {
                             .toList(),
                       ),
                     ],
+
+                    // Show message when no mechanics found
+                    if (controller.filteredMechanics.isEmpty && 
+                        (controller.selectedVehicleType.value.isNotEmpty || 
+                         controller.selectedCategory.value.isNotEmpty))
+                      Padding(
+                        padding: EdgeInsets.all(isSmallScreen ? 20.0 : 30.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.car_repair,
+                              size: isSmallScreen ? 50 : 70,
+                              color: AppColors.mainColor,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _getNoMechanicsMessage(controller),
+                              style: isSmallScreen
+                                  ? AppFonts.montserratBlackHeading
+                                  : AppFonts.montserratBlackHeading.copyWith(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Try selecting different filters or check back later',
+                              style: isSmallScreen
+                                  ? AppFonts.montserratMainText14
+                                  : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                controller.clearAllFilters();
+                              },
+                              child: Text('Clear All Filters'),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -277,32 +641,84 @@ class MechanicScreen extends GetView<MechanicController> {
     );
   }
 
+  String _getFilterMessage(MechanicController controller) {
+    final count = controller.filteredMechanics.length;
+    final vehicleType = controller.selectedVehicleType.value;
+    final category = controller.selectedCategory.value;
+
+    if (vehicleType.isEmpty && category.isEmpty) {
+      return "Showing all $count mechanics";
+    } else if (vehicleType.isNotEmpty && category.isEmpty) {
+      return "Showing $count ${count == 1 ? 'mechanic' : 'mechanics'} for ${_formatVehicleType(vehicleType).toLowerCase()}";
+    } else if (vehicleType.isEmpty && category.isNotEmpty) {
+      return "Showing $count ${count == 1 ? 'mechanic' : 'mechanics'} specializing in $category";
+    } else {
+      return "Showing $count ${count == 1 ? 'mechanic' : 'mechanics'} for ${_formatVehicleType(vehicleType).toLowerCase()} specializing in $category";
+    }
+  }
+
+  String _getNoMechanicsMessage(MechanicController controller) {
+    final vehicleType = controller.selectedVehicleType.value;
+    final category = controller.selectedCategory.value;
+
+    if (vehicleType.isNotEmpty && category.isNotEmpty) {
+      return 'No mechanics found for ${_formatVehicleType(vehicleType).toLowerCase()} specializing in $category';
+    } else if (vehicleType.isNotEmpty) {
+      return 'No mechanics found for ${_formatVehicleType(vehicleType).toLowerCase()}';
+    } else {
+      return 'No mechanics found specializing in $category';
+    }
+  }
+
+  String _formatVehicleType(String vehicleType) {
+    switch (vehicleType.toLowerCase()) {
+      case 'motorcycle':
+      case 'bike':
+      case 'scooter':
+        return 'Motorcycle';
+      case 'car':
+      case 'sedan':
+      case 'suv':
+      case 'hatchback':
+        return 'Car';
+      case 'truck':
+      case 'lorry':
+        return 'Truck';
+      case 'bus':
+      case 'coach':
+        return 'Bus';
+      case 'van':
+      case 'minivan':
+        return 'Van';
+      default:
+        return vehicleType;
+    }
+  }
+
   Map<String, dynamic> _mechanicToMap(dynamic mechanic) {
-  // Simple conversion with only the properties we know exist
-  return {
-    'full_name': mechanic.fullName ?? 'Unknown Mechanic',
-    'expertise': mechanic.expertiseString ?? 'General Mechanic',
-    'phone_number': mechanic.phoneNumber ?? 'Not available',
-    'profile_picture': mechanic.profilePicture ?? '',
-    'years_of_experience': mechanic.yearsOfExperience ?? 0,
-    'city': mechanic.city ?? 'Unknown City',
-    'address': mechanic.address ?? 'Address not available',
-    'workshop_name': mechanic.workshopName ?? 'Auto Workshop',
-    'email': mechanic.email ?? 'Not available',
-    'latitude': mechanic.latitude ?? 0.0,
-    'longitude': mechanic.longitude ?? 0.0,
-    // Add default values for missing properties
-    'average_rating': 4.5, // Default rating
-    'is_verified': true, // Default verification status
-    'is_available': true, // Default availability
-    'total_feedbacks': 0, // Default feedback count
-    'working_days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    'working_hours': {
-      'start_time': '09:00',
-      'end_time': '18:00',
-    },
-  };
-}
+    return {
+      'full_name': mechanic.fullName ?? 'Unknown Mechanic',
+      'expertise': mechanic.expertiseString ?? 'General Mechanic',
+      'phone_number': mechanic.phoneNumber ?? 'Not available',
+      'profile_picture': mechanic.profilePicture ?? '',
+      'years_of_experience': mechanic.yearsOfExperience ?? 0,
+      'city': mechanic.city ?? 'Unknown City',
+      'address': mechanic.address ?? 'Address not available',
+      'workshop_name': mechanic.workshopName ?? 'Auto Workshop',
+      'email': mechanic.email ?? 'Not available',
+      'latitude': mechanic.latitude ?? 0.0,
+      'longitude': mechanic.longitude ?? 0.0,
+      'average_rating': 4.5,
+      'is_verified': true,
+      'is_available': true,
+      'total_feedbacks': 0,
+      'working_days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      'working_hours': {
+        'start_time': '09:00',
+        'end_time': '18:00',
+      },
+    };
+  }
 
   void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
     Get.to(
@@ -312,286 +728,3 @@ class MechanicScreen extends GetView<MechanicController> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// import 'package:fixibot_app/constants/app_colors.dart';
-// import 'package:fixibot_app/constants/app_fontStyles.dart';
-// import 'package:fixibot_app/screens/location/locationScreen.dart';
-// import 'package:fixibot_app/screens/location/location_controller.dart';
-// import 'package:fixibot_app/screens/mechanics/controller/mechanicController.dart';
-// import 'package:fixibot_app/widgets/category_chips.dart';
-// import 'package:fixibot_app/widgets/customAppBar.dart';
-// import 'package:fixibot_app/widgets/mechanic_card.dart';
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// class MechanicScreen extends GetView<MechanicController> {
-//   const MechanicScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final Size screenSize = MediaQuery.of(context).size;
-//     final bool isSmallScreen = screenSize.width < 600;
-//     final bool isMediumScreen =
-//         screenSize.width >= 600 && screenSize.width < 1200;
-//     final bool isLargeScreen = screenSize.width >= 1200;
-// // In your MechanicScreen
-// final locationController = Get.find<LocationController>();
-// final userLat = locationController.userLatitude.value;
-// final userLng = locationController.userLongitude.value;
-
-// // Use them in your distance calculation
-// // String distanceText = "Distance N/A";
-// // if (userLat != 0.0 && userLng != 0.0) {
-// //   distanceText = "${mechanic.calculateDistance(userLat, userLng).toStringAsFixed(1)} km";
-// // }
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: AppColors.mainColor,
-//         title: Padding(
-//           padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
-//           child: Center(
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Image.asset(
-//                   "assets/icons/locationIcon.png",
-//                   color: AppColors.textColor,
-//                   width: isSmallScreen ? 20 : 24,
-//                   height: isSmallScreen ? 20 : 24,
-//                 ),
-//                 const SizedBox(width: 8),
-//                 SizedBox(
-//                   width: isSmallScreen
-//                       ? screenSize.width * 0.4
-//                       : screenSize.width * 0.3,
-//                   child: TextButton(
-//                     onPressed: () {
-//                       Get.to(LocationScreen());
-//                     },
-//                     child: Obx(() {
-//                       final location =
-//                           Get.find<LocationController>().userLocation.value;
-//                       return Text(
-//                         location.isEmpty
-//                             ? 'No location selected'
-//                             : (location.length > 20
-//                                 ? "${location.substring(0, 20)}..."
-//                                 : location),
-//                         style: isSmallScreen
-//                             ? AppFonts.montserratWhiteText
-//                             : AppFonts.montserratWhiteText
-//                                 .copyWith(fontSize: 18),
-//                         maxLines: 1,
-//                         overflow: TextOverflow.ellipsis,
-//                       );
-//                     }),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//         leading: IconButton(
-//           onPressed: () {
-//             Get.back();
-//           },
-//           icon: Image.asset(
-//             'assets/icons/back.png',color: AppColors.secondaryColor,
-//             width: isSmallScreen ? 24 : 30,
-//             height: isSmallScreen ? 24 : 30,
-//           ),
-//         ),
-//         centerTitle: true,
-//         actions: [
-//           Padding(
-//             padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
-//             child: Obx(() => GestureDetector(
-//                   onTap: () {
-//                     controller.notificationSelection();
-//                   },
-//                   child: controller.isNotified.value
-//                       ? Image.asset(
-//                           "assets/icons/notification.png",
-//                           color: AppColors.secondaryColor,
-//                           width: isSmallScreen ? 24 : 30,
-//                           height: isSmallScreen ? 24 : 30,
-//                         )
-//                       : Image.asset(
-//                           "assets/icons/notification.png",
-//                           color: AppColors.textColor2,
-//                           width: isSmallScreen ? 24 : 30,
-//                           height: isSmallScreen ? 24 : 30,
-//                         ),
-//                 )),
-//           )
-//         ],
-//       ),
-   
-//       backgroundColor: AppColors.secondaryColor,
-//       body: Obx(() {
-//         if (controller.isLoading.value) {
-//           return const Center(
-//             child: CircularProgressIndicator(
-//               color: AppColors.mainColor,
-//             ),
-//           );
-//         }
-
-//         if (controller.errorMessage.value.isNotEmpty) {
-//           return Center(
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Text(
-//                   controller.errorMessage.value,
-//                   style: AppFonts.montserratMainText14,
-//                   textAlign: TextAlign.center,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 ElevatedButton(
-//                   onPressed: () {
-//                     controller.fetchMechanics();
-//                   },
-//                   child: const Text('Retry'),
-//                 ),
-//               ],
-//             ),
-//           );
-//         }
-
-//         return SingleChildScrollView(
-//           child: Padding(
-//             padding: EdgeInsets.all(isSmallScreen ? 16.0 : 24.0),
-//             child: Center(
-//               child: ConstrainedBox(
-//                 constraints: BoxConstraints(
-//                   maxWidth: isLargeScreen ? 1200 : double.infinity,
-//                 ),
-//                 child: Column(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Padding(
-//                       padding: EdgeInsets.only(
-//                           left: isSmallScreen ? 12.0 : 24.0,
-//                           bottom: isSmallScreen ? 16.0 : 24.0),
-//                       child: Text(
-//                         "Breakdown Category",
-//                         style: isSmallScreen
-//                             ? AppFonts.montserratBlackHeading
-//                             : AppFonts.montserratBlackHeading
-//                                 .copyWith(fontSize: 24),
-//                       ),
-//                     ),
-//                     SingleChildScrollView(
-//                       scrollDirection: Axis.horizontal,
-//                       child: Padding(
-//                         padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           crossAxisAlignment: CrossAxisAlignment.center,
-//                           children: [
-//                             CategoryChips(
-//                                 icon: "assets/icons/engine.png",
-//                                 category: "Engine",
-//                                 isSmallScreen: isSmallScreen),
-//                             CategoryChips(
-//                                 icon: "assets/icons/tyre.png",
-//                                 category: "Tyre",
-//                                 isSmallScreen: isSmallScreen),
-//                             CategoryChips(
-//                                 icon: "assets/icons/brake.png",
-//                                 category: "Brakes",
-//                                 isSmallScreen: isSmallScreen),
-//                             CategoryChips(
-//                                 icon: "assets/icons/brake.png",
-//                                 category: "category",
-//                                 isSmallScreen: isSmallScreen),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                     SizedBox(
-//                       height: isSmallScreen
-//                           ? screenSize.height * 0.05
-//                           : screenSize.height * 0.07,
-//                     ),
-//                     Padding(
-//                       padding: EdgeInsets.only(
-//                           left: isSmallScreen ? 12.0 : 24.0,
-//                           bottom: isSmallScreen ? 8.0 : 16.0),
-//                       child: Text(
-//                         "Suggested Mechanics",
-//                         style: isSmallScreen
-//                             ? AppFonts.montserratBlackHeading
-//                             : AppFonts.montserratBlackHeading
-//                                 .copyWith(fontSize: 24),
-//                       ),
-//                     ),
-//                     // In your MechanicScreen, update the MechanicCard usage:
-
-//                     if (isLargeScreen) ...[
-//                       GridView.builder(
-//                         shrinkWrap: true,
-//                         physics: const NeverScrollableScrollPhysics(),
-//                         gridDelegate:
-//                             const SliverGridDelegateWithFixedCrossAxisCount(
-//                           crossAxisCount: 2,
-//                           childAspectRatio: 3,
-//                           crossAxisSpacing: 20,
-//                           mainAxisSpacing: 20,
-//                         ),
-//                         itemCount: controller.mechanicCategories.length,
-//                         itemBuilder: (context, index) {
-//                           final mechanic = controller.mechanicCategories[index];
-//                           return MechanicCard(
-//                             mechanic: mechanic.fullName,
-//                             expertise: mechanic.expertiseString,
-//                             phNum: mechanic.phoneNumber,
-//                             distance:
-//                                 "${mechanic.calculateDistance(userLat, userLng).toStringAsFixed(1)} km", // You need user location
-//                             imageSource: mechanic.profilePicture,
-//                             rating: mechanic.yearsOfExperience > 0
-//                                 ? "${mechanic.yearsOfExperience} yrs exp"
-//                                 : "",
-//                           );
-//                         },
-//                       ),
-//                     ] else ...[
-//                       Column(
-//                         children: controller.mechanicCategories
-//                             .map((mechanic) => MechanicCard(
-//                                   mechanic: mechanic.fullName,
-//                                   expertise: mechanic.expertiseString,
-//                                   phNum: mechanic.phoneNumber,
-//                                   distance:
-//                                       "${mechanic.calculateDistance(userLat, userLng).toStringAsFixed(1)} km", // You need user location
-//                                   imageSource: mechanic.profilePicture,
-//                                   rating: mechanic.yearsOfExperience > 0
-//                                       ? "${mechanic.yearsOfExperience} yrs exp"
-//                                       : "",
-//                                 ))
-//                             .toList(),
-//                       ),
-//                     ],
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         );
-//       }),
-//     );
-//   }
-// }
