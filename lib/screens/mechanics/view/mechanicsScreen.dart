@@ -1,5 +1,6 @@
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
+import 'package:fixibot_app/model/mechanicModel.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/mechanics/controller/mechanicController.dart';
@@ -640,6 +641,33 @@ class MechanicScreen extends GetView<MechanicController> {
       }),
     );
   }
+void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
+  // Validate mechanic ID before navigation
+  final mechanicId = mechanicData['_id'] ?? mechanicData['id'];
+  
+  if (mechanicId == null || mechanicId.toString().isEmpty) {
+    print('⚠️ Mechanic ID is empty, but allowing navigation for debugging');
+    print('🔍 Mechanic data available: ${mechanicData.keys}');
+    print('🔍 Mechanic name: ${mechanicData['full_name']}');
+    
+    // Allow navigation even without ID for now, but show warning
+    Get.snackbar(
+      'Info',
+      'Showing mechanic details (limited functionality)',
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+    );
+  } else {
+    print('✅ Navigating to mechanic detail with ID: $mechanicId');
+  }
+  
+  Get.to(
+    () => MechanicDetailScreen(mechanic: mechanicData),
+    transition: Transition.rightToLeft,
+    duration: Duration(milliseconds: 300),
+  );
+}
+
 
   String _getFilterMessage(MechanicController controller) {
     final count = controller.filteredMechanics.length;
@@ -694,37 +722,51 @@ class MechanicScreen extends GetView<MechanicController> {
         return vehicleType;
     }
   }
-
-  Map<String, dynamic> _mechanicToMap(dynamic mechanic) {
-    return {
-      'full_name': mechanic.fullName ?? 'Unknown Mechanic',
-      'expertise': mechanic.expertiseString ?? 'General Mechanic',
-      'phone_number': mechanic.phoneNumber ?? 'Not available',
-      'profile_picture': mechanic.profilePicture ?? '',
-      'years_of_experience': mechanic.yearsOfExperience ?? 0,
-      'city': mechanic.city ?? 'Unknown City',
-      'address': mechanic.address ?? 'Address not available',
-      'workshop_name': mechanic.workshopName ?? 'Auto Workshop',
-      'email': mechanic.email ?? 'Not available',
-      'latitude': mechanic.latitude ?? 0.0,
-      'longitude': mechanic.longitude ?? 0.0,
-      'average_rating': 4.5,
-      'is_verified': true,
-      'is_available': true,
-      'total_feedbacks': 0,
-      'working_days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      'working_hours': {
-        'start_time': '09:00',
-        'end_time': '18:00',
-      },
-    };
+Map<String, dynamic> _mechanicToMap(Mechanic mechanic) {
+  // Debug: Check all possible ID fields
+  print('🔍 Debug mechanic ID fields:');
+  print('   - mechanic.id: "${mechanic.id}"');
+  print('   - mechanic.id isEmpty: ${mechanic.id.isEmpty}');
+  print('   - mechanic.id length: ${mechanic.id.length}');
+  
+  // Use the mechanic's ID directly (it should now come from _id field)
+  String mechanicId = mechanic.id;
+  
+  // If still empty, try toJson approach
+  if (mechanicId.isEmpty) {
+    final mechanicJson = mechanic.toJson();
+    mechanicId = mechanicJson['_id'] ?? mechanicJson['id'] ?? '';
   }
-
-  void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
-    Get.to(
-      () => MechanicDetailScreen(mechanic: mechanicData),
-      transition: Transition.rightToLeft,
-      duration: Duration(milliseconds: 300),
-    );
-  }
+  
+  print('✅ Final mechanic ID: "$mechanicId"');
+  
+  // Create the map with proper data
+  return {
+    '_id': mechanicId,
+    'id': mechanicId,
+    'full_name': mechanic.fullName,
+    'expertise': mechanic.expertiseString,
+    'phone_number': mechanic.phoneNumber,
+    'profile_picture': mechanic.profilePicture,
+    'years_of_experience': mechanic.yearsOfExperience,
+    'city': mechanic.city,
+    'address': mechanic.address,
+    'workshop_name': mechanic.workshopName,
+    'email': mechanic.email,
+    'latitude': mechanic.latitude,
+    'longitude': mechanic.longitude,
+    'province': mechanic.province,
+    'cnic': mechanic.cnic,
+    'average_rating': 4.5, // Default values
+    'is_verified': true,
+    'is_available': true,
+    'total_feedbacks': 0,
+    'working_days': mechanic.workingDays.isNotEmpty ? mechanic.workingDays : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    'working_hours': {
+      'start_time': mechanic.startTime.isNotEmpty ? mechanic.startTime : '09:00',
+      'end_time': mechanic.endTime.isNotEmpty ? mechanic.endTime : '18:00',
+    },
+    'serviced_vehicle_types': mechanic.servicedVehicleTypes,
+  };
+}
 }

@@ -176,6 +176,7 @@
 
 
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/mechanics/view/mechanicServices.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
@@ -263,7 +264,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(userName, style: AppFonts.montserratHeading),
+                            Text(
+                              (userName.length>9)
+                              ? "${userName.substring(0, 9)}..."
+                                  : userName,
+                              maxLines: 1, style: AppFonts.montserratHeading),
                             Text(
                               (userEmail.length > 15)
                                   ? "${userEmail.substring(0, 15)}..."
@@ -332,7 +337,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: AppFonts.montserratText2),
                       ),
                     ),
-                    const Spacer(),
+                    ListTile(
+                      leading: Icon(Icons.build, color: AppColors.mainColor), // or Icons.handyman
+                title: InkWell(
+                  onTap: () => Get.to(MechanicServicesPage()),
+                  child: Text(
+                    "Mechanic Services",
+                    style: AppFonts.montserratText2,
+                  ),
+                ),
+              ),
+                                  const Spacer(),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
