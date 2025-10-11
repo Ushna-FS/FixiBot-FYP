@@ -112,7 +112,6 @@ class MechanicScreen extends GetView<MechanicController> {
           )
         ],
       ),
-   
       backgroundColor: AppColors.secondaryColor,
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -170,8 +169,10 @@ class MechanicScreen extends GetView<MechanicController> {
                           Text(
                             "Select Your Vehicle",
                             style: isSmallScreen
-                                ? AppFonts.montserratBlackHeading.copyWith(fontSize: 16)
-                                : AppFonts.montserratBlackHeading.copyWith(fontSize: 18),
+                                ? AppFonts.montserratBlackHeading
+                                    .copyWith(fontSize: 16)
+                                : AppFonts.montserratBlackHeading
+                                    .copyWith(fontSize: 18),
                           ),
                           const SizedBox(height: 8),
                           Obx(() {
@@ -205,7 +206,8 @@ class MechanicScreen extends GetView<MechanicController> {
                                       'Loading your vehicles...',
                                       style: isSmallScreen
                                           ? AppFonts.montserratMainText14
-                                          : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                          : AppFonts.montserratMainText14
+                                              .copyWith(fontSize: 16),
                                     ),
                                   ],
                                 ),
@@ -237,19 +239,23 @@ class MechanicScreen extends GetView<MechanicController> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'No vehicles added',
                                             style: isSmallScreen
                                                 ? AppFonts.montserratMainText14
-                                                : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                                : AppFonts.montserratMainText14
+                                                    .copyWith(fontSize: 16),
                                           ),
                                           Text(
                                             'Add a vehicle to filter mechanics',
                                             style: isSmallScreen
-                                                ? AppFonts.montserratMainText14.copyWith(fontSize: 12)
-                                                : AppFonts.montserratMainText14.copyWith(fontSize: 14),
+                                                ? AppFonts.montserratMainText14
+                                                    .copyWith(fontSize: 12)
+                                                : AppFonts.montserratMainText14
+                                                    .copyWith(fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -273,9 +279,10 @@ class MechanicScreen extends GetView<MechanicController> {
                                 ),
                               ),
                               child: DropdownButton<String>(
-                                value: controller.selectedVehicleType.value.isEmpty
+                                value: controller.selectedVehicleId.value
+                                        .isEmpty
                                     ? null
-                                    : controller.selectedVehicleType.value,
+                                    : controller.selectedVehicleId.value,
                                 isExpanded: true,
                                 underline: const SizedBox(),
                                 icon: Icon(
@@ -287,38 +294,115 @@ class MechanicScreen extends GetView<MechanicController> {
                                   'Select your vehicle',
                                   style: isSmallScreen
                                       ? AppFonts.montserratMainText14
-                                      : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                      : AppFonts.montserratMainText14
+                                          .copyWith(fontSize: 16),
                                 ),
                                 items: [
-                                  DropdownMenuItem(
+                                  DropdownMenuItem<String>(
                                     value: '',
                                     child: Text(
                                       'All Vehicles',
                                       style: isSmallScreen
                                           ? AppFonts.montserratMainText14
-                                          : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                          : AppFonts.montserratMainText14
+                                              .copyWith(fontSize: 16),
                                     ),
                                   ),
-                                  ...vehicleController.userVehicles.map((vehicle) {
-                                    // Access map properties safely
-                                    final brand = vehicle['brand'] ?? 'Unknown Brand';
-                                    final model = vehicle['model'] ?? 'Unknown Model';
-                                    final vehicleType = vehicle['vehicle_type'] ?? vehicle['type'] ?? 'car';
-                                    final vehicleName = '$brand $model (${_formatVehicleType(vehicleType)})';
-                                    
-                                    return DropdownMenuItem(
-                                      value: vehicleType.toString().toLowerCase(),
+                                  ...vehicleController.userVehicles
+                                      .map<DropdownMenuItem<String>>((vehicle) {
+                                    final brand = (vehicle['brand'] ??
+                                            'Unknown Brand')
+                                        .toString();
+                                    final model = (vehicle['model'] ??
+                                            'Unknown Model')
+                                        .toString();
+                                    final vehicleType = (vehicle['vehicle_type'] ??
+                                            vehicle['type'] ??
+                                            'car')
+                                        .toString();
+                                    final vehicleId = (vehicle['_id'] ??
+                                            vehicle['id'] ?? '')
+                                        .toString();
+
+                                    // Create a unique display name
+                                    final vehicleName =
+                                        '$brand $model (${_formatVehicleType(vehicleType)})';
+
+                                    // Create a unique value using ID + brand + model as fallback
+                                    final uniqueValue =
+                                        vehicleId.isNotEmpty &&
+                                                vehicleId != 'null'
+                                            ? vehicleId
+                                            : '${brand}_${model}_${vehicleType}'
+                                                .toLowerCase()
+                                                .replaceAll(' ', '_');
+
+                                    return DropdownMenuItem<String>(
+                                      value: uniqueValue,
                                       child: Text(
                                         vehicleName,
                                         style: isSmallScreen
                                             ? AppFonts.montserratMainText14
-                                            : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                            : AppFonts.montserratMainText14
+                                                .copyWith(fontSize: 16),
                                       ),
                                     );
                                   }).toList(),
                                 ],
                                 onChanged: (String? newValue) {
-                                  controller.selectedVehicleType.value = newValue ?? '';
+                                  if (newValue == null) return;
+
+                                  // Store the selected vehicle ID
+                                  controller.selectedVehicleId.value = newValue;
+
+                                  if (newValue.isEmpty) {
+                                    // "All Vehicles" selected
+                                    controller.selectedVehicleType.value = '';
+                                  } else {
+                                    // Find the selected vehicle to get its type
+                                    final selectedVehicle = vehicleController
+                                        .userVehicles
+                                        .firstWhere(
+                                      (vehicle) {
+                                        final vehicleId = (vehicle['_id'] ??
+                                                vehicle['id'] ?? '')
+                                            .toString();
+                                        final brand =
+                                            (vehicle['brand'] ?? '').toString();
+                                        final model =
+                                            (vehicle['model'] ?? '').toString();
+                                        final vehicleType =
+                                            (vehicle['vehicle_type'] ??
+                                                    vehicle['type'] ??
+                                                    'car')
+                                                .toString();
+
+                                        final uniqueValue =
+                                            vehicleId.isNotEmpty &&
+                                                    vehicleId != 'null'
+                                                ? vehicleId
+                                                : '${brand}_${model}_${vehicleType}'
+                                                    .toLowerCase()
+                                                    .replaceAll(' ', '_');
+
+                                        return uniqueValue == newValue;
+                                      },
+                                      orElse: () => <String, dynamic>{},
+                                    );
+
+                                    if (selectedVehicle.isNotEmpty) {
+                                      final vehicleType =
+                                          (selectedVehicle['vehicle_type'] ??
+                                                  selectedVehicle['type'] ??
+                                                  'car')
+                                              .toString()
+                                              .toLowerCase();
+                                      final onlyType =
+                                          vehicleType.split('_').first;
+                                      controller.selectedVehicleType.value =
+                                          onlyType;
+                                    }
+                                  }
                                   controller.filterMechanics();
                                 },
                               ),
@@ -327,7 +411,7 @@ class MechanicScreen extends GetView<MechanicController> {
                         ],
                       ),
                     ),
-                
+
                     Padding(
                       padding: EdgeInsets.only(
                           left: isSmallScreen ? 12.0 : 24.0,
@@ -359,7 +443,8 @@ class MechanicScreen extends GetView<MechanicController> {
                                   children: [
                                     Text(
                                       'Clear',
-                                      style: AppFonts.montserratMainText14.copyWith(
+                                      style: AppFonts.montserratMainText14
+                                          .copyWith(
                                         fontSize: isSmallScreen ? 10 : 12,
                                       ),
                                     ),
@@ -388,22 +473,31 @@ class MechanicScreen extends GetView<MechanicController> {
                                   icon: "assets/icons/engine.png",
                                   category: "Engine",
                                   isSmallScreen: isSmallScreen,
-                                  isSelected: controller.selectedCategory.value == "Engine",
-                                  onTap: () => controller.selectCategory("Engine"),
+                                  isSelected:
+                                      controller.selectedCategory.value ==
+                                          "Engine",
+                                  onTap: () =>
+                                      controller.selectCategory("Engine"),
                                 )),
                             Obx(() => CategoryChips(
                                   icon: "assets/icons/tyre.png",
                                   category: "Tyre",
                                   isSmallScreen: isSmallScreen,
-                                  isSelected: controller.selectedCategory.value == "Tyre",
-                                  onTap: () => controller.selectCategory("Tyre"),
+                                  isSelected:
+                                      controller.selectedCategory.value ==
+                                          "Tyre",
+                                  onTap: () =>
+                                      controller.selectCategory("Tyre"),
                                 )),
                             Obx(() => CategoryChips(
                                   icon: "assets/icons/brake.png",
                                   category: "Brakes",
                                   isSmallScreen: isSmallScreen,
-                                  isSelected: controller.selectedCategory.value == "Brakes",
-                                  onTap: () => controller.selectCategory("Brakes"),
+                                  isSelected:
+                                      controller.selectedCategory.value ==
+                                          "Brakes",
+                                  onTap: () =>
+                                      controller.selectCategory("Brakes"),
                                 )),
                             // Obx(() => CategoryChips(
                             //       icon: "assets/icons/battery.png",
@@ -425,7 +519,8 @@ class MechanicScreen extends GetView<MechanicController> {
                     ),
 
                     // Show active filters
-                    if (controller.selectedCategory.value.isNotEmpty || controller.selectedVehicleType.value.isNotEmpty)
+                    if (controller.selectedCategory.value.isNotEmpty ||
+                        controller.selectedVehicleId.value.isNotEmpty)
                       Padding(
                         padding: EdgeInsets.only(
                           left: isSmallScreen ? 12.0 : 24.0,
@@ -436,7 +531,7 @@ class MechanicScreen extends GetView<MechanicController> {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            if (controller.selectedVehicleType.value.isNotEmpty)
+                            if (controller.selectedVehicleId.value.isNotEmpty)
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -450,8 +545,9 @@ class MechanicScreen extends GetView<MechanicController> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Vehicle: ${_formatVehicleType(controller.selectedVehicleType.value)}',
-                                      style: AppFonts.montserratWhiteText.copyWith(
+                                      _getSelectedVehicleName(controller),
+                                      style: AppFonts.montserratWhiteText
+                                          .copyWith(
                                         fontSize: isSmallScreen ? 10 : 12,
                                       ),
                                     ),
@@ -482,7 +578,8 @@ class MechanicScreen extends GetView<MechanicController> {
                                   children: [
                                     Text(
                                       'Specialty: ${controller.selectedCategory.value}',
-                                      style: AppFonts.montserratWhiteText.copyWith(
+                                      style: AppFonts.montserratWhiteText
+                                          .copyWith(
                                         fontSize: isSmallScreen ? 10 : 12,
                                       ),
                                     ),
@@ -534,7 +631,8 @@ class MechanicScreen extends GetView<MechanicController> {
                         _getFilterMessage(controller),
                         style: isSmallScreen
                             ? AppFonts.montserratMainText14
-                            : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                            : AppFonts.montserratMainText14
+                                .copyWith(fontSize: 16),
                       ),
                     ),
 
@@ -554,7 +652,8 @@ class MechanicScreen extends GetView<MechanicController> {
                           final mechanic = controller.filteredMechanics[index];
                           return GestureDetector(
                             onTap: () {
-                              _navigateToMechanicDetail(_mechanicToMap(mechanic));
+                              _navigateToMechanicDetail(
+                                  _mechanicToMap(mechanic));
                             },
                             child: MechanicCard(
                               mechanic: mechanic.fullName,
@@ -575,7 +674,8 @@ class MechanicScreen extends GetView<MechanicController> {
                         children: controller.filteredMechanics
                             .map((mechanic) => GestureDetector(
                                   onTap: () {
-                                    _navigateToMechanicDetail(_mechanicToMap(mechanic));
+                                    _navigateToMechanicDetail(
+                                        _mechanicToMap(mechanic));
                                   },
                                   child: MechanicCard(
                                     mechanic: mechanic.fullName,
@@ -594,9 +694,9 @@ class MechanicScreen extends GetView<MechanicController> {
                     ],
 
                     // Show message when no mechanics found
-                    if (controller.filteredMechanics.isEmpty && 
-                        (controller.selectedVehicleType.value.isNotEmpty || 
-                         controller.selectedCategory.value.isNotEmpty))
+                    if (controller.filteredMechanics.isEmpty &&
+                        (controller.selectedVehicleType.value.isNotEmpty ||
+                            controller.selectedCategory.value.isNotEmpty))
                       Padding(
                         padding: EdgeInsets.all(isSmallScreen ? 20.0 : 30.0),
                         child: Column(
@@ -611,7 +711,8 @@ class MechanicScreen extends GetView<MechanicController> {
                               _getNoMechanicsMessage(controller),
                               style: isSmallScreen
                                   ? AppFonts.montserratBlackHeading
-                                  : AppFonts.montserratBlackHeading.copyWith(fontSize: 20),
+                                  : AppFonts.montserratBlackHeading
+                                      .copyWith(fontSize: 20),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
@@ -619,7 +720,8 @@ class MechanicScreen extends GetView<MechanicController> {
                               'Try selecting different filters or check back later',
                               style: isSmallScreen
                                   ? AppFonts.montserratMainText14
-                                  : AppFonts.montserratMainText14.copyWith(fontSize: 16),
+                                  : AppFonts.montserratMainText14
+                                      .copyWith(fontSize: 16),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -641,33 +743,33 @@ class MechanicScreen extends GetView<MechanicController> {
       }),
     );
   }
-void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
-  // Validate mechanic ID before navigation
-  final mechanicId = mechanicData['_id'] ?? mechanicData['id'];
-  
-  if (mechanicId == null || mechanicId.toString().isEmpty) {
-    print('⚠️ Mechanic ID is empty, but allowing navigation for debugging');
-    print('🔍 Mechanic data available: ${mechanicData.keys}');
-    print('🔍 Mechanic name: ${mechanicData['full_name']}');
-    
-    // Allow navigation even without ID for now, but show warning
-    Get.snackbar(
-      'Info',
-      'Showing mechanic details (limited functionality)',
-      backgroundColor: Colors.orange,
-      colorText: Colors.white,
-    );
-  } else {
-    print('✅ Navigating to mechanic detail with ID: $mechanicId');
-  }
-  
-  Get.to(
-    () => MechanicDetailScreen(mechanic: mechanicData),
-    transition: Transition.rightToLeft,
-    duration: Duration(milliseconds: 300),
-  );
-}
 
+  void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
+    // Validate mechanic ID before navigation
+    final mechanicId = mechanicData['_id'] ?? mechanicData['id'];
+
+    if (mechanicId == null || mechanicId.toString().isEmpty) {
+      print('⚠️ Mechanic ID is empty, but allowing navigation for debugging');
+      print('🔍 Mechanic data available: ${mechanicData.keys}');
+      print('🔍 Mechanic name: ${mechanicData['full_name']}');
+
+      // Allow navigation even without ID for now, but show warning
+      Get.snackbar(
+        'Info',
+        'Showing mechanic details (limited functionality)',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    } else {
+      print('✅ Navigating to mechanic detail with ID: $mechanicId');
+    }
+
+    Get.to(
+      () => MechanicDetailScreen(mechanic: mechanicData),
+      transition: Transition.rightToLeft,
+      duration: Duration(milliseconds: 300),
+    );
+  }
 
   String _getFilterMessage(MechanicController controller) {
     final count = controller.filteredMechanics.length;
@@ -722,51 +824,85 @@ void _navigateToMechanicDetail(Map<String, dynamic> mechanicData) {
         return vehicleType;
     }
   }
-Map<String, dynamic> _mechanicToMap(Mechanic mechanic) {
-  // Debug: Check all possible ID fields
-  print('🔍 Debug mechanic ID fields:');
-  print('   - mechanic.id: "${mechanic.id}"');
-  print('   - mechanic.id isEmpty: ${mechanic.id.isEmpty}');
-  print('   - mechanic.id length: ${mechanic.id.length}');
-  
-  // Use the mechanic's ID directly (it should now come from _id field)
-  String mechanicId = mechanic.id;
-  
-  // If still empty, try toJson approach
-  if (mechanicId.isEmpty) {
-    final mechanicJson = mechanic.toJson();
-    mechanicId = mechanicJson['_id'] ?? mechanicJson['id'] ?? '';
+
+  // Helper method to get selected vehicle name for display
+  String _getSelectedVehicleName(MechanicController controller) {
+    if (controller.selectedVehicleId.value.isEmpty) return '';
+
+    final vehicle = Get.find<VehicleController>().userVehicles.firstWhere(
+      (v) {
+        final vehicleId = (v['_id'] ?? v['id'] ?? '').toString();
+        final brand = (v['brand'] ?? '').toString();
+        final model = (v['model'] ?? '').toString();
+        final vehicleType = (v['vehicle_type'] ?? v['type'] ?? 'car').toString();
+
+        final uniqueValue = vehicleId.isNotEmpty && vehicleId != 'null'
+            ? vehicleId
+            : '${brand}_${model}_${vehicleType}'.toLowerCase().replaceAll(' ', '_');
+
+        return uniqueValue == controller.selectedVehicleId.value;
+      },
+      orElse: () => <String, dynamic>{},
+    );
+
+    if (vehicle.isNotEmpty) {
+      final brand = (vehicle['brand'] ?? 'Unknown Brand').toString();
+      final model = (vehicle['model'] ?? 'Unknown Model').toString();
+      final vehicleType = (vehicle['vehicle_type'] ?? vehicle['type'] ?? 'car').toString();
+      return '$brand $model (${_formatVehicleType(vehicleType)})';
+    }
+
+    return 'Selected Vehicle';
   }
-  
-  print('✅ Final mechanic ID: "$mechanicId"');
-  
-  // Create the map with proper data
-  return {
-    '_id': mechanicId,
-    'id': mechanicId,
-    'full_name': mechanic.fullName,
-    'expertise': mechanic.expertiseString,
-    'phone_number': mechanic.phoneNumber,
-    'profile_picture': mechanic.profilePicture,
-    'years_of_experience': mechanic.yearsOfExperience,
-    'city': mechanic.city,
-    'address': mechanic.address,
-    'workshop_name': mechanic.workshopName,
-    'email': mechanic.email,
-    'latitude': mechanic.latitude,
-    'longitude': mechanic.longitude,
-    'province': mechanic.province,
-    'cnic': mechanic.cnic,
-    'average_rating': 4.5, // Default values
-    'is_verified': true,
-    'is_available': true,
-    'total_feedbacks': 0,
-    'working_days': mechanic.workingDays.isNotEmpty ? mechanic.workingDays : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    'working_hours': {
-      'start_time': mechanic.startTime.isNotEmpty ? mechanic.startTime : '09:00',
-      'end_time': mechanic.endTime.isNotEmpty ? mechanic.endTime : '18:00',
-    },
-    'serviced_vehicle_types': mechanic.servicedVehicleTypes,
-  };
-}
+
+  Map<String, dynamic> _mechanicToMap(Mechanic mechanic) {
+    // Debug: Check all possible ID fields
+    print('🔍 Debug mechanic ID fields:');
+    print('   - mechanic.id: "${mechanic.id}"');
+    print('   - mechanic.id isEmpty: ${mechanic.id.isEmpty}');
+    print('   - mechanic.id length: ${mechanic.id.length}');
+
+    // Use the mechanic's ID directly (it should now come from _id field)
+    String mechanicId = mechanic.id;
+
+    // If still empty, try toJson approach
+    if (mechanicId.isEmpty) {
+      final mechanicJson = mechanic.toJson();
+      mechanicId = mechanicJson['_id'] ?? mechanicJson['id'] ?? '';
+    }
+
+    print('✅ Final mechanic ID: "$mechanicId"');
+
+    // Create the map with proper data
+    return {
+      '_id': mechanicId,
+      'id': mechanicId,
+      'full_name': mechanic.fullName,
+      'expertise': mechanic.expertiseString,
+      'phone_number': mechanic.phoneNumber,
+      'profile_picture': mechanic.profilePicture,
+      'years_of_experience': mechanic.yearsOfExperience,
+      'city': mechanic.city,
+      'address': mechanic.address,
+      'workshop_name': mechanic.workshopName,
+      'email': mechanic.email,
+      'latitude': mechanic.latitude,
+      'longitude': mechanic.longitude,
+      'province': mechanic.province,
+      'cnic': mechanic.cnic,
+      'average_rating': 4.5, // Default values
+      'is_verified': true,
+      'is_available': true,
+      'total_feedbacks': 0,
+      'working_days': mechanic.workingDays.isNotEmpty
+          ? mechanic.workingDays
+          : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      'working_hours': {
+        'start_time':
+            mechanic.startTime.isNotEmpty ? mechanic.startTime : '09:00',
+        'end_time': mechanic.endTime.isNotEmpty ? mechanic.endTime : '18:00',
+      },
+      'serviced_vehicle_types': mechanic.servicedVehicleTypes,
+    };
+  }
 }

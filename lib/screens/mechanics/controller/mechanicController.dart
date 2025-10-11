@@ -10,6 +10,7 @@ class MechanicController extends GetxController {
   var mechanicCategories = <Mechanic>[].obs;
   var filteredMechanics = <Mechanic>[].obs;
   var selectedVehicleType = ''.obs;
+  var selectedVehicleId = ''.obs;
   var selectedCategory = ''.obs;
 
   final VehicleController vehicleController = Get.find<VehicleController>();
@@ -557,37 +558,96 @@ class MechanicController extends GetxController {
 
   void clearVehicleFilter() {
     selectedVehicleType.value = '';
+    selectedVehicleId.value = '';
     filterMechanics();
   }
 
   void clearAllFilters() {
     selectedVehicleType.value = '';
+    selectedVehicleId.value = '';
     selectedCategory.value = '';
     filterMechanics();
   }
 
+  // void filterMechanics() {
+  //   if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
+  //     filteredMechanics.assignAll(mechanicCategories);
+  //   } else {
+  //     final filtered = mechanicCategories.where((mechanic) {
+  //       bool vehicleMatch = true;
+  //       bool categoryMatch = true;
+
+  //       if (selectedVehicleType.value.isNotEmpty) {
+  //         vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
+  //       }
+
+  //       if (selectedCategory.value.isNotEmpty) {
+  //         categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+  //       }
+
+  //       return vehicleMatch && categoryMatch;
+  //     }).toList();
+
+  //     filteredMechanics.assignAll(filtered);
+  //   }
+  // }
+
   void filterMechanics() {
-    if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
-      filteredMechanics.assignAll(mechanicCategories);
-    } else {
-      final filtered = mechanicCategories.where((mechanic) {
-        bool vehicleMatch = true;
-        bool categoryMatch = true;
+  if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
+    filteredMechanics.assignAll(mechanicCategories);
+  } else {
+    final filtered = mechanicCategories.where((mechanic) {
+      bool vehicleMatch = true;
+      bool categoryMatch = true;
 
-        if (selectedVehicleType.value.isNotEmpty) {
-          vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-        }
+      final selectedTypeKey = selectedVehicleType.value;
+      final selectedType = selectedTypeKey.split('_').first.toLowerCase(); // "car", "bike"
 
-        if (selectedCategory.value.isNotEmpty) {
-          categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-        }
+      // ✅ FIX: handle servicedVehicleTypes safely as string or list
+      final rawTypes = mechanic.servicedVehicleTypes;
 
-        return vehicleMatch && categoryMatch;
-      }).toList();
+      // If it's a list already (rare), normalize it
+     List<String> mechanicTypes = [];
 
-      filteredMechanics.assignAll(filtered);
-    }
+try {
+  final raw = mechanic.servicedVehicleTypes;
+
+  // Convert everything into a lowercase, trimmed list
+  if (raw == null) {
+    mechanicTypes = [];
+  } else {
+    final str = raw.toString(); // convert anything (List, String, num) → String
+    mechanicTypes = str
+        .replaceAll('[', '') // clean up possible list formatting
+        .replaceAll(']', '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .toList();
   }
+} catch (e) {
+  mechanicTypes = [];
+  print("Error parsing servicedVehicleTypes: $e");
+}
+
+
+      // ✅ Match vehicle type
+      if (selectedType.isNotEmpty) {
+        vehicleMatch = mechanicTypes.contains(selectedType);
+      }
+
+      // ✅ Match category type
+      if (selectedCategory.value.isNotEmpty) {
+        categoryMatch =
+            _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+      }
+
+      return vehicleMatch && categoryMatch;
+    }).toList();
+
+    filteredMechanics.assignAll(filtered);
+  }
+}
+
 
   bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
     if (mechanic.servicedVehicleTypes.isNotEmpty) {
