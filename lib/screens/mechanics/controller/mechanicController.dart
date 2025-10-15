@@ -1,6 +1,9 @@
+
+// perf
 import 'package:fixibot_app/model/mechanicModel.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -78,6 +81,8 @@ class MechanicController extends GetxController {
   void notificationSelection() {
     isNotified.toggle();
   }
+
+
 
   Future<void> fetchMechanics() async {
     isLoading.value = true;
@@ -472,8 +477,24 @@ class MechanicController extends GetxController {
   }
 
   // Delete service
-  Future<bool> deleteService(String serviceId) async {
-    try {
+Future<bool> deleteService(String serviceId) async {
+  try {
+    // Check if this is a local service (starts with 'local_')
+    final bool isLocalService = serviceId.startsWith('local_');
+    
+    if (isLocalService) {
+      // ✅ Handle local service deletion
+      print('🗑️ Deleting local service: $serviceId');
+      
+      // Remove from local storage
+      locallyCreatedServices.removeWhere((service) => 
+        service['_id'] == serviceId || service['id'] == serviceId);
+      _saveLocalServices();
+      
+      await getUserMechanicServices();
+      return true;
+    } else {
+      // ✅ Handle API service deletion
       final prefs = await SharedPreferences.getInstance();
       final accessToken = prefs.getString('access_token');
 
@@ -485,7 +506,7 @@ class MechanicController extends GetxController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        // Remove from local storage
+        // Remove from local storage as well
         locallyCreatedServices.removeWhere((service) => 
           service['_id'] == serviceId || service['id'] == serviceId);
         _saveLocalServices();
@@ -494,10 +515,38 @@ class MechanicController extends GetxController {
         return true;
       }
       return false;
-    } catch (e) {
-      return false;
     }
+  } catch (e) {
+    return false;
   }
+}
+  // // Delete service
+  // Future<bool> deleteService(String serviceId) async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final accessToken = prefs.getString('access_token');
+
+  //     final response = await http.delete(
+  //       Uri.parse('$baseUrl/mechanic-services/$serviceId'),
+  //       headers: {
+  //         'Authorization': 'Bearer $accessToken',
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200 || response.statusCode == 204) {
+  //       // Remove from local storage
+  //       locallyCreatedServices.removeWhere((service) => 
+  //         service['_id'] == serviceId || service['id'] == serviceId);
+  //       _saveLocalServices();
+        
+  //       await getUserMechanicServices();
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
   // Clear local services (for testing)
   void clearLocalServices() {
@@ -569,99 +618,95 @@ class MechanicController extends GetxController {
     filterMechanics();
   }
 
-  // void filterMechanics() {
-  //   if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
-  //     filteredMechanics.assignAll(mechanicCategories);
-  //   } else {
-  //     final filtered = mechanicCategories.where((mechanic) {
-  //       bool vehicleMatch = true;
-  //       bool categoryMatch = true;
+void filterMechanics() {
+  print('🔧 Applying filters...');
+  print('   - Vehicle Type: "${selectedVehicleType.value}"');
+  print('   - Category: "${selectedCategory.value}"');
+  print('   - Total mechanics before filter: ${mechanicCategories.length}');
 
-  //       if (selectedVehicleType.value.isNotEmpty) {
-  //         vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-  //       }
-
-  //       if (selectedCategory.value.isNotEmpty) {
-  //         categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-  //       }
-
-  //       return vehicleMatch && categoryMatch;
-  //     }).toList();
-
-  //     filteredMechanics.assignAll(filtered);
-  //   }
-  // }
-
-  void filterMechanics() {
   if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
     filteredMechanics.assignAll(mechanicCategories);
+    print('✅ No filters applied, showing all ${mechanicCategories.length} mechanics');
   } else {
     final filtered = mechanicCategories.where((mechanic) {
       bool vehicleMatch = true;
       bool categoryMatch = true;
 
-      final selectedTypeKey = selectedVehicleType.value;
-      final selectedType = selectedTypeKey.split('_').first.toLowerCase(); // "car", "bike"
-
-      // ✅ FIX: handle servicedVehicleTypes safely as string or list
-      final rawTypes = mechanic.servicedVehicleTypes;
-
-      // If it's a list already (rare), normalize it
-     List<String> mechanicTypes = [];
-
-try {
-  final raw = mechanic.servicedVehicleTypes;
-
-  // Convert everything into a lowercase, trimmed list
-  if (raw == null) {
-    mechanicTypes = [];
-  } else {
-    final str = raw.toString(); // convert anything (List, String, num) → String
-    mechanicTypes = str
-        .replaceAll('[', '') // clean up possible list formatting
-        .replaceAll(']', '')
-        .split(',')
-        .map((e) => e.trim().toLowerCase())
-        .toList();
-  }
-} catch (e) {
-  mechanicTypes = [];
-  print("Error parsing servicedVehicleTypes: $e");
-}
-
-
-      // ✅ Match vehicle type
-      if (selectedType.isNotEmpty) {
-        vehicleMatch = mechanicTypes.contains(selectedType);
+      // Vehicle type filtering
+      if (selectedVehicleType.value.isNotEmpty) {
+        vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
+        if (!vehicleMatch) {
+          print('   ❌ ${mechanic.fullName} filtered out - vehicle type mismatch');
+        }
       }
 
-      // ✅ Match category type
+      // Category filtering
       if (selectedCategory.value.isNotEmpty) {
-        categoryMatch =
-            _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+        categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+        if (!categoryMatch) {
+          print('   ❌ ${mechanic.fullName} filtered out - category mismatch');
+        }
+      }
+
+      if (vehicleMatch && categoryMatch) {
+        print('   ✅ ${mechanic.fullName} passed filters');
       }
 
       return vehicleMatch && categoryMatch;
     }).toList();
 
     filteredMechanics.assignAll(filtered);
+    print('✅ Filtered to ${filtered.length} mechanics');
   }
 }
 
 
-  bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
-    if (mechanic.servicedVehicleTypes.isNotEmpty) {
-      return mechanic.servicedVehicleTypes.toLowerCase()
-          .contains(vehicleType.toLowerCase());
-    }
+  // bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
+  //   if (mechanic.servicedVehicleTypes.isNotEmpty) {
+  //     return mechanic.servicedVehicleTypes.toLowerCase()
+  //         .contains(vehicleType.toLowerCase());
+  //   }
     
-    if (mechanic.expertiseString.isNotEmpty) {
-      return mechanic.expertiseString.toLowerCase()
-          .contains(vehicleType.toLowerCase());
-    }
+  //   if (mechanic.expertiseString.isNotEmpty) {
+  //     return mechanic.expertiseString.toLowerCase()
+  //         .contains(vehicleType.toLowerCase());
+  //   }
     
+  //   return true;
+  // }
+
+
+bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
+  if (mechanic.servicedVehicleTypes.isEmpty) {
+    // If no specific vehicle types listed, assume mechanic supports all
     return true;
   }
+  
+  final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
+  final searchType = vehicleType.toLowerCase();
+  
+  // More flexible matching
+  final typeMappings = {
+    'car': ['car', 'sedan', 'suv', 'hatchback', 'vehicle'],
+    'bike': ['bike', 'motorcycle', 'scooter', 'bicycle'],
+    'truck': ['truck', 'lorry', 'heavy'],
+    'bus': ['bus', 'coach'],
+  };
+  
+  // Check direct match
+  if (mechanicTypes.contains(searchType)) {
+    return true;
+  }
+  
+  // Check related types
+  if (typeMappings.containsKey(searchType)) {
+    final relatedTypes = typeMappings[searchType]!;
+    return relatedTypes.any((type) => mechanicTypes.contains(type));
+  }
+  
+  return false;
+}
+
 
   bool _doesMechanicHaveSpecialty(Mechanic mechanic, String category) {
     if (mechanic.expertiseString != null) {
@@ -719,7 +764,221 @@ try {
   void _saveLocalPreferences() async {
     _saveLocalServices();
   }
+
+Future<bool> updateServiceDetails({
+  required String serviceId,
+  required String issueDescription,
+  required String estimatedTime,
+}) async {
+  try {
+    // Check if this is a local service (starts with 'local_')
+    final bool isLocalService = serviceId.startsWith('local_');
+    
+    if (isLocalService) {
+      // ✅ Handle local service update
+      print('🔄 Updating local service: $serviceId');
+      
+      // Update local service
+      final localServiceIndex = locallyCreatedServices.indexWhere(
+        (service) => service['_id'] == serviceId || service['id'] == serviceId
+      );
+      
+      if (localServiceIndex != -1) {
+        locallyCreatedServices[localServiceIndex]['issue_description'] = issueDescription;
+        locallyCreatedServices[localServiceIndex]['estimated_time'] = estimatedTime;
+        locallyCreatedServices[localServiceIndex]['updated_at'] = DateTime.now().toIso8601String();
+        _saveLocalServices();
+        
+        print('✅ Local service updated successfully');
+        await getUserMechanicServices(); // Refresh the list
+        return true;
+      } else {
+        servicesErrorMessage.value = 'Local service not found';
+        return false;
+      }
+    } else {
+      // ✅ Handle API service update
+      final prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        servicesErrorMessage.value = 'User not authenticated';
+        return false;
+      }
+
+      final Map<String, dynamic> updateData = {
+        'issue_description': issueDescription,
+        'estimated_time': estimatedTime,
+      };
+
+      print('📝 Updating API service $serviceId with: $updateData');
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/mechanic-services/$serviceId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(updateData),
+      );
+
+      print('📡 Update Response - Status: ${response.statusCode}');
+      print('📡 Update Response - Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('✅ API service updated successfully');
+        
+        // Also update local copy if it exists
+        final localServiceIndex = locallyCreatedServices.indexWhere(
+          (service) => service['_id'] == serviceId || service['id'] == serviceId
+        );
+        
+        if (localServiceIndex != -1) {
+          locallyCreatedServices[localServiceIndex]['issue_description'] = issueDescription;
+          locallyCreatedServices[localServiceIndex]['estimated_time'] = estimatedTime;
+          _saveLocalServices();
+        }
+        
+        await getUserMechanicServices(); // Refresh the list
+        return true;
+      } else {
+        String errorDetail = 'Unknown error';
+        try {
+          final errorData = jsonDecode(response.body);
+          errorDetail = errorData['detail'] ?? errorData['message'] ?? response.body;
+        } catch (e) {
+          errorDetail = response.body;
+        }
+        
+        servicesErrorMessage.value = 'Failed to update service: ${response.statusCode} - $errorDetail';
+        return false;
+      }
+    }
+  } catch (e) {
+    servicesErrorMessage.value = 'Network error: $e';
+    return false;
+  }
 }
+
+
+// Add these to your MechanicController class
+
+// Search properties
+final TextEditingController searchController = TextEditingController();
+final RxString searchQuery = ''.obs;
+final RxList<dynamic> filteredServices = <dynamic>[].obs;
+
+// Search method
+void searchServices(String query) {
+  searchQuery.value = query.trim().toLowerCase();
+  
+  if (searchQuery.isEmpty) {
+    filteredServices.clear();
+    return;
+  }
+
+  final allServices = mechanicServices.toList();
+  final results = allServices.where((service) {
+    if (service is! Map<String, dynamic>) return false;
+    
+    // Search in mechanic name
+    final mechanicName = (service['mechanic_name'] ?? '').toString().toLowerCase();
+    if (mechanicName.contains(searchQuery.value)) return true;
+    
+    // Search in vehicle name
+    final vehicleId = service['vehicle_id'] ?? '';
+    final vehicleName = _getVehicleNameForSearch(vehicleId).toLowerCase();
+    if (vehicleName.contains(searchQuery.value)) return true;
+    
+    // Search in issue description
+    final issueDescription = (service['issue_description'] ?? '').toString().toLowerCase();
+    if (issueDescription.contains(searchQuery.value)) return true;
+    
+    // Search in service type
+    final serviceType = (service['service_type'] ?? '').toString().toLowerCase();
+    if (serviceType.contains(searchQuery.value)) return true;
+    
+    // Search in status
+    final status = (service['status'] ?? '').toString().toLowerCase();
+    if (status.contains(searchQuery.value)) return true;
+    
+    // Search in estimated time
+    final estimatedTime = (service['estimated_time'] ?? '').toString().toLowerCase();
+    if (estimatedTime.contains(searchQuery.value)) return true;
+    
+    return false;
+  }).toList();
+
+  filteredServices.assignAll(results);
+}
+
+// Helper method to get vehicle name for search
+String _getVehicleNameForSearch(String vehicleId) {
+  try {
+    if (vehicleId.isEmpty) return 'Unknown Vehicle';
+    
+    final vehicle = Get.find<VehicleController>().userVehicles.firstWhere(
+      (v) {
+        final vId = v['_id'] ?? v['id'];
+        return vId != null && vId.toString() == vehicleId.toString();
+      },
+      orElse: () => {},
+    );
+    
+    if (vehicle.isNotEmpty) {
+      final brand = vehicle['brand'] ?? '';
+      final model = vehicle['model'] ?? '';
+      return '$brand $model'.trim();
+    }
+  } catch (e) {
+    print('Error getting vehicle name for search: $e');
+  }
+  
+  return 'Unknown Vehicle';
+}
+
+
+
+
+
+
+
+// Clear search method
+void clearSearch() {
+  searchController.clear();
+  searchQuery.value = '';
+  filteredServices.clear();
+}
+
+// Don't forget to dispose the controller in onClose
+@override
+void onClose() {
+  searchController.dispose();
+  super.onClose();
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
