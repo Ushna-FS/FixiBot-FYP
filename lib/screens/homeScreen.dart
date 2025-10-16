@@ -11,6 +11,7 @@ import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/location/location_popup.dart';
+import 'package:fixibot_app/screens/mechanics/controller/mechanicController.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/profile/view/profile.dart';
@@ -84,6 +85,17 @@ class _HomePageState extends State<HomeScreen> {
         Get.to(const SearchScreen());
         break;
       case 2:
+        final locationController = Get.find<LocationController>();
+      final mechanicController = Get.find<MechanicController>();
+      
+      if (locationController.userLatitude.value != 0.0 && 
+          locationController.userLongitude.value != 0.0) {
+        mechanicController.updateUserLocation(
+          locationController.userLatitude.value,
+          locationController.userLongitude.value,
+        );
+      }
+      
         Get.to(const MechanicScreen());
         break;
       case 3:

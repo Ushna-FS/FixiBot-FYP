@@ -1,5 +1,6 @@
 
-// perf
+import 'dart:math';
+
 import 'package:fixibot_app/model/mechanicModel.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
@@ -15,7 +16,9 @@ class MechanicController extends GetxController {
   var selectedVehicleType = ''.obs;
   var selectedVehicleId = ''.obs;
   var selectedCategory = ''.obs;
-
+  var userLatitude = 0.0.obs;
+var userLongitude = 0.0.obs;
+var maxDistance = 50.0.obs;
   final VehicleController vehicleController = Get.find<VehicleController>();
   final LocationController locationController = Get.put(LocationController());
 
@@ -51,6 +54,110 @@ class MechanicController extends GetxController {
       }
     });
   }
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  const double earthRadius = 6371; // Earth's radius in kilometers
+
+  double dLat = _toRadians(lat2 - lat1);
+  double dLon = _toRadians(lon2 - lon1);
+
+  double a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(_toRadians(lat1)) * cos(_toRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+  
+  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  return earthRadius * c;
+}
+
+double _toRadians(double degrees) {
+  return degrees * pi / 180;
+}
+
+
+void updateUserLocation(double lat, double lng) {
+  userLatitude.value = lat;
+  userLongitude.value = lng;
+  filterNearbyMechanics();
+}
+
+// Method to filter and sort mechanics by distance
+void filterNearbyMechanics() {
+  if (userLatitude.value == 0.0 || userLongitude.value == 0.0) {
+    print('📍 User location not set, showing all mechanics');
+    // Apply other filters but don't filter by distance
+    _applyOtherFilters();
+    return;
+  }
+
+  print('📍 Filtering mechanics within ${maxDistance.value}km of user location');
+
+  final nearbyMechanics = mechanicCategories.where((mechanic) {
+    // Check if mechanic has valid coordinates
+    if (mechanic.latitude == 0.0 || mechanic.longitude == 0.0) {
+      return false; // Skip mechanics without coordinates
+    }
+
+    final distance = calculateDistance(
+      userLatitude.value,
+      userLongitude.value,
+      mechanic.latitude,
+      mechanic.longitude,
+    );
+
+    mechanic.distanceFromUser = distance; // Store distance in the model
+    return distance <= maxDistance.value;
+  }).toList();
+
+  // Sort by distance (nearest first)
+  nearbyMechanics.sort((a, b) {
+    final distanceA = a.distanceFromUser ?? double.maxFinite;
+    final distanceB = b.distanceFromUser ?? double.maxFinite;
+    return distanceA.compareTo(distanceB);
+  });
+
+  // Apply other filters (vehicle type, category) on nearby mechanics
+  _applyOtherFiltersOnList(nearbyMechanics);
+}
+
+// Helper method to apply other filters on a list
+void _applyOtherFiltersOnList(List<Mechanic> mechanics) {
+  final filtered = mechanics.where((mechanic) {
+    bool vehicleMatch = true;
+    bool categoryMatch = true;
+
+    // Vehicle type filtering
+    if (selectedVehicleType.value.isNotEmpty) {
+      vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
+    }
+
+    // Category filtering
+    if (selectedCategory.value.isNotEmpty) {
+      categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+    }
+
+    return vehicleMatch && categoryMatch;
+  }).toList();
+
+  filteredMechanics.assignAll(filtered);
+  
+  print('📍 Nearby mechanics filtered: ${filtered.length} within ${maxDistance.value}km');
+}
+
+// Update your existing filterMechanics method
+void filterMechanics() {
+  print('🔧 Applying filters...');
+  print('   - Vehicle Type: "${selectedVehicleType.value}"');
+  print('   - Category: "${selectedCategory.value}"');
+  print('   - User Location: (${userLatitude.value}, ${userLongitude.value})');
+  print('   - Max Distance: ${maxDistance.value}km');
+
+  filterNearbyMechanics();
+}
+
+// Update your existing _applyOtherFilters method to use the new logic
+void _applyOtherFilters() {
+  _applyOtherFiltersOnList(mechanicCategories);
+}
+
 
   // Load locally stored services from SharedPreferences
   void _loadLocalServices() async {
@@ -520,34 +627,6 @@ Future<bool> deleteService(String serviceId) async {
     return false;
   }
 }
-  // // Delete service
-  // Future<bool> deleteService(String serviceId) async {
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final accessToken = prefs.getString('access_token');
-
-  //     final response = await http.delete(
-  //       Uri.parse('$baseUrl/mechanic-services/$serviceId'),
-  //       headers: {
-  //         'Authorization': 'Bearer $accessToken',
-  //       },
-  //     );
-
-  //     if (response.statusCode == 200 || response.statusCode == 204) {
-  //       // Remove from local storage
-  //       locallyCreatedServices.removeWhere((service) => 
-  //         service['_id'] == serviceId || service['id'] == serviceId);
-  //       _saveLocalServices();
-        
-  //       await getUserMechanicServices();
-  //       return true;
-  //     }
-  //     return false;
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
-
   // Clear local services (for testing)
   void clearLocalServices() {
     locallyCreatedServices.clear();
@@ -618,62 +697,48 @@ Future<bool> deleteService(String serviceId) async {
     filterMechanics();
   }
 
-void filterMechanics() {
-  print('🔧 Applying filters...');
-  print('   - Vehicle Type: "${selectedVehicleType.value}"');
-  print('   - Category: "${selectedCategory.value}"');
-  print('   - Total mechanics before filter: ${mechanicCategories.length}');
+// void filterMechanics() {
+//   print('🔧 Applying filters...');
+//   print('   - Vehicle Type: "${selectedVehicleType.value}"');
+//   print('   - Category: "${selectedCategory.value}"');
+//   print('   - Total mechanics before filter: ${mechanicCategories.length}');
 
-  if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
-    filteredMechanics.assignAll(mechanicCategories);
-    print('✅ No filters applied, showing all ${mechanicCategories.length} mechanics');
-  } else {
-    final filtered = mechanicCategories.where((mechanic) {
-      bool vehicleMatch = true;
-      bool categoryMatch = true;
+//   if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
+//     filteredMechanics.assignAll(mechanicCategories);
+//     print('✅ No filters applied, showing all ${mechanicCategories.length} mechanics');
+//   } else {
+//     final filtered = mechanicCategories.where((mechanic) {
+//       bool vehicleMatch = true;
+//       bool categoryMatch = true;
 
-      // Vehicle type filtering
-      if (selectedVehicleType.value.isNotEmpty) {
-        vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-        if (!vehicleMatch) {
-          print('   ❌ ${mechanic.fullName} filtered out - vehicle type mismatch');
-        }
-      }
+//       // Vehicle type filtering
+//       if (selectedVehicleType.value.isNotEmpty) {
+//         vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
+//         if (!vehicleMatch) {
+//           print('   ❌ ${mechanic.fullName} filtered out - vehicle type mismatch');
+//         }
+//       }
 
-      // Category filtering
-      if (selectedCategory.value.isNotEmpty) {
-        categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-        if (!categoryMatch) {
-          print('   ❌ ${mechanic.fullName} filtered out - category mismatch');
-        }
-      }
+//       // Category filtering
+//       if (selectedCategory.value.isNotEmpty) {
+//         categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+//         if (!categoryMatch) {
+//           print('   ❌ ${mechanic.fullName} filtered out - category mismatch');
+//         }
+//       }
 
-      if (vehicleMatch && categoryMatch) {
-        print('   ✅ ${mechanic.fullName} passed filters');
-      }
+//       if (vehicleMatch && categoryMatch) {
+//         print('   ✅ ${mechanic.fullName} passed filters');
+//       }
 
-      return vehicleMatch && categoryMatch;
-    }).toList();
+//       return vehicleMatch && categoryMatch;
+//     }).toList();
 
-    filteredMechanics.assignAll(filtered);
-    print('✅ Filtered to ${filtered.length} mechanics');
-  }
-}
+//     filteredMechanics.assignAll(filtered);
+//     print('✅ Filtered to ${filtered.length} mechanics');
+//   }
+// }
 
-
-  // bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
-  //   if (mechanic.servicedVehicleTypes.isNotEmpty) {
-  //     return mechanic.servicedVehicleTypes.toLowerCase()
-  //         .contains(vehicleType.toLowerCase());
-  //   }
-    
-  //   if (mechanic.expertiseString.isNotEmpty) {
-  //     return mechanic.expertiseString.toLowerCase()
-  //         .contains(vehicleType.toLowerCase());
-  //   }
-    
-  //   return true;
-  // }
 
 
 bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {

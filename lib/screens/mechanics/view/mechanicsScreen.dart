@@ -29,6 +29,14 @@ class MechanicScreen extends GetView<MechanicController> {
 
     final vehicleController = Get.find<VehicleController>();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final userLat = locationController.userLatitude.value;
+    final userLng = locationController.userLongitude.value;
+    
+    if (userLat != 0.0 && userLng != 0.0) {
+      controller.updateUserLocation(userLat, userLng);
+    }
+  });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.mainColor,
