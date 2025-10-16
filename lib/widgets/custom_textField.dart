@@ -157,7 +157,8 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final VoidCallback? onIconPressed; 
   final TextCapitalization;
-  final onChanged;// ✅ optional callback
+  final onChanged;
+  final maxLines;// ✅ optional callback
 
   const CustomTextField({
     super.key,
@@ -168,7 +169,8 @@ class CustomTextField extends StatefulWidget {
     this.isPassword = false,
     this.controller,
     this.keyboardType = TextInputType.text,
-    this.onIconPressed,
+    this.onIconPressed, 
+    this.maxLines,
   });
 
   @override

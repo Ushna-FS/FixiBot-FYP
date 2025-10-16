@@ -2,6 +2,7 @@
 import 'dart:math';
 
 import 'package:fixibot_app/model/mechanicModel.dart';
+import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:flutter/material.dart';
@@ -241,13 +242,13 @@ void _applyOtherFilters() {
 
   // Create new mechanic service
   Future<bool> createMechanicService({
-    required String mechanicId,
-    required String mechanicName,
-    required String vehicleId,
-    required String issueDescription,
-    required String serviceType,
-    required double serviceCost,
-    required String estimatedTime,
+   required String mechanicId,
+  required String mechanicName,
+  required String vehicleId,
+  required String issueDescription,
+  required String serviceType,
+  required double serviceCost,
+  required String estimatedTime,
   }) async {
     try {
       isServicesLoading.value = true;
@@ -379,6 +380,21 @@ void _applyOtherFilters() {
           _saveLocalPreferences();
           await _updateServicesListWithLocalData();
         }
+         try {
+        final createdService = jsonDecode(response.body);
+        final feedbackController = Get.find<FeedbackController>();
+        
+        // Add mechanic name to the service data for feedback
+        final serviceWithMechanicName = Map<String, dynamic>.from(createdService);
+        serviceWithMechanicName['mechanic_name'] = mechanicName;
+        
+        // Trigger feedback popup immediately
+        feedbackController.checkForNewServiceFeedback(serviceWithMechanicName);
+        
+        print('🚀 Feedback popup triggered for new service!');
+      } catch (e) {
+        print('⚠️ Could not trigger feedback popup: $e');
+      }
         
         return true;
       } else {
