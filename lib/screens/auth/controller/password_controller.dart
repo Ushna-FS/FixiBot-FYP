@@ -11,7 +11,7 @@ class ForgotPasswordController extends GetxController {
   var newPasswordController = TextEditingController();
 
   var isLoading = false.obs;
-   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev/";
 
 
   /// 🔹 Extract error message properly
@@ -151,7 +151,7 @@ Future<void> confirmReset() async {
 
 //   var isLoading = false.obs;
 
-//   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev"; // adjust for backend
+//   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev/"; // adjust for backend
 
 //   /// Step 1 → Request reset link
 //   Future<void> resetPassword() async {

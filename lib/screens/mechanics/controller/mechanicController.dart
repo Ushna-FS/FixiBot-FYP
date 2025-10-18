@@ -1,6 +1,4 @@
-
 import 'dart:math';
-
 import 'package:fixibot_app/model/mechanicModel.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
@@ -35,8 +33,8 @@ var maxDistance = 50.0.obs;
   // Track successful service creation locally
   var locallyCreatedServices = <Map<String, dynamic>>[].obs;
 
-  String apiUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev/mechanics';
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  // String apiUrl = 'https://zoogloeal-byron-unruled.ngrok-free.dev/mechanics';
+  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
 
   @override
   void onInit() {
@@ -192,51 +190,175 @@ void _applyOtherFilters() {
 
 
 
-  Future<void> fetchMechanics() async {
-    isLoading.value = true;
-    errorMessage.value = '';
+  // Future<void> fetchMechanics() async {
+  //   isLoading.value = true;
+  //   errorMessage.value = '';
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final accessToken = prefs.getString('access_token');
 
-      if (accessToken == null) {
-        errorMessage.value = 'Please login to view mechanics';
+  //     if (accessToken == null) {
+  //       errorMessage.value = 'Please login to view mechanics';
+  //       return;
+  //     }
+
+  //     final response = await http.get(
+  //       Uri.parse(apiUrl),
+  //       headers: {
+  //         "Authorization": "Bearer $accessToken",
+  //         "Content-Type": "application/json",
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final data = json.decode(response.body);
+
+  //       List<Mechanic> mechanicList = [];
+
+  //       if (data is List) {
+  //         mechanicList = data.map((item) => Mechanic.fromJson(item)).toList();
+  //       } else if (data is Map && data.containsKey('data')) {
+  //         mechanicList = (data['data'] as List)
+  //             .map((item) => Mechanic.fromJson(item))
+  //             .toList();
+  //       }
+
+  //       mechanicCategories.assignAll(mechanicList);
+  //       filteredMechanics.assignAll(mechanicList);
+  //     } else {
+  //       errorMessage.value = 'Failed to load mechanics';
+  //     }
+  //   } catch (e) {
+  //     errorMessage.value = 'Error: $e';
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+
+Future<void> fetchMechanics() async {
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      errorMessage.value = 'Please login to view mechanics';
+      isLoading.value = false;
+      return;
+    }
+
+    // Fix 1: Correct URL without double slash
+    // Fix 2: Add query parameters as per API documentation
+    final uri = Uri.parse('$baseUrl/mechanics').replace(queryParameters: {
+      'skip': '0',
+      'limit': '100',
+      // You can add more filters here if needed
+      // 'verified': 'true',
+      // 'available': 'true',
+      // 'city': 'Lahore',
+    });
+
+    print('🌐 Fetching mechanics from: $uri');
+    print('🔐 Using access token: ${accessToken.isNotEmpty ? "Present" : "Missing"}');
+
+    final response = await http.get(
+      uri,
+      headers: {
+        "Authorization": "Bearer $accessToken",
+        "Content-Type": "application/json",
+      },
+    ).timeout(Duration(seconds: 30));
+
+    print('📡 Response Status: ${response.statusCode}');
+    print('📡 Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final dynamic data = json.decode(response.body);
+      print('✅ Successfully fetched mechanics data');
+
+      List<Mechanic> mechanicList = [];
+
+      if (data is List) {
+        // Direct array response - convert each item to Map<String, dynamic>
+        mechanicList = data.map<Mechanic>((item) {
+          if (item is Map) {
+            return Mechanic.fromJson(Map<String, dynamic>.from(item));
+          }
+          return Mechanic.fromJson({}); // fallback for invalid items
+        }).toList();
+        print('📊 Found ${mechanicList.length} mechanics in array format');
+      } else if (data is Map && data.containsKey('data')) {
+        // Response with 'data' key
+        final dynamic mechanicsData = data['data'];
+        if (mechanicsData is List) {
+          mechanicList = mechanicsData.map<Mechanic>((item) {
+            if (item is Map) {
+              return Mechanic.fromJson(Map<String, dynamic>.from(item));
+            }
+            return Mechanic.fromJson({});
+          }).toList();
+          print('📊 Found ${mechanicList.length} mechanics in data object format');
+        }
+      } else if (data is Map) {
+        // Single mechanic object or other structure
+        mechanicList = [Mechanic.fromJson(Map<String, dynamic>.from(data))];
+        print('📊 Found single mechanic in object format');
+      } else {
+        print('❌ Unexpected response format: ${data.runtimeType}');
+        errorMessage.value = 'Unexpected response format from server';
         return;
       }
 
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          "Authorization": "Bearer $accessToken",
-          "Content-Type": "application/json",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        List<Mechanic> mechanicList = [];
-
-        if (data is List) {
-          mechanicList = data.map((item) => Mechanic.fromJson(item)).toList();
-        } else if (data is Map && data.containsKey('data')) {
-          mechanicList = (data['data'] as List)
-              .map((item) => Mechanic.fromJson(item))
-              .toList();
-        }
-
-        mechanicCategories.assignAll(mechanicList);
-        filteredMechanics.assignAll(mechanicList);
-      } else {
-        errorMessage.value = 'Failed to load mechanics';
+      mechanicCategories.assignAll(mechanicList);
+      filteredMechanics.assignAll(mechanicList);
+      
+      // Apply location-based filtering after loading mechanics
+      if (userLatitude.value != 0.0 && userLongitude.value != 0.0) {
+        filterNearbyMechanics();
       }
-    } catch (e) {
-      errorMessage.value = 'Error: $e';
-    } finally {
-      isLoading.value = false;
+      
+      print('🎯 Total mechanics loaded: ${mechanicList.length}');
+      print('🎯 Filtered mechanics: ${filteredMechanics.length}');
+
+    } else if (response.statusCode == 401) {
+      errorMessage.value = 'Authentication failed. Please login again.';
+      print('❌ Authentication failed - 401 Unauthorized');
+    } else if (response.statusCode == 403) {
+      errorMessage.value = 'Access forbidden';
+      print('❌ Access forbidden - 403');
+    } else if (response.statusCode == 404) {
+      errorMessage.value = 'Mechanics endpoint not found';
+      print('❌ Endpoint not found - 404');
+    } else if (response.statusCode == 422) {
+      errorMessage.value = 'Invalid request parameters';
+      print('❌ Validation error - 422');
+    } else {
+      // Try to parse error message from response
+      try {
+        final errorData = json.decode(response.body);
+        final dynamic errorDetail = errorData['detail'] ?? errorData['message'] ?? 'Unknown error';
+        errorMessage.value = 'Failed to load mechanics: $errorDetail';
+      } catch (e) {
+        errorMessage.value = 'Failed to load mechanics: ${response.statusCode}';
+      }
+      print('❌ Server error: ${response.statusCode}');
     }
+  } catch (e) {
+    errorMessage.value = 'Network error: $e';
+    print('❌ Exception in fetchMechanics: $e');
+    
+    // Check if it's a timeout
+    if (e is http.ClientException || e.toString().contains('timed out')) {
+      errorMessage.value = 'Network timeout. Please check your connection.';
+    }
+  } finally {
+    isLoading.value = false;
   }
+}
 
   // ========== MECHANIC SERVICES METHODS ==========
 
@@ -382,8 +504,10 @@ void _applyOtherFilters() {
         }
          try {
         final createdService = jsonDecode(response.body);
-        final feedbackController = Get.find<FeedbackController>();
-        
+        // After successful service creation in mechanicController.dart
+      final feedbackController = Get.find<FeedbackController>();
+      feedbackController.checkForNewServiceFeedback(createdService);
+
         // Add mechanic name to the service data for feedback
         final serviceWithMechanicName = Map<String, dynamic>.from(createdService);
         serviceWithMechanicName['mechanic_name'] = mechanicName;
@@ -713,49 +837,6 @@ Future<bool> deleteService(String serviceId) async {
     filterMechanics();
   }
 
-// void filterMechanics() {
-//   print('🔧 Applying filters...');
-//   print('   - Vehicle Type: "${selectedVehicleType.value}"');
-//   print('   - Category: "${selectedCategory.value}"');
-//   print('   - Total mechanics before filter: ${mechanicCategories.length}');
-
-//   if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
-//     filteredMechanics.assignAll(mechanicCategories);
-//     print('✅ No filters applied, showing all ${mechanicCategories.length} mechanics');
-//   } else {
-//     final filtered = mechanicCategories.where((mechanic) {
-//       bool vehicleMatch = true;
-//       bool categoryMatch = true;
-
-//       // Vehicle type filtering
-//       if (selectedVehicleType.value.isNotEmpty) {
-//         vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-//         if (!vehicleMatch) {
-//           print('   ❌ ${mechanic.fullName} filtered out - vehicle type mismatch');
-//         }
-//       }
-
-//       // Category filtering
-//       if (selectedCategory.value.isNotEmpty) {
-//         categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-//         if (!categoryMatch) {
-//           print('   ❌ ${mechanic.fullName} filtered out - category mismatch');
-//         }
-//       }
-
-//       if (vehicleMatch && categoryMatch) {
-//         print('   ✅ ${mechanic.fullName} passed filters');
-//       }
-
-//       return vehicleMatch && categoryMatch;
-//     }).toList();
-
-//     filteredMechanics.assignAll(filtered);
-//     print('✅ Filtered to ${filtered.length} mechanics');
-//   }
-// }
-
-
 
 bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
   if (mechanic.servicedVehicleTypes.isEmpty) {
@@ -1039,507 +1120,4 @@ void onClose() {
 }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 2nd Attempt/////////////////
-
-// import 'package:fixibot_app/model/mechanicModel.dart';
-// import 'package:fixibot_app/screens/location/location_controller.dart';
-// import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
-// import 'package:get/get.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// class MechanicController extends GetxController {
-//   var mechanicCategories = <Mechanic>[].obs;
-//   var filteredMechanics = <Mechanic>[].obs;
-//   var selectedVehicleType = ''.obs;
-//   var selectedCategory = ''.obs;
-
-//   final VehicleController vehicleController = Get.find<VehicleController>();
-//   final LocationController locationController = Get.put(LocationController());
-
-//   var isNotified = false.obs;
-//   var isLoading = false.obs;
-//   var errorMessage = ''.obs;
-
-//   // Mechanic Services Properties
-//   RxList<dynamic> mechanicServices = <dynamic>[].obs;
-//   RxBool isServicesLoading = false.obs;
-//   RxString servicesErrorMessage = ''.obs;
-
-//   String apiUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev/mechanics';
-//   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
-
-//   void notificationSelection() {
-//     isNotified.toggle();
-//   }
-
-//   Future<void> fetchMechanics() async {
-//     isLoading.value = true;
-//     errorMessage.value = '';
-
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       final accessToken = prefs.getString('access_token');
-
-//       if (accessToken == null) {
-//         errorMessage.value = 'Please login to view mechanics';
-//         return;
-//       }
-
-//       final response = await http.get(
-//         Uri.parse(apiUrl),
-//         headers: {
-//           "Authorization": "Bearer $accessToken",
-//           "Content-Type": "application/json",
-//         },
-//       );
-
-//       if (response.statusCode == 200) {
-//         final data = json.decode(response.body);
-
-//         List<Mechanic> mechanicList = [];
-
-//         if (data is List) {
-//           mechanicList = data.map((item) => Mechanic.fromJson(item)).toList();
-//         } else if (data is Map && data.containsKey('data')) {
-//           mechanicList = (data['data'] as List)
-//               .map((item) => Mechanic.fromJson(item))
-//               .toList();
-//         }
-
-//         mechanicCategories.assignAll(mechanicList);
-//         filteredMechanics.assignAll(mechanicList); // Initialize filtered list
-//       } else {
-//         errorMessage.value = 'Failed to load mechanics';
-//       }
-//     } catch (e) {
-//       errorMessage.value = 'Error: $e';
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   }
-
-//   // ========== MECHANIC SERVICES METHODS ==========
-
-//   // Create new mechanic service
-  
-
-  
-// Future<bool> createMechanicService({
-//   required String mechanicId,
-//   required String mechanicName,
-//   required String vehicleId,
-//   required String issueDescription,
-//   required String serviceType,
-//   required double serviceCost,
-//   required String estimatedTime,
-// }) async {
-//   try {
-//     isServicesLoading.value = true;
-//     servicesErrorMessage.value = '';
-
-//     final prefs = await SharedPreferences.getInstance();
-//     final accessToken = prefs.getString('access_token');
-//     final userId = prefs.getString('user_id');
-
-//     print('🔐 Auth check - Access Token: ${accessToken != null ? "Present" : "Missing"}');
-//     print('🔐 Auth check - User ID: ${userId ?? "Missing"}');
-
-//     if (accessToken == null || userId == null) {
-//       servicesErrorMessage.value = 'User not authenticated';
-//       print('❌ Authentication failed');
-//       return false;
-//     }
-
-//     // Prepare request body - using exact field names from your API schema
-//     final requestBody = {
-//       'user_id': userId,
-//       'mechanic_id': mechanicId,
-//       'vehicle_id': vehicleId,
-//       'issue_description': issueDescription,
-//       'service_type': serviceType,
-//       'service_cost': serviceCost,
-//       'estimated_time': estimatedTime,
-//       'status': 'pending',
-//     };
-
-//     print('📦 Request body: $requestBody');
-//     print('🌐 Calling endpoint: $baseUrl/mechanic-services/post');
-
-//     final response = await http.post(
-//       Uri.parse('$baseUrl/mechanic-services/post'),
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': 'Bearer $accessToken',
-//       },
-//       body: jsonEncode(requestBody),
-//     ).timeout(Duration(seconds: 30));
-
-//     print('📡 API Response - Status: ${response.statusCode}');
-//     print('📡 API Response - Body: ${response.body}');
-
-//     if (response.statusCode == 200 || response.statusCode == 201) {
-//       print('✅ Service created successfully');
-//       // Refresh the services list
-//       await getUserMechanicServices();
-//       return true;
-//     } else {
-//       // Try to parse error message
-//       String errorDetail = 'Unknown error';
-//       try {
-//         final errorData = jsonDecode(response.body);
-//         errorDetail = errorData['detail'] ?? errorData['message'] ?? response.body;
-//       } catch (e) {
-//         errorDetail = response.body;
-//       }
-      
-//       servicesErrorMessage.value = 'Failed to create service: ${response.statusCode} - $errorDetail';
-//       print('❌ Service creation failed: ${servicesErrorMessage.value}');
-//       return false;
-//     }
-//   } catch (e) {
-//     servicesErrorMessage.value = 'Network error: $e';
-//     print('❌ Exception in createMechanicService: $e');
-//     return false;
-//   } finally {
-//     isServicesLoading.value = false;
-//   }
-// }
-
-// Future<void> getUserMechanicServices() async {
-//   try {
-//     isServicesLoading.value = true;
-//     servicesErrorMessage.value = '';
-
-//     final prefs = await SharedPreferences.getInstance();
-//     final accessToken = prefs.getString('access_token');
-//     final userId = prefs.getString('user_id');
-
-//     print('🔐 Fetching services - User ID: $userId');
-
-//     if (accessToken == null) {
-//       servicesErrorMessage.value = 'User not authenticated';
-//       return;
-//     }
-
-//     // ✅ ADD QUERY PARAMETERS as per your API documentation
-//     final Uri uri = Uri.parse('$baseUrl/mechanic-services/user/my-services')
-//         .replace(queryParameters: {
-//       'skip': '0',
-//       'limit': '50', 
-//       'sort_by': 'created_at',
-//       'sort_order': '-1'
-//     });
-
-//     print('🌐 Calling service history endpoint: $uri');
-
-//     final response = await http.get(
-//       uri,
-//       headers: {
-//         'Authorization': 'Bearer $accessToken',
-//       },
-//     ).timeout(Duration(seconds: 15));
-
-//     print('📡 Service History - Status: ${response.statusCode}');
-    
-//     if (response.statusCode == 200) {
-//       final data = jsonDecode(response.body);
-//       print('✅ Services fetched successfully: ${data.length} services');
-      
-//       // Debug: Print service details
-//       for (var i = 0; i < data.length; i++) {
-//         print('   Service $i: ${data[i]}');
-//       }
-      
-//       if (data is List) {
-//         mechanicServices.value = data;
-//       } else {
-//         mechanicServices.value = [];
-//       }
-//     } else if (response.statusCode == 404) {
-//       // No services found - this is normal for new users
-//       print('ℹ️ No services found (404) - user might not have any services yet');
-//       mechanicServices.value = [];
-//     } else if (response.statusCode == 500) {
-//       // Server error - provide more helpful message
-//       try {
-//         final errorData = jsonDecode(response.body);
-//         final errorDetail = errorData['detail'] ?? 'Unknown server error';
-//         servicesErrorMessage.value = 'Server error: $errorDetail';
-//         print('❌ Server error fetching services: $errorDetail');
-//       } catch (e) {
-//         servicesErrorMessage.value = 'Server error: Failed to load service history';
-//         print('❌ Server error (could not parse response): ${response.body}');
-//       }
-//       mechanicServices.value = [];
-//     } else {
-//       servicesErrorMessage.value = 'Failed to load services: ${response.statusCode}';
-//       print('❌ Unexpected status code: ${response.statusCode} - Body: ${response.body}');
-//       mechanicServices.value = [];
-//     }
-//   } catch (e) {
-//     print('❌ Exception in getUserMechanicServices: $e');
-//     servicesErrorMessage.value = 'Network error: Please check your connection';
-//     mechanicServices.value = [];
-//   } finally {
-//     isServicesLoading.value = false;
-//   }
-// }
-
-
-//   // Update service status
-//   Future<bool> updateServiceStatus({
-//     required String serviceId,
-//     required String status,
-//     String? estimatedTime,
-//     double? serviceCost,
-//   }) async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       final accessToken = prefs.getString('access_token');
-
-//       final Map<String, dynamic> updateData = {'status': status};
-//       if (estimatedTime != null) updateData['estimated_time'] = estimatedTime;
-//       if (serviceCost != null) updateData['service_cost'] = serviceCost;
-
-//       final response = await http.put(
-//         Uri.parse('$baseUrl/mechanic-services/$serviceId'),
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': 'Bearer $accessToken',
-//         },
-//         body: jsonEncode(updateData),
-//       );
-
-//       if (response.statusCode == 200) {
-//         await getUserMechanicServices();
-//         return true;
-//       }
-//       return false;
-//     } catch (e) {
-//       return false;
-//     }
-//   }
-
-//   // Delete service
-//   Future<bool> deleteService(String serviceId) async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       final accessToken = prefs.getString('access_token');
-
-//       final response = await http.delete(
-//         Uri.parse('$baseUrl/mechanic-services/$serviceId'),
-//         headers: {
-//           'Authorization': 'Bearer $accessToken',
-//         },
-//       );
-
-//       if (response.statusCode == 200 || response.statusCode == 204) {
-//         await getUserMechanicServices();
-//         return true;
-//       }
-//       return false;
-//     } catch (e) {
-//       return false;
-//     }
-//   }
-
-//   // ========== FILTERING METHODS ==========
-
-//   void selectCategory(String category) {
-//     if (selectedCategory.value == category) {
-//       // If same category is clicked again, deselect it
-//       selectedCategory.value = '';
-//     } else {
-//       selectedCategory.value = category;
-//     }
-//     filterMechanics();
-//   }
-
-//   void clearCategoryFilter() {
-//     selectedCategory.value = '';
-//     filterMechanics();
-//   }
-
-//   void clearVehicleFilter() {
-//     selectedVehicleType.value = '';
-//     filterMechanics();
-//   }
-
-//   void clearAllFilters() {
-//     selectedVehicleType.value = '';
-//     selectedCategory.value = '';
-//     filterMechanics();
-//   }
-
-//   void filterMechanics() {
-//     if (selectedVehicleType.value.isEmpty && selectedCategory.value.isEmpty) {
-//       // No filters applied, show all mechanics
-//       filteredMechanics.assignAll(mechanicCategories);
-//     } else {
-//       // Apply filters
-//       final filtered = mechanicCategories.where((mechanic) {
-//         bool vehicleMatch = true;
-//         bool categoryMatch = true;
-
-//         // Vehicle type filter
-//         if (selectedVehicleType.value.isNotEmpty) {
-//           vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-//         }
-
-//         // Category/specialty filter
-//         if (selectedCategory.value.isNotEmpty) {
-//           categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-//         }
-
-//         return vehicleMatch && categoryMatch;
-//       }).toList();
-
-//       filteredMechanics.assignAll(filtered);
-//     }
-//   }
-
-//   bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
-//   // Check if mechanic supports the selected vehicle type
-//   if (mechanic.servicedVehicleTypes.isNotEmpty) {
-//     return mechanic.servicedVehicleTypes.toLowerCase()
-//         .contains(vehicleType.toLowerCase());
-//   }
-  
-//   // Fallback: check expertise string
-//   if (mechanic.expertiseString.isNotEmpty) {
-//     return mechanic.expertiseString.toLowerCase()
-//         .contains(vehicleType.toLowerCase());
-//   }
-  
-//   // If no vehicle type info available, show the mechanic
-//   return true;
-// }
-
-//   bool _doesMechanicHaveSpecialty(Mechanic mechanic, String category) {
-//     // Check if mechanic has the selected specialty/category
-//     if (mechanic.expertiseString != null) {
-//       final expertise = mechanic.expertiseString!.toLowerCase();
-//       final categoryLower = category.toLowerCase();
-      
-//       // Map categories to common expertise keywords
-//       final categoryKeywords = {
-//         'engine': ['engine', 'motor', 'overhaul', 'cylinder', 'piston'],
-//         'tyre': ['tyre', 'tire', 'wheel', 'alignment', 'balancing'],
-//         'brakes': ['brake', 'disc', 'pad', 'caliper', 'stopping'],
-//         'electrical': ['electrical', 'battery', 'wiring', 'alternator', 'starter'],
-//         'suspension': ['suspension', 'shock', 'strut', 'spring', 'alignment'],
-//       };
-
-//       final keywords = categoryKeywords[categoryLower] ?? [categoryLower];
-//       return keywords.any((keyword) => expertise.contains(keyword));
-//     }
-    
-//     return false;
-//   }
-
-//   // Update your existing filter method to use the new combined filter
-//   void filterMechanicsByVehicleType() {
-//     filterMechanics();
-//   }
-//   // Test method to check if API endpoint is working
-// Future<void> testMechanicServiceAPI() async {
-//   try {
-//     final prefs = await SharedPreferences.getInstance();
-//     final accessToken = prefs.getString('access_token');
-//     final userId = prefs.getString('user_id');
-
-//     print('🧪 Testing Mechanic Service API...');
-//     print('🔐 Access Token: ${accessToken != null ? "Present" : "Missing"}');
-//     print('🔐 User ID: ${userId ?? "Missing"}');
-
-//     // Test GET endpoint first
-//     final testResponse = await http.get(
-//       Uri.parse('$baseUrl/mechanic-services/user/my-services'),
-//       headers: {
-//         'Authorization': 'Bearer $accessToken',
-//       },
-//     ).timeout(Duration(seconds: 10));
-
-//     print('🧪 GET Test - Status: ${testResponse.statusCode}');
-//     print('🧪 GET Test - Body: ${testResponse.body}');
-
-//   } catch (e) {
-//     print('🧪 API Test Failed: $e');
-//   }
-// }
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     fetchMechanics();
-//     getUserMechanicServices(); // Initialize services on app start
-//     testMechanicServiceAPI();
-
-//     final prefs = SharedPreferences.getInstance();
-//     prefs.then((p) {
-//       final userId = p.getString("user_id");
-//       if (userId != null && userId.isNotEmpty) {
-//         vehicleController.getUserVehicles(userId);
-//       }
-//     });
-//   }
-//   // Add this method to test if service was created
-// Future<bool> verifyServiceCreation(String mechanicId, String vehicleId) async {
-//   try {
-//     print('🔍 Verifying service creation...');
-    
-//     // Wait a bit for the backend to process
-//     await Future.delayed(Duration(seconds: 2));
-    
-//     // Try to fetch services again
-//     await getUserMechanicServices();
-    
-//     // Check if our new service appears in the list
-//     if (mechanicServices.isNotEmpty) {
-//       print('✅ Service verification: ${mechanicServices.length} services found');
-//       return true;
-//     } else {
-//       print('⚠️ Service verification: No services found, but creation might still be successful');
-//       // Even if we can't see it in the list, the creation might have worked
-//       return true;
-//     }
-//   } catch (e) {
-//     print('❌ Service verification error: $e');
-//     return false;
-//   }
-// }
-// }
-
-
-
-
-
 
