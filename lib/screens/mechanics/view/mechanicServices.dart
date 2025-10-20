@@ -1,11 +1,11 @@
 ///perfect - No Status Version
 import 'package:fixibot_app/screens/mechanics/controller/mechanicController.dart';
+import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
-import 'package:fixibot_app/widgets/customAppBar.dart';
 
 class MechanicServicesPage extends StatelessWidget {
   final MechanicController controller = Get.find<MechanicController>();
@@ -249,7 +249,7 @@ class MechanicServicesPage extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Get.back();
+                  Get.to(MechanicScreen());
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.mainColor,

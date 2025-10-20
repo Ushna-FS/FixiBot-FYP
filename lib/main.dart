@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
@@ -17,9 +18,9 @@ void main() async {
   
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs);
-
   Get.put(LocationController()); 
   Get.put(UserController()); 
+  Get.put(FeedbackController(), permanent: true);
   runApp(const MyApp());
 }
 

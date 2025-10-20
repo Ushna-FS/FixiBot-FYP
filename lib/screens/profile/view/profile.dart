@@ -176,12 +176,14 @@
 
 
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/feedback/view/feedbackHistory.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicServices.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
 import 'package:fixibot_app/screens/help/support.dart';
 import 'package:fixibot_app/screens/profile/editProfile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/app_colors.dart';
 import '../../auth/view/login.dart';
 import 'package:flutter/material.dart';
@@ -343,6 +345,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: () => Get.to(MechanicServicesPage()),
                   child: Text(
                     "Mechanic Services",
+                    style: AppFonts.montserratText2,
+                  ),
+                ),
+              ),
+                ListTile(
+                      leading: Icon(Icons.feedback, color: AppColors.mainColor), // or Icons.handyman
+                title: InkWell(
+                  onTap: () => Get.to(FeedbackHistoryScreen()),
+                  child: Text(
+                    "FeedBacks",
                     style: AppFonts.montserratText2,
                   ),
                 ),

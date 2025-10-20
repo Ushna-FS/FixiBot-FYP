@@ -16,8 +16,8 @@ class MechanicController extends GetxController {
   var selectedVehicleId = ''.obs;
   var selectedCategory = ''.obs;
   var userLatitude = 0.0.obs;
-var userLongitude = 0.0.obs;
-var maxDistance = 50.0.obs;
+  var userLongitude = 0.0.obs;
+  var maxDistance = 50.0.obs;
   final VehicleController vehicleController = Get.find<VehicleController>();
   final LocationController locationController = Get.put(LocationController());
 
@@ -29,7 +29,7 @@ var maxDistance = 50.0.obs;
   RxList<dynamic> mechanicServices = <dynamic>[].obs;
   RxBool isServicesLoading = false.obs;
   RxString servicesErrorMessage = ''.obs;
-  
+
   // Track successful service creation locally
   var locallyCreatedServices = <Map<String, dynamic>>[].obs;
 
@@ -55,108 +55,114 @@ var maxDistance = 50.0.obs;
   }
 
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-  const double earthRadius = 6371; // Earth's radius in kilometers
+    const double earthRadius = 6371; // Earth's radius in kilometers
 
-  double dLat = _toRadians(lat2 - lat1);
-  double dLon = _toRadians(lon2 - lon1);
+    double dLat = _toRadians(lat2 - lat1);
+    double dLon = _toRadians(lon2 - lon1);
 
-  double a = sin(dLat / 2) * sin(dLat / 2) +
-      cos(_toRadians(lat1)) * cos(_toRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
-  
-  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  return earthRadius * c;
-}
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(lat1)) *
+            cos(_toRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
 
-double _toRadians(double degrees) {
-  return degrees * pi / 180;
-}
-
-
-void updateUserLocation(double lat, double lng) {
-  userLatitude.value = lat;
-  userLongitude.value = lng;
-  filterNearbyMechanics();
-}
-
-// Method to filter and sort mechanics by distance
-void filterNearbyMechanics() {
-  if (userLatitude.value == 0.0 || userLongitude.value == 0.0) {
-    print('📍 User location not set, showing all mechanics');
-    // Apply other filters but don't filter by distance
-    _applyOtherFilters();
-    return;
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
   }
 
-  print('📍 Filtering mechanics within ${maxDistance.value}km of user location');
+  double _toRadians(double degrees) {
+    return degrees * pi / 180;
+  }
 
-  final nearbyMechanics = mechanicCategories.where((mechanic) {
-    // Check if mechanic has valid coordinates
-    if (mechanic.latitude == 0.0 || mechanic.longitude == 0.0) {
-      return false; // Skip mechanics without coordinates
+  void updateUserLocation(double lat, double lng) {
+    userLatitude.value = lat;
+    userLongitude.value = lng;
+    filterNearbyMechanics();
+  }
+
+// Method to filter and sort mechanics by distance
+  void filterNearbyMechanics() {
+    if (userLatitude.value == 0.0 || userLongitude.value == 0.0) {
+      print('📍 User location not set, showing all mechanics');
+      // Apply other filters but don't filter by distance
+      _applyOtherFilters();
+      return;
     }
 
-    final distance = calculateDistance(
-      userLatitude.value,
-      userLongitude.value,
-      mechanic.latitude,
-      mechanic.longitude,
-    );
+    print(
+        '📍 Filtering mechanics within ${maxDistance.value}km of user location');
 
-    mechanic.distanceFromUser = distance; // Store distance in the model
-    return distance <= maxDistance.value;
-  }).toList();
+    final nearbyMechanics = mechanicCategories.where((mechanic) {
+      // Check if mechanic has valid coordinates
+      if (mechanic.latitude == 0.0 || mechanic.longitude == 0.0) {
+        return false; // Skip mechanics without coordinates
+      }
 
-  // Sort by distance (nearest first)
-  nearbyMechanics.sort((a, b) {
-    final distanceA = a.distanceFromUser ?? double.maxFinite;
-    final distanceB = b.distanceFromUser ?? double.maxFinite;
-    return distanceA.compareTo(distanceB);
-  });
+      final distance = calculateDistance(
+        userLatitude.value,
+        userLongitude.value,
+        mechanic.latitude,
+        mechanic.longitude,
+      );
 
-  // Apply other filters (vehicle type, category) on nearby mechanics
-  _applyOtherFiltersOnList(nearbyMechanics);
-}
+      mechanic.distanceFromUser = distance; // Store distance in the model
+      return distance <= maxDistance.value;
+    }).toList();
+
+    // Sort by distance (nearest first)
+    nearbyMechanics.sort((a, b) {
+      final distanceA = a.distanceFromUser ?? double.maxFinite;
+      final distanceB = b.distanceFromUser ?? double.maxFinite;
+      return distanceA.compareTo(distanceB);
+    });
+
+    // Apply other filters (vehicle type, category) on nearby mechanics
+    _applyOtherFiltersOnList(nearbyMechanics);
+  }
 
 // Helper method to apply other filters on a list
-void _applyOtherFiltersOnList(List<Mechanic> mechanics) {
-  final filtered = mechanics.where((mechanic) {
-    bool vehicleMatch = true;
-    bool categoryMatch = true;
+  void _applyOtherFiltersOnList(List<Mechanic> mechanics) {
+    final filtered = mechanics.where((mechanic) {
+      bool vehicleMatch = true;
+      bool categoryMatch = true;
 
-    // Vehicle type filtering
-    if (selectedVehicleType.value.isNotEmpty) {
-      vehicleMatch = _doesMechanicSupportVehicleType(mechanic, selectedVehicleType.value);
-    }
+      // Vehicle type filtering
+      if (selectedVehicleType.value.isNotEmpty) {
+        vehicleMatch = _doesMechanicSupportVehicleType(
+            mechanic, selectedVehicleType.value);
+      }
 
-    // Category filtering
-    if (selectedCategory.value.isNotEmpty) {
-      categoryMatch = _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
-    }
+      // Category filtering
+      if (selectedCategory.value.isNotEmpty) {
+        categoryMatch =
+            _doesMechanicHaveSpecialty(mechanic, selectedCategory.value);
+      }
 
-    return vehicleMatch && categoryMatch;
-  }).toList();
+      return vehicleMatch && categoryMatch;
+    }).toList();
 
-  filteredMechanics.assignAll(filtered);
-  
-  print('📍 Nearby mechanics filtered: ${filtered.length} within ${maxDistance.value}km');
-}
+    filteredMechanics.assignAll(filtered);
+
+    print(
+        '📍 Nearby mechanics filtered: ${filtered.length} within ${maxDistance.value}km');
+  }
 
 // Update your existing filterMechanics method
-void filterMechanics() {
-  print('🔧 Applying filters...');
-  print('   - Vehicle Type: "${selectedVehicleType.value}"');
-  print('   - Category: "${selectedCategory.value}"');
-  print('   - User Location: (${userLatitude.value}, ${userLongitude.value})');
-  print('   - Max Distance: ${maxDistance.value}km');
+  void filterMechanics() {
+    print('🔧 Applying filters...');
+    print('   - Vehicle Type: "${selectedVehicleType.value}"');
+    print('   - Category: "${selectedCategory.value}"');
+    print(
+        '   - User Location: (${userLatitude.value}, ${userLongitude.value})');
+    print('   - Max Distance: ${maxDistance.value}km');
 
-  filterNearbyMechanics();
-}
+    filterNearbyMechanics();
+  }
 
 // Update your existing _applyOtherFilters method to use the new logic
-void _applyOtherFilters() {
-  _applyOtherFiltersOnList(mechanicCategories);
-}
-
+  void _applyOtherFilters() {
+    _applyOtherFiltersOnList(mechanicCategories);
+  }
 
   // Load locally stored services from SharedPreferences
   void _loadLocalServices() async {
@@ -165,8 +171,10 @@ void _applyOtherFilters() {
       final localServicesJson = prefs.getString('local_mechanic_services');
       if (localServicesJson != null && localServicesJson.isNotEmpty) {
         final List<dynamic> loadedServices = jsonDecode(localServicesJson);
-        locallyCreatedServices.assignAll(loadedServices.cast<Map<String, dynamic>>());
-        print('📥 Loaded ${locallyCreatedServices.length} local services from storage');
+        locallyCreatedServices
+            .assignAll(loadedServices.cast<Map<String, dynamic>>());
+        print(
+            '📥 Loaded ${locallyCreatedServices.length} local services from storage');
       }
     } catch (e) {
       print('❌ Error loading local services: $e');
@@ -177,8 +185,10 @@ void _applyOtherFilters() {
   void _saveLocalServices() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('local_mechanic_services', jsonEncode(locallyCreatedServices));
-      print('💾 Saved ${locallyCreatedServices.length} local services to storage');
+      await prefs.setString(
+          'local_mechanic_services', jsonEncode(locallyCreatedServices));
+      print(
+          '💾 Saved ${locallyCreatedServices.length} local services to storage');
     } catch (e) {
       print('❌ Error saving local services: $e');
     }
@@ -187,8 +197,6 @@ void _applyOtherFilters() {
   void notificationSelection() {
     isNotified.toggle();
   }
-
-
 
   // Future<void> fetchMechanics() async {
   //   isLoading.value = true;
@@ -236,141 +244,143 @@ void _applyOtherFilters() {
   //   }
   // }
 
+  Future<void> fetchMechanics() async {
+    isLoading.value = true;
+    errorMessage.value = '';
 
-Future<void> fetchMechanics() async {
-  isLoading.value = true;
-  errorMessage.value = '';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token');
 
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      errorMessage.value = 'Please login to view mechanics';
-      isLoading.value = false;
-      return;
-    }
-
-    // Fix 1: Correct URL without double slash
-    // Fix 2: Add query parameters as per API documentation
-    final uri = Uri.parse('$baseUrl/mechanics').replace(queryParameters: {
-      'skip': '0',
-      'limit': '100',
-      // You can add more filters here if needed
-      // 'verified': 'true',
-      // 'available': 'true',
-      // 'city': 'Lahore',
-    });
-
-    print('🌐 Fetching mechanics from: $uri');
-    print('🔐 Using access token: ${accessToken.isNotEmpty ? "Present" : "Missing"}');
-
-    final response = await http.get(
-      uri,
-      headers: {
-        "Authorization": "Bearer $accessToken",
-        "Content-Type": "application/json",
-      },
-    ).timeout(Duration(seconds: 30));
-
-    print('📡 Response Status: ${response.statusCode}');
-    print('📡 Response Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final dynamic data = json.decode(response.body);
-      print('✅ Successfully fetched mechanics data');
-
-      List<Mechanic> mechanicList = [];
-
-      if (data is List) {
-        // Direct array response - convert each item to Map<String, dynamic>
-        mechanicList = data.map<Mechanic>((item) {
-          if (item is Map) {
-            return Mechanic.fromJson(Map<String, dynamic>.from(item));
-          }
-          return Mechanic.fromJson({}); // fallback for invalid items
-        }).toList();
-        print('📊 Found ${mechanicList.length} mechanics in array format');
-      } else if (data is Map && data.containsKey('data')) {
-        // Response with 'data' key
-        final dynamic mechanicsData = data['data'];
-        if (mechanicsData is List) {
-          mechanicList = mechanicsData.map<Mechanic>((item) {
-            if (item is Map) {
-              return Mechanic.fromJson(Map<String, dynamic>.from(item));
-            }
-            return Mechanic.fromJson({});
-          }).toList();
-          print('📊 Found ${mechanicList.length} mechanics in data object format');
-        }
-      } else if (data is Map) {
-        // Single mechanic object or other structure
-        mechanicList = [Mechanic.fromJson(Map<String, dynamic>.from(data))];
-        print('📊 Found single mechanic in object format');
-      } else {
-        print('❌ Unexpected response format: ${data.runtimeType}');
-        errorMessage.value = 'Unexpected response format from server';
+      if (accessToken == null) {
+        errorMessage.value = 'Please login to view mechanics';
+        isLoading.value = false;
         return;
       }
 
-      mechanicCategories.assignAll(mechanicList);
-      filteredMechanics.assignAll(mechanicList);
-      
-      // Apply location-based filtering after loading mechanics
-      if (userLatitude.value != 0.0 && userLongitude.value != 0.0) {
-        filterNearbyMechanics();
-      }
-      
-      print('🎯 Total mechanics loaded: ${mechanicList.length}');
-      print('🎯 Filtered mechanics: ${filteredMechanics.length}');
+      // Fix 1: Correct URL without double slash
+      // Fix 2: Add query parameters as per API documentation
+      final uri = Uri.parse('$baseUrl/mechanics').replace(queryParameters: {
+        'skip': '0',
+        'limit': '100',
+        // You can add more filters here if needed
+        // 'verified': 'true',
+        // 'available': 'true',
+        // 'city': 'Lahore',
+      });
 
-    } else if (response.statusCode == 401) {
-      errorMessage.value = 'Authentication failed. Please login again.';
-      print('❌ Authentication failed - 401 Unauthorized');
-    } else if (response.statusCode == 403) {
-      errorMessage.value = 'Access forbidden';
-      print('❌ Access forbidden - 403');
-    } else if (response.statusCode == 404) {
-      errorMessage.value = 'Mechanics endpoint not found';
-      print('❌ Endpoint not found - 404');
-    } else if (response.statusCode == 422) {
-      errorMessage.value = 'Invalid request parameters';
-      print('❌ Validation error - 422');
-    } else {
-      // Try to parse error message from response
-      try {
-        final errorData = json.decode(response.body);
-        final dynamic errorDetail = errorData['detail'] ?? errorData['message'] ?? 'Unknown error';
-        errorMessage.value = 'Failed to load mechanics: $errorDetail';
-      } catch (e) {
-        errorMessage.value = 'Failed to load mechanics: ${response.statusCode}';
+      print('🌐 Fetching mechanics from: $uri');
+      print(
+          '🔐 Using access token: ${accessToken.isNotEmpty ? "Present" : "Missing"}');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          "Authorization": "Bearer $accessToken",
+          "Content-Type": "application/json",
+        },
+      ).timeout(Duration(seconds: 30));
+
+      print('📡 Response Status: ${response.statusCode}');
+      print('📡 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final dynamic data = json.decode(response.body);
+        print('✅ Successfully fetched mechanics data');
+
+        List<Mechanic> mechanicList = [];
+
+        if (data is List) {
+          // Direct array response - convert each item to Map<String, dynamic>
+          mechanicList = data.map<Mechanic>((item) {
+            if (item is Map) {
+              return Mechanic.fromJson(Map<String, dynamic>.from(item));
+            }
+            return Mechanic.fromJson({}); // fallback for invalid items
+          }).toList();
+          print('📊 Found ${mechanicList.length} mechanics in array format');
+        } else if (data is Map && data.containsKey('data')) {
+          // Response with 'data' key
+          final dynamic mechanicsData = data['data'];
+          if (mechanicsData is List) {
+            mechanicList = mechanicsData.map<Mechanic>((item) {
+              if (item is Map) {
+                return Mechanic.fromJson(Map<String, dynamic>.from(item));
+              }
+              return Mechanic.fromJson({});
+            }).toList();
+            print(
+                '📊 Found ${mechanicList.length} mechanics in data object format');
+          }
+        } else if (data is Map) {
+          // Single mechanic object or other structure
+          mechanicList = [Mechanic.fromJson(Map<String, dynamic>.from(data))];
+          print('📊 Found single mechanic in object format');
+        } else {
+          print('❌ Unexpected response format: ${data.runtimeType}');
+          errorMessage.value = 'Unexpected response format from server';
+          return;
+        }
+
+        mechanicCategories.assignAll(mechanicList);
+        filteredMechanics.assignAll(mechanicList);
+
+        // Apply location-based filtering after loading mechanics
+        if (userLatitude.value != 0.0 && userLongitude.value != 0.0) {
+          filterNearbyMechanics();
+        }
+
+        print('🎯 Total mechanics loaded: ${mechanicList.length}');
+        print('🎯 Filtered mechanics: ${filteredMechanics.length}');
+      } else if (response.statusCode == 401) {
+        errorMessage.value = 'Authentication failed. Please login again.';
+        print('❌ Authentication failed - 401 Unauthorized');
+      } else if (response.statusCode == 403) {
+        errorMessage.value = 'Access forbidden';
+        print('❌ Access forbidden - 403');
+      } else if (response.statusCode == 404) {
+        errorMessage.value = 'Mechanics endpoint not found';
+        print('❌ Endpoint not found - 404');
+      } else if (response.statusCode == 422) {
+        errorMessage.value = 'Invalid request parameters';
+        print('❌ Validation error - 422');
+      } else {
+        // Try to parse error message from response
+        try {
+          final errorData = json.decode(response.body);
+          final dynamic errorDetail =
+              errorData['detail'] ?? errorData['message'] ?? 'Unknown error';
+          errorMessage.value = 'Failed to load mechanics: $errorDetail';
+        } catch (e) {
+          errorMessage.value =
+              'Failed to load mechanics: ${response.statusCode}';
+        }
+        print('❌ Server error: ${response.statusCode}');
       }
-      print('❌ Server error: ${response.statusCode}');
+    } catch (e) {
+      errorMessage.value = 'Network error: $e';
+      print('❌ Exception in fetchMechanics: $e');
+
+      // Check if it's a timeout
+      if (e is http.ClientException || e.toString().contains('timed out')) {
+        errorMessage.value = 'Network timeout. Please check your connection.';
+      }
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    errorMessage.value = 'Network error: $e';
-    print('❌ Exception in fetchMechanics: $e');
-    
-    // Check if it's a timeout
-    if (e is http.ClientException || e.toString().contains('timed out')) {
-      errorMessage.value = 'Network timeout. Please check your connection.';
-    }
-  } finally {
-    isLoading.value = false;
   }
-}
 
   // ========== MECHANIC SERVICES METHODS ==========
 
   // Create new mechanic service
   Future<bool> createMechanicService({
-   required String mechanicId,
-  required String mechanicName,
-  required String vehicleId,
-  required String issueDescription,
-  required String serviceType,
-  required double serviceCost,
-  required String estimatedTime,
+    required String mechanicId,
+    required String mechanicName,
+    required String vehicleId,
+    required String issueDescription,
+    required String serviceType,
+    required double serviceCost,
+    required String estimatedTime,
   }) async {
     try {
       isServicesLoading.value = true;
@@ -380,7 +390,8 @@ Future<void> fetchMechanics() async {
       final accessToken = prefs.getString('access_token');
       final userId = prefs.getString('user_id');
 
-      print('🔐 Auth check - Access Token: ${accessToken != null ? "Present" : "Missing"}');
+      print(
+          '🔐 Auth check - Access Token: ${accessToken != null ? "Present" : "Missing"}');
       print('🔐 Auth check - User ID: ${userId ?? "Missing"}');
 
       if (accessToken == null || userId == null) {
@@ -404,31 +415,36 @@ Future<void> fetchMechanics() async {
       print('📦 Request body: $requestBody');
       print('🌐 Calling endpoint: $baseUrl/mechanic-services/post');
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/mechanic-services/post'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(requestBody),
-      ).timeout(Duration(seconds: 30));
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/mechanic-services/post'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(Duration(seconds: 30));
 
       print('📡 API Response - Status: ${response.statusCode}');
       print('📡 API Response - Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('✅ Service created successfully');
-        
+
         // ✅ Store the created service locally as backup
         try {
           final createdService = jsonDecode(response.body);
-          print('🔍 Parsed created service type: ${createdService.runtimeType}');
-          print('🔍 Parsed created service keys: ${createdService is Map ? createdService.keys.toList() : 'NOT A MAP'}');
-          
+          print(
+              '🔍 Parsed created service type: ${createdService.runtimeType}');
+          print(
+              '🔍 Parsed created service keys: ${createdService is Map ? createdService.keys.toList() : 'NOT A MAP'}');
+
           if (createdService is Map<String, dynamic>) {
             // Create a proper service object with all required fields
             final Map<String, dynamic> localService = {
-              '_id': createdService['_id'] ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+              '_id': createdService['_id'] ??
+                  'local_${DateTime.now().millisecondsSinceEpoch}',
               'user_id': createdService['user_id'] ?? userId,
               'mechanic_id': mechanicId,
               'mechanic_name': mechanicName, // Add the mechanic name
@@ -438,25 +454,30 @@ Future<void> fetchMechanics() async {
               'service_cost': serviceCost,
               'estimated_time': estimatedTime,
               'status': createdService['status'] ?? 'pending',
-              'created_at': createdService['created_at'] ?? DateTime.now().toIso8601String(),
+              'created_at': createdService['created_at'] ??
+                  DateTime.now().toIso8601String(),
               'local_backup': true, // Mark as local backup
               'images': createdService['images'] ?? [],
               'region': createdService['region'],
             };
 
             print('💾 Local service object: $localService');
-            
+
             // Store locally as backup
             locallyCreatedServices.add(localService);
-            _saveLocalServices(); // Persist to shared preferences
-            
-            print('💾 Service stored locally as backup. Total local services: ${locallyCreatedServices.length}');
-            
+            _saveLocalServices(); // Persist to shared preferences#
+            Get.find<FeedbackController>().scheduleFeedback(localService);
+
+
+            print(
+                '💾 Service stored locally as backup. Total local services: ${locallyCreatedServices.length}');
+
             // Update the services list immediately
             await _updateServicesListWithLocalData();
           } else {
-            print('❌ Created service is not a Map, it is: ${createdService.runtimeType}');
-            
+            print(
+                '❌ Created service is not a Map, it is: ${createdService.runtimeType}');
+
             // Create a local service even if parsing fails
             final Map<String, dynamic> localService = {
               '_id': 'local_${DateTime.now().millisecondsSinceEpoch}',
@@ -473,14 +494,14 @@ Future<void> fetchMechanics() async {
               'local_backup': true,
               'images': [],
             };
-            
+
             locallyCreatedServices.add(localService);
             _saveLocalServices();
             await _updateServicesListWithLocalData();
           }
         } catch (e) {
           print('⚠️ Could not parse created service for local storage: $e');
-          
+
           // Create a local service even if parsing fails
           final Map<String, dynamic> localService = {
             '_id': 'local_${DateTime.now().millisecondsSinceEpoch}',
@@ -497,40 +518,44 @@ Future<void> fetchMechanics() async {
             'local_backup': true,
             'images': [],
           };
-          
+
           locallyCreatedServices.add(localService);
           _saveLocalPreferences();
           await _updateServicesListWithLocalData();
         }
-         try {
-        final createdService = jsonDecode(response.body);
-        // After successful service creation in mechanicController.dart
-      final feedbackController = Get.find<FeedbackController>();
-      feedbackController.checkForNewServiceFeedback(createdService);
+        try {
+          final createdService = jsonDecode(response.body);
+          // After successful service creation in mechanicController.dart
+          final feedbackController = Get.find<FeedbackController>();
+          feedbackController.checkForNewServiceFeedback(createdService);
 
-        // Add mechanic name to the service data for feedback
-        final serviceWithMechanicName = Map<String, dynamic>.from(createdService);
-        serviceWithMechanicName['mechanic_name'] = mechanicName;
-        
-        // Trigger feedback popup immediately
-        feedbackController.checkForNewServiceFeedback(serviceWithMechanicName);
-        
-        print('🚀 Feedback popup triggered for new service!');
-      } catch (e) {
-        print('⚠️ Could not trigger feedback popup: $e');
-      }
-        
+          // Add mechanic name to the service data for feedback
+          final serviceWithMechanicName =
+              Map<String, dynamic>.from(createdService);
+          serviceWithMechanicName['mechanic_name'] = mechanicName;
+
+          // Trigger feedback popup immediately
+          feedbackController
+              .checkForNewServiceFeedback(serviceWithMechanicName);
+
+          print('🚀 Feedback popup triggered for new service!');
+        } catch (e) {
+          print('⚠️ Could not trigger feedback popup: $e');
+        }
+
         return true;
       } else {
         String errorDetail = 'Unknown error';
         try {
           final errorData = jsonDecode(response.body);
-          errorDetail = errorData['detail'] ?? errorData['message'] ?? response.body;
+          errorDetail =
+              errorData['detail'] ?? errorData['message'] ?? response.body;
         } catch (e) {
           errorDetail = response.body;
         }
-        
-        servicesErrorMessage.value = 'Failed to create service: ${response.statusCode} - $errorDetail';
+
+        servicesErrorMessage.value =
+            'Failed to create service: ${response.statusCode} - $errorDetail';
         print('❌ Service creation failed: ${servicesErrorMessage.value}');
         return false;
       }
@@ -547,13 +572,15 @@ Future<void> fetchMechanics() async {
   Future<void> _updateServicesListWithLocalData() async {
     try {
       final apiServices = await _fetchAPIServices();
-      final combinedServices = _combineServices(apiServices, locallyCreatedServices);
+      final combinedServices =
+          _combineServices(apiServices, locallyCreatedServices);
       mechanicServices.value = combinedServices;
-      
-      print('🔄 Updated services list: ${mechanicServices.length} total services');
+
+      print(
+          '🔄 Updated services list: ${mechanicServices.length} total services');
       print('   - API services: ${apiServices.length}');
       print('   - Local services: ${locallyCreatedServices.length}');
-      
+
       // Debug: Print local services
       if (locallyCreatedServices.isNotEmpty) {
         print('🔍 Local services details:');
@@ -578,11 +605,13 @@ Future<void> fetchMechanics() async {
         return [];
       }
 
-      print('🌐 Fetching API services from: $baseUrl/mechanic-services/user/my-services');
-      
+      print(
+          '🌐 Fetching API services from: $baseUrl/mechanic-services/user/my-services');
+
       // Try the main endpoint first
       final response = await http.get(
-        Uri.parse('$baseUrl/mechanic-services/user/my-services?skip=0&limit=50'),
+        Uri.parse(
+            '$baseUrl/mechanic-services/user/my-services?skip=0&limit=50'),
         headers: {
           'Authorization': 'Bearer $accessToken',
         },
@@ -593,7 +622,7 @@ Future<void> fetchMechanics() async {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print('✅ API services fetched successfully');
-        
+
         if (data is List) {
           return data;
         } else if (data is Map && data.containsKey('data')) {
@@ -615,11 +644,13 @@ Future<void> fetchMechanics() async {
   }
 
   // Combine API and local services, removing duplicates
-  List<dynamic> _combineServices(List<dynamic> apiServices, List<Map<String, dynamic>> localServices) {
+  List<dynamic> _combineServices(
+      List<dynamic> apiServices, List<Map<String, dynamic>> localServices) {
     final combined = <Map<String, dynamic>>[];
     final seenIds = <String>{};
 
-    print('🔗 Combining services: ${apiServices.length} API + ${localServices.length} local');
+    print(
+        '🔗 Combining services: ${apiServices.length} API + ${localServices.length} local');
 
     // Add API services first
     for (var service in apiServices) {
@@ -669,18 +700,20 @@ Future<void> fetchMechanics() async {
       // If we have services (either from API or local), clear any previous errors
       if (mechanicServices.isNotEmpty) {
         servicesErrorMessage.value = '';
-        print('✅ Services loaded successfully: ${mechanicServices.length} services');
+        print(
+            '✅ Services loaded successfully: ${mechanicServices.length} services');
       } else if (locallyCreatedServices.isEmpty) {
-        servicesErrorMessage.value = 'No services found. Create your first service!';
+        servicesErrorMessage.value =
+            'No services found. Create your first service!';
         print('ℹ️ No services found locally or via API');
       } else {
-        print('❌ Services list is empty but local services exist: ${locallyCreatedServices.length}');
+        print(
+            '❌ Services list is empty but local services exist: ${locallyCreatedServices.length}');
       }
-
     } catch (e) {
       print('❌ Exception in getUserMechanicServices: $e');
       servicesErrorMessage.value = 'Unable to load service history';
-      
+
       // Fallback to local services
       mechanicServices.value = locallyCreatedServices.toList();
       print('🔄 Fallback to local services: ${mechanicServices.length}');
@@ -724,49 +757,50 @@ Future<void> fetchMechanics() async {
   }
 
   // Delete service
-Future<bool> deleteService(String serviceId) async {
-  try {
-    // Check if this is a local service (starts with 'local_')
-    final bool isLocalService = serviceId.startsWith('local_');
-    
-    if (isLocalService) {
-      // ✅ Handle local service deletion
-      print('🗑️ Deleting local service: $serviceId');
-      
-      // Remove from local storage
-      locallyCreatedServices.removeWhere((service) => 
-        service['_id'] == serviceId || service['id'] == serviceId);
-      _saveLocalServices();
-      
-      await getUserMechanicServices();
-      return true;
-    } else {
-      // ✅ Handle API service deletion
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+  Future<bool> deleteService(String serviceId) async {
+    try {
+      // Check if this is a local service (starts with 'local_')
+      final bool isLocalService = serviceId.startsWith('local_');
 
-      final response = await http.delete(
-        Uri.parse('$baseUrl/mechanic-services/$serviceId'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
+      if (isLocalService) {
+        // ✅ Handle local service deletion
+        print('🗑️ Deleting local service: $serviceId');
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        // Remove from local storage as well
-        locallyCreatedServices.removeWhere((service) => 
-          service['_id'] == serviceId || service['id'] == serviceId);
+        // Remove from local storage
+        locallyCreatedServices.removeWhere((service) =>
+            service['_id'] == serviceId || service['id'] == serviceId);
         _saveLocalServices();
-        
+
         await getUserMechanicServices();
         return true;
+      } else {
+        // ✅ Handle API service deletion
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = prefs.getString('access_token');
+
+        final response = await http.delete(
+          Uri.parse('$baseUrl/mechanic-services/$serviceId'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          // Remove from local storage as well
+          locallyCreatedServices.removeWhere((service) =>
+              service['_id'] == serviceId || service['id'] == serviceId);
+          _saveLocalServices();
+
+          await getUserMechanicServices();
+          return true;
+        }
+        return false;
       }
+    } catch (e) {
       return false;
     }
-  } catch (e) {
-    return false;
   }
-}
+
   // Clear local services (for testing)
   void clearLocalServices() {
     locallyCreatedServices.clear();
@@ -837,56 +871,60 @@ Future<bool> deleteService(String serviceId) async {
     filterMechanics();
   }
 
+  bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
+    if (mechanic.servicedVehicleTypes.isEmpty) {
+      // If no specific vehicle types listed, assume mechanic supports all
+      return true;
+    }
 
-bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
-  if (mechanic.servicedVehicleTypes.isEmpty) {
-    // If no specific vehicle types listed, assume mechanic supports all
-    return true;
-  }
-  
-  final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
-  final searchType = vehicleType.toLowerCase();
-  
-  // More flexible matching
-  final typeMappings = {
-    'car': ['car', 'sedan', 'suv', 'hatchback', 'vehicle'],
-    'bike': ['bike', 'motorcycle', 'scooter', 'bicycle'],
-    'truck': ['truck', 'lorry', 'heavy'],
-    'bus': ['bus', 'coach'],
-  };
-  
-  // Check direct match
-  if (mechanicTypes.contains(searchType)) {
-    return true;
-  }
-  
-  // Check related types
-  if (typeMappings.containsKey(searchType)) {
-    final relatedTypes = typeMappings[searchType]!;
-    return relatedTypes.any((type) => mechanicTypes.contains(type));
-  }
-  
-  return false;
-}
+    final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
+    final searchType = vehicleType.toLowerCase();
 
+    // More flexible matching
+    final typeMappings = {
+      'car': ['car', 'sedan', 'suv', 'hatchback', 'vehicle'],
+      'bike': ['bike', 'motorcycle', 'scooter', 'bicycle'],
+      'truck': ['truck', 'lorry', 'heavy'],
+      'bus': ['bus', 'coach'],
+    };
+
+    // Check direct match
+    if (mechanicTypes.contains(searchType)) {
+      return true;
+    }
+
+    // Check related types
+    if (typeMappings.containsKey(searchType)) {
+      final relatedTypes = typeMappings[searchType]!;
+      return relatedTypes.any((type) => mechanicTypes.contains(type));
+    }
+
+    return false;
+  }
 
   bool _doesMechanicHaveSpecialty(Mechanic mechanic, String category) {
     if (mechanic.expertiseString != null) {
       final expertise = mechanic.expertiseString!.toLowerCase();
       final categoryLower = category.toLowerCase();
-      
+
       final categoryKeywords = {
         'engine': ['engine', 'motor', 'overhaul', 'cylinder', 'piston'],
         'tyre': ['tyre', 'tire', 'wheel', 'alignment', 'balancing'],
         'brakes': ['brake', 'disc', 'pad', 'caliper', 'stopping'],
-        'electrical': ['electrical', 'battery', 'wiring', 'alternator', 'starter'],
+        'electrical': [
+          'electrical',
+          'battery',
+          'wiring',
+          'alternator',
+          'starter'
+        ],
         'suspension': ['suspension', 'shock', 'strut', 'spring', 'alignment'],
       };
 
       final keywords = categoryKeywords[categoryLower] ?? [categoryLower];
       return keywords.any((keyword) => expertise.contains(keyword));
     }
-    
+
     return false;
   }
 
@@ -916,7 +954,6 @@ bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
       if (testResponse.statusCode != 200) {
         print('🧪 GET Test - Body: ${testResponse.body}');
       }
-
     } catch (e) {
       print('🧪 API Test Failed: $e');
     }
@@ -927,197 +964,198 @@ bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
     _saveLocalServices();
   }
 
-Future<bool> updateServiceDetails({
-  required String serviceId,
-  required String issueDescription,
-  required String estimatedTime,
-}) async {
-  try {
-    // Check if this is a local service (starts with 'local_')
-    final bool isLocalService = serviceId.startsWith('local_');
-    
-    if (isLocalService) {
-      // ✅ Handle local service update
-      print('🔄 Updating local service: $serviceId');
-      
-      // Update local service
-      final localServiceIndex = locallyCreatedServices.indexWhere(
-        (service) => service['_id'] == serviceId || service['id'] == serviceId
-      );
-      
-      if (localServiceIndex != -1) {
-        locallyCreatedServices[localServiceIndex]['issue_description'] = issueDescription;
-        locallyCreatedServices[localServiceIndex]['estimated_time'] = estimatedTime;
-        locallyCreatedServices[localServiceIndex]['updated_at'] = DateTime.now().toIso8601String();
-        _saveLocalServices();
-        
-        print('✅ Local service updated successfully');
-        await getUserMechanicServices(); // Refresh the list
-        return true;
-      } else {
-        servicesErrorMessage.value = 'Local service not found';
-        return false;
-      }
-    } else {
-      // ✅ Handle API service update
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+  Future<bool> updateServiceDetails({
+    required String serviceId,
+    required String issueDescription,
+    required String estimatedTime,
+  }) async {
+    try {
+      // Check if this is a local service (starts with 'local_')
+      final bool isLocalService = serviceId.startsWith('local_');
 
-      if (accessToken == null) {
-        servicesErrorMessage.value = 'User not authenticated';
-        return false;
-      }
+      if (isLocalService) {
+        // ✅ Handle local service update
+        print('🔄 Updating local service: $serviceId');
 
-      final Map<String, dynamic> updateData = {
-        'issue_description': issueDescription,
-        'estimated_time': estimatedTime,
-      };
+        // Update local service
+        final localServiceIndex = locallyCreatedServices.indexWhere((service) =>
+            service['_id'] == serviceId || service['id'] == serviceId);
 
-      print('📝 Updating API service $serviceId with: $updateData');
-
-      final response = await http.put(
-        Uri.parse('$baseUrl/mechanic-services/$serviceId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(updateData),
-      );
-
-      print('📡 Update Response - Status: ${response.statusCode}');
-      print('📡 Update Response - Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        print('✅ API service updated successfully');
-        
-        // Also update local copy if it exists
-        final localServiceIndex = locallyCreatedServices.indexWhere(
-          (service) => service['_id'] == serviceId || service['id'] == serviceId
-        );
-        
         if (localServiceIndex != -1) {
-          locallyCreatedServices[localServiceIndex]['issue_description'] = issueDescription;
-          locallyCreatedServices[localServiceIndex]['estimated_time'] = estimatedTime;
+          locallyCreatedServices[localServiceIndex]['issue_description'] =
+              issueDescription;
+          locallyCreatedServices[localServiceIndex]['estimated_time'] =
+              estimatedTime;
+          locallyCreatedServices[localServiceIndex]['updated_at'] =
+              DateTime.now().toIso8601String();
           _saveLocalServices();
-        }
-        
-        await getUserMechanicServices(); // Refresh the list
-        return true;
-      } else {
-        String errorDetail = 'Unknown error';
-        try {
-          final errorData = jsonDecode(response.body);
-          errorDetail = errorData['detail'] ?? errorData['message'] ?? response.body;
-        } catch (e) {
-          errorDetail = response.body;
-        }
-        
-        servicesErrorMessage.value = 'Failed to update service: ${response.statusCode} - $errorDetail';
-        return false;
-      }
-    }
-  } catch (e) {
-    servicesErrorMessage.value = 'Network error: $e';
-    return false;
-  }
-}
 
+          print('✅ Local service updated successfully');
+          await getUserMechanicServices(); // Refresh the list
+          return true;
+        } else {
+          servicesErrorMessage.value = 'Local service not found';
+          return false;
+        }
+      } else {
+        // ✅ Handle API service update
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = prefs.getString('access_token');
+
+        if (accessToken == null) {
+          servicesErrorMessage.value = 'User not authenticated';
+          return false;
+        }
+
+        final Map<String, dynamic> updateData = {
+          'issue_description': issueDescription,
+          'estimated_time': estimatedTime,
+        };
+
+        print('📝 Updating API service $serviceId with: $updateData');
+
+        final response = await http.put(
+          Uri.parse('$baseUrl/mechanic-services/$serviceId'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode(updateData),
+        );
+
+        print('📡 Update Response - Status: ${response.statusCode}');
+        print('📡 Update Response - Body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          print('✅ API service updated successfully');
+
+          // Also update local copy if it exists
+          final localServiceIndex = locallyCreatedServices.indexWhere(
+              (service) =>
+                  service['_id'] == serviceId || service['id'] == serviceId);
+
+          if (localServiceIndex != -1) {
+            locallyCreatedServices[localServiceIndex]['issue_description'] =
+                issueDescription;
+            locallyCreatedServices[localServiceIndex]['estimated_time'] =
+                estimatedTime;
+            _saveLocalServices();
+          }
+
+          await getUserMechanicServices(); // Refresh the list
+          return true;
+        } else {
+          String errorDetail = 'Unknown error';
+          try {
+            final errorData = jsonDecode(response.body);
+            errorDetail =
+                errorData['detail'] ?? errorData['message'] ?? response.body;
+          } catch (e) {
+            errorDetail = response.body;
+          }
+
+          servicesErrorMessage.value =
+              'Failed to update service: ${response.statusCode} - $errorDetail';
+          return false;
+        }
+      }
+    } catch (e) {
+      servicesErrorMessage.value = 'Network error: $e';
+      return false;
+    }
+  }
 
 // Add these to your MechanicController class
 
 // Search properties
-final TextEditingController searchController = TextEditingController();
-final RxString searchQuery = ''.obs;
-final RxList<dynamic> filteredServices = <dynamic>[].obs;
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+  final RxList<dynamic> filteredServices = <dynamic>[].obs;
 
 // Search method
-void searchServices(String query) {
-  searchQuery.value = query.trim().toLowerCase();
-  
-  if (searchQuery.isEmpty) {
-    filteredServices.clear();
-    return;
+  void searchServices(String query) {
+    searchQuery.value = query.trim().toLowerCase();
+
+    if (searchQuery.isEmpty) {
+      filteredServices.clear();
+      return;
+    }
+
+    final allServices = mechanicServices.toList();
+    final results = allServices.where((service) {
+      if (service is! Map<String, dynamic>) return false;
+
+      // Search in mechanic name
+      final mechanicName =
+          (service['mechanic_name'] ?? '').toString().toLowerCase();
+      if (mechanicName.contains(searchQuery.value)) return true;
+
+      // Search in vehicle name
+      final vehicleId = service['vehicle_id'] ?? '';
+      final vehicleName = _getVehicleNameForSearch(vehicleId).toLowerCase();
+      if (vehicleName.contains(searchQuery.value)) return true;
+
+      // Search in issue description
+      final issueDescription =
+          (service['issue_description'] ?? '').toString().toLowerCase();
+      if (issueDescription.contains(searchQuery.value)) return true;
+
+      // Search in service type
+      final serviceType =
+          (service['service_type'] ?? '').toString().toLowerCase();
+      if (serviceType.contains(searchQuery.value)) return true;
+
+      // Search in status
+      final status = (service['status'] ?? '').toString().toLowerCase();
+      if (status.contains(searchQuery.value)) return true;
+
+      // Search in estimated time
+      final estimatedTime =
+          (service['estimated_time'] ?? '').toString().toLowerCase();
+      if (estimatedTime.contains(searchQuery.value)) return true;
+
+      return false;
+    }).toList();
+
+    filteredServices.assignAll(results);
   }
-
-  final allServices = mechanicServices.toList();
-  final results = allServices.where((service) {
-    if (service is! Map<String, dynamic>) return false;
-    
-    // Search in mechanic name
-    final mechanicName = (service['mechanic_name'] ?? '').toString().toLowerCase();
-    if (mechanicName.contains(searchQuery.value)) return true;
-    
-    // Search in vehicle name
-    final vehicleId = service['vehicle_id'] ?? '';
-    final vehicleName = _getVehicleNameForSearch(vehicleId).toLowerCase();
-    if (vehicleName.contains(searchQuery.value)) return true;
-    
-    // Search in issue description
-    final issueDescription = (service['issue_description'] ?? '').toString().toLowerCase();
-    if (issueDescription.contains(searchQuery.value)) return true;
-    
-    // Search in service type
-    final serviceType = (service['service_type'] ?? '').toString().toLowerCase();
-    if (serviceType.contains(searchQuery.value)) return true;
-    
-    // Search in status
-    final status = (service['status'] ?? '').toString().toLowerCase();
-    if (status.contains(searchQuery.value)) return true;
-    
-    // Search in estimated time
-    final estimatedTime = (service['estimated_time'] ?? '').toString().toLowerCase();
-    if (estimatedTime.contains(searchQuery.value)) return true;
-    
-    return false;
-  }).toList();
-
-  filteredServices.assignAll(results);
-}
 
 // Helper method to get vehicle name for search
-String _getVehicleNameForSearch(String vehicleId) {
-  try {
-    if (vehicleId.isEmpty) return 'Unknown Vehicle';
-    
-    final vehicle = Get.find<VehicleController>().userVehicles.firstWhere(
-      (v) {
-        final vId = v['_id'] ?? v['id'];
-        return vId != null && vId.toString() == vehicleId.toString();
-      },
-      orElse: () => {},
-    );
-    
-    if (vehicle.isNotEmpty) {
-      final brand = vehicle['brand'] ?? '';
-      final model = vehicle['model'] ?? '';
-      return '$brand $model'.trim();
+  String _getVehicleNameForSearch(String vehicleId) {
+    try {
+      if (vehicleId.isEmpty) return 'Unknown Vehicle';
+
+      final vehicle = Get.find<VehicleController>().userVehicles.firstWhere(
+        (v) {
+          final vId = v['_id'] ?? v['id'];
+          return vId != null && vId.toString() == vehicleId.toString();
+        },
+        orElse: () => {},
+      );
+
+      if (vehicle.isNotEmpty) {
+        final brand = vehicle['brand'] ?? '';
+        final model = vehicle['model'] ?? '';
+        return '$brand $model'.trim();
+      }
+    } catch (e) {
+      print('Error getting vehicle name for search: $e');
     }
-  } catch (e) {
-    print('Error getting vehicle name for search: $e');
+
+    return 'Unknown Vehicle';
   }
-  
-  return 'Unknown Vehicle';
-}
-
-
-
-
-
-
 
 // Clear search method
-void clearSearch() {
-  searchController.clear();
-  searchQuery.value = '';
-  filteredServices.clear();
-}
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+    filteredServices.clear();
+  }
 
 // Don't forget to dispose the controller in onClose
-@override
-void onClose() {
-  searchController.dispose();
-  super.onClose();
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
 }
-
-}
-
