@@ -26,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev/";
+  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
   // Auth & session
   String? _accessToken;
@@ -236,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       final response = await request.send();
       final body = await response.stream.bytesToString();
-
+      print(response.statusCode);
       if (response.statusCode == 200) {
         final decoded = json.decode(body);
         final reply = decoded["reply"] ??
@@ -253,7 +253,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
         await _saveSessions();
       } else {
-        debugPrint("❌ Message failed: ${response.statusCode} -> $body");
+        debugPrint("❌ Message failed: ${response.statusCode} -> ${body} -> ${response} ");
       }
     } catch (e) {
       debugPrint("⚠️ Error sending message: $e");
