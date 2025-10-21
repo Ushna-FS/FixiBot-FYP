@@ -265,7 +265,7 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev/";
+  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
   final UserController userController = Get.find<UserController>();
 

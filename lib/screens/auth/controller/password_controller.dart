@@ -11,7 +11,7 @@ class ForgotPasswordController extends GetxController {
   var newPasswordController = TextEditingController();
 
   var isLoading = false.obs;
-   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev/";
+   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
 
   /// 🔹 Extract error message properly
