@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class VehicleController extends GetxController {
-   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
+   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
     RxList<Map<String,dynamic>> userVehicles = <Map<String,dynamic>>[].obs;
     
   var transmissionAuto = false.obs;

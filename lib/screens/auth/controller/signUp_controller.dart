@@ -28,7 +28,7 @@ class SignupController extends GetxController {
 
   // API Base URL
   //final String baseUrl = "http://10.135.54.128:8000";
-   final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev/";
+   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev/";
 
   Timer? _cooldownTimer;
 

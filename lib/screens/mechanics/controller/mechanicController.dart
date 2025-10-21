@@ -33,8 +33,8 @@ class MechanicController extends GetxController {
   // Track successful service creation locally
   var locallyCreatedServices = <Map<String, dynamic>>[].obs;
 
-  // String apiUrl = 'https://zoogloeal-byron-unruled.ngrok-free.dev/mechanics';
-  final String baseUrl = "https://zoogloeal-byron-unruled.ngrok-free.dev";
+  // String apiUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev/mechanics';
+  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
   @override
   void onInit() {

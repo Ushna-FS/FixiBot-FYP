@@ -1,4 +1,3 @@
-// lib/data/brand_models.dart
 const List<Map<String, dynamic>> carBrandData = [
   {
     "brand": "Toyota",
