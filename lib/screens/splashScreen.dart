@@ -70,10 +70,57 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  // Get responsive font size based on screen width
+  double _getFontSize(Size screenSize) {
+    final double width = screenSize.width;
+    
+    if (width < 320) return width * 0.16;      // Very small phones
+    if (width < 360) return width * 0.15;      // Small phones
+    if (width < 414) return width * 0.14;      // Medium phones
+    if (width < 600) return width * 0.13;      // Large phones
+    if (width < 768) return width * 0.10;      // Small tablets
+    if (width < 1024) return width * 0.08;     // Tablets
+    if (width < 1440) return width * 0.06;     // Laptops
+    return width * 0.04;                       // Large screens/PCs
+  }
+
+  // Get responsive icon size based on screen width
+  double _getIconSize(Size screenSize) {
+    final double width = screenSize.width;
+    
+    if (width < 320) return width * 0.12;      // Very small phones
+    if (width < 360) return width * 0.11;      // Small phones
+    if (width < 414) return width * 0.10;      // Medium phones
+    if (width < 600) return width * 0.09;      // Large phones
+    if (width < 768) return width * 0.08;      // Small tablets
+    if (width < 1024) return width * 0.07;     // Tablets
+    if (width < 1440) return width * 0.05;     // Laptops
+    return width * 0.035;                      // Large screens/PCs
+  }
+
+  double _calculateIconPosition(Size screenSize, double fontSize, double iconSize) {
+    final double fixibWidth = fontSize * 3.0; // Adjusted for proper spacing
+    
+    final double iconSpacing = fontSize * 0.4;
+    
+    final double totalWidth = fixibWidth + iconSize + (iconSpacing * 2) + fontSize * 0.5;
+    final double startX = (screenSize.width - totalWidth) / 2;
+    
+    return startX + fixibWidth + iconSpacing;
+  }
+
+  double _getIconVerticalOffset(double fontSize, double iconSize) {
+    return fontSize * 0.09; // Slight downward adjustment to match text baseline
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    final bool isPortrait = screenSize.height > screenSize.width;
+    final double fontSize = _getFontSize(screenSize);
+    final double iconSize = _getIconSize(screenSize);
+    final double iconPosition = _calculateIconPosition(screenSize, fontSize, iconSize);
+    final double iconVerticalOffset = _getIconVerticalOffset(fontSize, iconSize);
+    final double iconSpacing = fontSize * 0.1; 
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -89,55 +136,56 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               )
             : Stack(
-                alignment: Alignment.center,
                 children: [
-                  AnimatedAlign(
-                    alignment:
-                        _animateText ? Alignment.center : Alignment.centerLeft,
+                  // "FixiB" text part
+                  AnimatedPositioned(
                     duration: const Duration(milliseconds: 800),
+                    left: _animateText 
+                        ? iconPosition - fontSize * 2.6 - iconSpacing 
+                        : -screenSize.width,
+                    top: screenSize.height / 2 - fontSize / 2,
                     child: AnimatedOpacity(
                       opacity: _animateText ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 600),
                       child: Text(
-                        'FixiB   t',
+                        'FixiB',
                         style: AppFonts.montserratBold60.copyWith(
-                          fontSize: isPortrait
-                              ? screenSize.height * 0.08
-                              : screenSize.width * 0.08,
+                          fontSize: fontSize,
                         ),
                       ),
                     ),
                   ),
-                  AnimatedAlign(
-                    alignment:
-                        _animateLogo ? Alignment.center : Alignment.centerLeft,
+
+                  // Icon acting as 'o'
+                  AnimatedPositioned(
                     duration: const Duration(milliseconds: 700),
+                    left: _animateLogo ? iconPosition : -iconSize,
+                    top: screenSize.height / 2 - iconSize / 2 + iconVerticalOffset,
                     child: AnimatedOpacity(
                       opacity: _animateLogo ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 400),
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: isPortrait
-                              ? screenSize.width * 0.17
-                              : screenSize.height * 0.17,
-                        ),
-                        child: Transform.translate(
-                          offset: _animateLogo
-                              ? Offset(
-                                  isPortrait
-                                      ? screenSize.width * 0.13
-                                      : screenSize.height * 0.14,
-                                  0)
-                              : Offset.zero,
-                          child: Image.asset(
-                            'assets/icons/APPicon.png',
-                            height: isPortrait
-                                ? screenSize.height * 0.08
-                                : screenSize.width * 0.08,
-                            width: isPortrait
-                                ? screenSize.height * 0.07
-                                : screenSize.width * 0.07,
-                          ),
+                      child: Image.asset(
+                        'assets/icons/APPicon.png',
+                        height: iconSize,
+                        width: iconSize,
+                      ),
+                    ),
+                  ),
+
+                  // "t" text part
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 800),
+                    left: _animateText 
+                        ? iconPosition + iconSize + iconSpacing 
+                        : screenSize.width, 
+                    top: screenSize.height / 2 - fontSize / 2,
+                    child: AnimatedOpacity(
+                      opacity: _animateText ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 600),
+                      child: Text(
+                        't',
+                        style: AppFonts.montserratBold60.copyWith(
+                          fontSize: fontSize,
                         ),
                       ),
                     ),
