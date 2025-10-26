@@ -325,8 +325,7 @@ class MechanicScreen extends GetView<MechanicController> {
                                             'Unknown Model')
                                         .toString();
                                     final vehicleType = (vehicle['vehicle_type'] ??
-                                            vehicle['type'] ??
-                                            'car')
+                                            vehicle['category'] )
                                         .toString();
                                     final vehicleId = (vehicle['_id'] ??
                                             vehicle['id'] ?? '')

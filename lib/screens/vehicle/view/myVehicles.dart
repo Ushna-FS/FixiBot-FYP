@@ -18,7 +18,7 @@ class MyVehicleScreen extends StatefulWidget {
 class _MyVehicleScreenState extends State<MyVehicleScreen> {
   final VehicleController vehicleController = Get.find<VehicleController>();
   bool isLoading = true;
-  List<dynamic>? vehicles; // Make it nullable
+  List<dynamic>? vehicles;
 
   @override
   void initState() {
@@ -27,54 +27,49 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Future<void> _loadVehicles() async {
-  try {
-    setState(() => isLoading = true);
-    
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString("user_id");
-    
-    if (userId == null || userId.isEmpty) {
-      Get.snackbar("Error", "User not logged in");
+    try {
+      setState(() => isLoading = true);
+      
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString("user_id");
+      
+      if (userId == null || userId.isEmpty) {
+        Get.snackbar("Error", "User not logged in");
+        setState(() {
+          isLoading = false;
+          vehicles = [];
+        });
+        return;
+      }
+
+      final result = await vehicleController.getUserVehicles(userId);
+      
+      final typedVehicles = result?.map((vehicle) {
+        return vehicle is Map<String, dynamic> 
+            ? vehicle 
+            : Map<String, dynamic>.from(vehicle);
+      }).toList() ?? [];
+      
+      setState(() {
+        vehicles = typedVehicles;
+        isLoading = false;
+      });
+    } catch (e) {
       setState(() {
         isLoading = false;
         vehicles = [];
       });
-      return;
+      Get.snackbar("Error", "Failed to load vehicles: $e");
     }
-
-    final result = await vehicleController.getUserVehicles(userId);
-    
-    // Ensure all vehicles are properly typed
-    final typedVehicles = result?.map((vehicle) {
-      return vehicle is Map<String, dynamic> 
-          ? vehicle 
-          : Map<String, dynamic>.from(vehicle);
-    }).toList() ?? [];
-    
-    setState(() {
-      vehicles = typedVehicles;
-      isLoading = false;
-    });
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-      vehicles = [];
-    });
-    Get.snackbar("Error", "Failed to load vehicles: $e");
   }
-}
 
   @override
   Widget build(BuildContext context) {
-    // Safe check for null or empty
     final bool showEmptyState = vehicles == null || vehicles!.isEmpty;
 
     return Scaffold(
       appBar: CustomAppBar(
-      
         title: "Vehicles Information",
-          
-        
       ),
       backgroundColor: AppColors.secondaryColor,
       body: isLoading
@@ -128,7 +123,6 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Widget _buildVehicleList() {
-    // One more safety check
     if (vehicles == null || vehicles!.isEmpty) {
       return _buildEmptyState();
     }
@@ -159,97 +153,137 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
       ),
     );
   }
-Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
-  return Card(
-    margin: EdgeInsets.only(bottom: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-    elevation: 3,
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.directions_car, color: AppColors.mainColor, size: 24),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  "${vehicle['brand'] ?? 'Unknown'} ${vehicle['model'] ?? ''}",
-                  style: AppFonts.montserratMainText.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (vehicle['is_primary'] == true)
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.mainColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+
+  Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
+    // FIXED: Get correct vehicle icon based on category
+    final IconData vehicleIcon = _getVehicleIcon(vehicle);
+    
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(vehicleIcon, color: AppColors.mainColor, size: 24),
+                SizedBox(width: 12),
+                Expanded(
                   child: Text(
-                    "Primary",
-                    style: AppFonts.montserratText5.copyWith(
-                      color: AppColors.mainColor,
-                      fontSize: 12,
+                    "${vehicle['brand'] ?? 'Unknown'} ${vehicle['model'] ?? ''}",
+                    style: AppFonts.montserratMainText.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-            ],
-          ),
-          SizedBox(height: 12),
-          
-          // FIXED: First chip row with horizontal scrolling
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildInfoChip(Icons.calendar_today, "${vehicle['year'] ?? 'N/A'}"),
-                SizedBox(width: 8),
-                _buildInfoChip(Icons.settings, "${vehicle['transmission'] ?? 'N/A'}"),
-                SizedBox(width: 8),
-                _buildInfoChip(Icons.local_gas_station, "${vehicle['fuel_type'] ?? 'N/A'}"),
+                if (vehicle['is_primary'] == true)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.mainColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "Primary",
+                      style: AppFonts.montserratText5.copyWith(
+                        color: AppColors.mainColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
               ],
             ),
-          ),
-          
-          SizedBox(height: 12),
-          
-          // FIXED: Second chip row with horizontal scrolling
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildInfoChip(Icons.category, "${vehicle['type'] ?? 'N/A'}"),
-                SizedBox(width: 8),
-                if (vehicle['mileage_km'] != null)
-                  _buildInfoChip(Icons.speed, "${vehicle['mileage_km']} km"),
-              ],
-            ),
-          ),
-          
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () => _editVehicle(vehicle),
-                child: Text("Edit", style: TextStyle(color: AppColors.mainColor)),
+            SizedBox(height: 12),
+            
+            // FIXED: First chip row with correct fields
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildInfoChip(Icons.calendar_today, "${vehicle['year'] ?? 'N/A'}"),
+                  SizedBox(width: 8),
+                  _buildInfoChip(Icons.settings, "${vehicle['transmission'] ?? 'N/A'}"),
+                  SizedBox(width: 8),
+                  _buildInfoChip(Icons.local_gas_station, "${vehicle['fuel_type'] ?? 'N/A'}"),
+                ],
               ),
-              SizedBox(width: 8),
-              TextButton(
-                onPressed: () => _deleteVehicle(vehicle['_id']),
-                child: Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+            
+            SizedBox(height: 12),
+            
+            // FIXED: Second chip row with correct fields
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  // FIXED: Use 'category' instead of 'type'
+                  _buildInfoChip(Icons.category, "${vehicle['category'] ?? 'N/A'}"),
+                  SizedBox(width: 8),
+                  // FIXED: Add sub-type if available
+                  if (vehicle['sub_type'] != null)
+                    _buildInfoChip(Icons.directions_car, "${vehicle['sub_type']}"),
+                  SizedBox(width: 8),
+                  if (vehicle['mileage_km'] != null)
+                    _buildInfoChip(Icons.speed, "${vehicle['mileage_km']} km"),
+                ],
+              ),
+            ),
+
+            // FIXED: Add registration number if available
+            if (vehicle['registration_number'] != null) ...[
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  _buildInfoChip(Icons.confirmation_number, "${vehicle['registration_number']}"),
+                ],
               ),
             ],
-          ),
-        ],
+            
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => _editVehicle(vehicle),
+                  child: Text("Edit", style: TextStyle(color: AppColors.mainColor)),
+                ),
+                SizedBox(width: 8),
+                TextButton(
+                  onPressed: () => _deleteVehicle(vehicle['_id']),
+                  child: Text("Delete", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  // FIXED: Helper method to get correct vehicle icon
+  IconData _getVehicleIcon(Map<String, dynamic> vehicle) {
+    // Use 'category' field which is what your backend uses
+    final category = vehicle['category']?.toString().toLowerCase() ?? '';
+    
+    switch (category) {
+      case 'car':
+        return Icons.directions_car;
+      case 'motorcycle':
+        return Icons.motorcycle;
+      case 'truck':
+        return Icons.local_shipping;
+      case 'suv':
+        return Icons.airport_shuttle;
+      case 'van':
+        return Icons.airport_shuttle;
+      default:
+        return Icons.directions_car;
+    }
+  }
 
   Widget _buildInfoChip(IconData icon, String text) {
     return Container(
@@ -267,7 +301,7 @@ Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
             SizedBox(width: 4),
             Flexible(
               child: Text(
-                _truncateText(text, 10), // Truncate long text
+                _truncateText(text, 10),
                 style: AppFonts.montserratText5.copyWith(
                   fontSize: 10,
                   overflow: TextOverflow.ellipsis,
@@ -281,65 +315,59 @@ Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
     );
   }
 
-// Add this helper method to truncate long text
   String _truncateText(String text, int maxLength) {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   }
-void _editVehicle(Map<String, dynamic> vehicle) {
-  // Navigate to edit vehicle screen with the vehicle data
-  Get.to(
-    const EditVehicle(),
-    arguments: {
-      'vehicle': vehicle,
-      'onUpdate': (Map<String, dynamic> updatedVehicle) async {
-        // This callback will be called when the vehicle is updated
-        await _updateVehicleInList(updatedVehicle);
+
+  void _editVehicle(Map<String, dynamic> vehicle) {
+    Get.to(
+      const EditVehicle(),
+      arguments: {
+        'vehicle': vehicle,
+        'onUpdate': (Map<String, dynamic> updatedVehicle) async {
+          await _updateVehicleInList(updatedVehicle);
+        },
       },
-    },
-  );
-}
-
-Future<void> _updateVehicleInList(Map<String, dynamic> updatedVehicle) async {
-  try {
-    // Quick null check
-    if (vehicles == null) return;
-    
-    final vehicleId = updatedVehicle['_id'];
-    if (vehicleId == null) return;
-
-    // Find index with null-safe access
-    int index = -1;
-    for (int i = 0; i < vehicles!.length; i++) {
-      final v = vehicles![i];
-      final currentId = v['_id'];
-      if (currentId == vehicleId) {
-        index = i;
-        break;
-      }
-    }
-    
-    if (index != -1) {
-      setState(() {
-        // Simple merge with type casting
-        vehicles![index] = {
-          ...(vehicles![index] as Map<String, dynamic>), 
-          ...(updatedVehicle as Map<String, dynamic>)
-        };
-      });
-      
-      Future.delayed(Duration(milliseconds: 100), () {
-        Get.snackbar("Success", "Vehicle updated successfully");
-      });
-    }
-  } catch (e) {
-    print('❌ Error: $e');
-    Future.delayed(Duration(milliseconds: 100), () {
-      Get.snackbar("Error", "Failed to update vehicle");
-    });
+    );
   }
-}
 
+  Future<void> _updateVehicleInList(Map<String, dynamic> updatedVehicle) async {
+    try {
+      if (vehicles == null) return;
+      
+      final vehicleId = updatedVehicle['_id'];
+      if (vehicleId == null) return;
+
+      int index = -1;
+      for (int i = 0; i < vehicles!.length; i++) {
+        final v = vehicles![i];
+        final currentId = v['_id'];
+        if (currentId == vehicleId) {
+          index = i;
+          break;
+        }
+      }
+      
+      if (index != -1) {
+        setState(() {
+          vehicles![index] = {
+            ...(vehicles![index] as Map<String, dynamic>), 
+            ...(updatedVehicle as Map<String, dynamic>)
+          };
+        });
+        
+        Future.delayed(Duration(milliseconds: 100), () {
+          Get.snackbar("Success", "Vehicle updated successfully");
+        });
+      }
+    } catch (e) {
+      print('❌ Error: $e');
+      Future.delayed(Duration(milliseconds: 100), () {
+        Get.snackbar("Error", "Failed to update vehicle");
+      });
+    }
+  }
 
   Future<void> _deleteVehicle(String? vehicleId) async {
     if (vehicleId == null) return;

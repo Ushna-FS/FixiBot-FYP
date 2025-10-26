@@ -1,5 +1,6 @@
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
+import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
@@ -23,12 +24,11 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
 
   int? selectedIndex;
 
-
   @override
   void initState() {
     super.initState();
     _loadUserName();
-  _fetchVehicles();
+    _fetchVehicles();
   }
 
   @override
@@ -36,9 +36,6 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
     super.didUpdateWidget(oldWidget);
     _fetchVehicles();
   }
-
-
-
 
   Future<void> _loadUserName() async {
     final name = await _sharedPrefs.getString("full_name");
@@ -48,26 +45,30 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
     }
   }
 
-Future<void> _fetchVehicles() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getString("user_id");
-  if (userId != null && userId.isNotEmpty) {
-    await vehicleController.getUserVehicles(userId);
+  Future<void> _fetchVehicles() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString("user_id");
+    if (userId != null && userId.isNotEmpty) {
+      await vehicleController.getUserVehicles(userId);
+    }
   }
-}
 
-
-  // Build vehicle chip widget
+  // Build vehicle chip widget - FIXED VERSION
   Widget _buildVehicleChip(Map<String, dynamic> vehicle, bool isPrimary) {
-    // Get vehicle type for icon
+    // Get vehicle type for icon - FIXED: Use 'category' instead of 'type'
     IconData vehicleIcon;
-    switch (vehicle['type']?.toString().toLowerCase()) {
+    Color iconColor = AppColors.mainColor;
+    
+    // Use 'category' field which is what your backend uses
+    final category = vehicle['category']?.toString().toLowerCase() ?? '';
+    
+    switch (category) {
       case 'car':
         vehicleIcon = Icons.directions_car;
         break;
-      case 'bike':
       case 'motorcycle':
         vehicleIcon = Icons.motorcycle;
+        iconColor = Colors.orange; // Different color for motorcycles
         break;
       case 'truck':
         vehicleIcon = Icons.local_shipping;
@@ -78,6 +79,11 @@ Future<void> _fetchVehicles() async {
       default:
         vehicleIcon = Icons.directions_car;
     }
+
+    // Get display name
+    final brand = vehicle['brand'] ?? 'Vehicle';
+    final model = vehicle['model'] ?? '';
+    final displayName = '$brand $model'.trim();
 
     return GestureDetector(
       onTap: () {
@@ -94,10 +100,10 @@ Future<void> _fetchVehicles() async {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(vehicleIcon, size: 16, color: AppColors.mainColor),
+            Icon(vehicleIcon, size: 16, color: iconColor),
             SizedBox(width: 6),
             Text(
-              '${vehicle['brand'] ?? 'Vehicle'} ${vehicle['model'] ?? ''}',
+              displayName.isEmpty ? 'Unnamed Vehicle' : displayName,
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.mainColor,
@@ -148,13 +154,58 @@ Future<void> _fetchVehicles() async {
           ),
           const SizedBox(height: 10),
 
-          // Display vehicle chips - FIXED: Show all vehicles, not just first
+          // Display vehicle chips
           Obx(() {
             final vehicles = vehicleController.userVehicles;
+          
             if (vehicles.isEmpty) {
-              return const Text('No Vehicle Added',
-                  style: TextStyle(fontSize: 12, color: Colors.white));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.directions_car_outlined,
+                    size: 64,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No Vehicles Added Yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Add your first vehicle to get started',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Add Vehicle',
+                    color: AppColors.mainSwatch.shade200,
+                    onPressed: () {
+                      Get.to(() => AddVehicle());
+                    },
+                  ),
+                ],
+              );
             }
+            
+            // Debug: Print vehicle data to see what fields are available
+            print('🔍 Vehicles data:');
+            for (var vehicle in vehicles) {
+              print('  - Vehicle: ${vehicle['brand']} ${vehicle['model']}');
+              print('    Category: ${vehicle['category']}');
+              print('    Type: ${vehicle['type']}');
+              print('    Sub-type: ${vehicle['sub_type']}');
+            }
+            
             return Wrap(
               spacing: 8,
               runSpacing: 8,
