@@ -2,38 +2,80 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefsHelper {
-  // Private constructor
-  SharedPrefsHelper._privateConstructor();
-  
   // Singleton instance
   static final SharedPrefsHelper _instance = SharedPrefsHelper._privateConstructor();
-  
-  // Factory constructor to provide the same instance
-  factory SharedPrefsHelper() {
-    return _instance;
-  }
+  factory SharedPrefsHelper() => _instance;
+  SharedPrefsHelper._privateConstructor();
 
-  
   // Keys for SharedPreferences
   static const String _userDataKey = 'user_data';
   static const String _rememberUserKey = 'remember_user';
   static const String _loginTimestampKey = 'login_timestamp';
   static const String _tokenExpiryKey = 'token_expiry';
+  static const String _accessTokenKey = 'access_token';
+  static const String _profileImageUrlKey = 'profile_image_url';
+  static const String _fullNameKey = 'full_name';
+  static const String _emailKey = 'email';
 
-  /// Sets whether the user wants to be remembered
+  // Basic string operations
+  Future<void> saveString(String key, String value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(key, value);
+      print("✅ Saved [$key] = $value");
+    } catch (e) {
+      print('Error saving string [$key]: $e');
+      rethrow;
+    }
+  }
+
+  Future<String?> getString(String key) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final value = prefs.getString(key);
+      print("📥 Loaded [$key] = $value");
+      return value;
+    } catch (e) {
+      print('Error getting string [$key]: $e');
+      return null;
+    }
+  }
+
+  // // Profile image management
+  // Future<void> saveProfileImageUrl(String imageUrl) async {
+  //   await saveString(_profileImageUrlKey, imageUrl);
+  //   print('🖼️ Profile image URL saved: $imageUrl');
+  // }
+
+
+  // User data management
+  Future<void> saveUserBasicInfo(String name, String email) async {
+    await saveString(_fullNameKey, name);
+    await saveString(_emailKey, email);
+    print('👤 User basic info saved: $name, $email');
+  }
+
+  // Token management
+  Future<void> saveAccessToken(String token) async {
+    await saveString(_accessTokenKey, token);
+  }
+
+  Future<String?> getAccessToken() async {
+    return await getString(_accessTokenKey);
+  }
+
+  // Authentication management
   Future<void> setRememberUser(bool remember) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_rememberUserKey, remember);
-      
-      print('Remember user preference set to: $remember');
+      print('🔐 Remember user preference set to: $remember');
     } catch (e) {
       print('Error setting remember user preference: $e');
       rethrow;
     }
   }
 
-  /// Checks if the user has opted to be remembered
   Future<bool> rememberUser() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -44,7 +86,6 @@ class SharedPrefsHelper {
     }
   }
 
-  /// Save login timestamp (when user logs in)
   Future<void> saveLoginTimestamp() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -52,13 +93,11 @@ class SharedPrefsHelper {
     print('✅ Login timestamp saved: $now');
   }
 
-  /// Get login timestamp
   Future<int?> getLoginTimestamp() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_loginTimestampKey);
   }
 
-  /// Save token expiry (30 days from login)
   Future<void> saveTokenExpiry() async {
     final prefs = await SharedPreferences.getInstance();
     final expiry = DateTime.now().add(Duration(days: 30)).millisecondsSinceEpoch;
@@ -66,7 +105,6 @@ class SharedPrefsHelper {
     print('✅ Token expiry saved: $expiry (30 days from now)');
   }
 
-  /// Check if token is still valid (within 30 days)
   Future<bool> isTokenValid() async {
     final prefs = await SharedPreferences.getInstance();
     final expiry = prefs.getInt(_tokenExpiryKey);
@@ -80,62 +118,7 @@ class SharedPrefsHelper {
     return isValid;
   }
 
-  /// Clear all authentication data (on logout)
-  Future<void> clearAuthData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_loginTimestampKey);
-    await prefs.remove(_tokenExpiryKey);
-    await prefs.remove(_rememberUserKey);
-    print('✅ Auth data cleared');
-  }
-
-  /// Loads all user data from SharedPreferences
-  Future<Map<String, dynamic>?> getUserData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userDataString = prefs.getString(_userDataKey);
-      if (userDataString != null) {
-        return jsonDecode(userDataString) as Map<String, dynamic>;
-      }
-      return null;
-    } catch (e) {
-      print('Error loading user data: $e');
-      return null;
-    }
-  }
-
-  /// Gets user email from stored data
-  Future<String?> getUserEmail() async {
-    final userData = await getUserData();
-    return userData?['email'];
-  }
-
-  /// Gets username from stored data
-  Future<String?> getUserName() async {
-    final userData = await getUserData();
-    return userData?['name'];
-  }
-
-  /// Gets photo URL from stored data
-  Future<String?> getUserPhotoUrl() async {
-    final userData = await getUserData();
-    return userData?['photoUrl'];
-  }
-
-  /// Clears all user data from SharedPreferences
-  Future<void> clearUserData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_userDataKey);
-      await clearAuthData(); // Also clear auth data
-      print('User data cleared from SharedPreferences');
-    } catch (e) {
-      print('Error clearing user data: $e');
-      rethrow;
-    }
-  }
-
-  /// Enhanced login check - checks token validity and remember me preference
+  // Enhanced login check
   Future<bool> isUserLoggedIn() async {
     try {
       // Check if user wants to be remembered
@@ -149,12 +132,12 @@ class SharedPrefsHelper {
       final tokenValid = await isTokenValid();
       if (!tokenValid) {
         print('🔐 Token expired or not found');
-        await clearAuthData(); // Clear expired auth data
+        await clearAuthData();
         return false;
       }
 
       // Check if we have basic user data
-      final email = await getString("email");
+      final email = await getString(_emailKey);
       final hasUserData = email != null && email.isNotEmpty;
       
       print('🔐 Login status: rememberMe=$rememberMe, tokenValid=$tokenValid, hasUserData=$hasUserData');
@@ -166,41 +149,83 @@ class SharedPrefsHelper {
     }
   }
 
-  /// Save a single string value
-  Future<void> saveString(String key, String value) async {
+  // Clear all data (logout)
+  Future<void> clearAllData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Clear all relevant keys
+      await prefs.remove(_fullNameKey);
+      await prefs.remove(_emailKey);
+      await prefs.remove(_profileImageUrlKey);
+      await prefs.remove(_accessTokenKey);
+      await prefs.remove(_userDataKey);
+      await prefs.remove(_loginTimestampKey);
+      await prefs.remove(_tokenExpiryKey);
+      await prefs.remove(_rememberUserKey);
+      
+      print('✅ All user data cleared from SharedPreferences');
+    } catch (e) {
+      print('Error clearing user data: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> clearAuthData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
-    print("✅ Saved [$key] = $value");
+    await prefs.remove(_loginTimestampKey);
+    await prefs.remove(_tokenExpiryKey);
+    await prefs.remove(_accessTokenKey);
+    print('✅ Auth data cleared');
+
   }
 
-  /// Get a single string value
-  Future<String?> getString(String key) async {
+Future<void> saveProfileImageUrl(String imageUrl) async {
+  try {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(key);
-    print("📥 Loaded [$key] = $value");
-    return value;
+    await prefs.setString("profile_image_url", imageUrl);
+    print('💾 Profile image URL saved to SharedPreferences: $imageUrl');
+    
+    // Verify the save
+    final verify = prefs.getString("profile_image_url");
+    print('🔍 Save verification: $verify');
+  } catch (e) {
+    print('❌ Error saving profile image URL: $e');
+    rethrow;
   }
+}
 
-  Future<void> saveProfileImageUrl(String imageUrl) async {
-    await saveString("profile_image_url", imageUrl);
-  }
-
-  /// Get profile image URL
-  Future<String?> getProfileImageUrl() async {
-    return await getString("profile_image_url");
-  }
-
-  /// Save complete user data including profile image
-  Future<void> saveUserDataWithImage(String name, String email, String? imageUrl) async {
+Future<String?> getProfileImageUrl() async {
+  try {
     final prefs = await SharedPreferences.getInstance();
-    final userData = {
-      'name': name,
-      'email': email,
-      'photoUrl': imageUrl ?? '',
-    };
-    await prefs.setString(_userDataKey, jsonEncode(userData));
-    print('✅ User data with image saved');
+    final url = prefs.getString("profile_image_url");
+    print('💾 Profile image URL loaded from SharedPreferences: ${url ?? "None"}');
+    return url;
+  } catch (e) {
+    print('❌ Error loading profile image URL: $e');
+    return null;
   }
+}
+
+
+
+// Enhanced user data clearing
+Future<void> clearUserProfileData() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Clear only profile-related data, keep auth tokens if needed
+    await prefs.remove(_fullNameKey);
+    await prefs.remove(_emailKey);
+    await prefs.remove(_profileImageUrlKey);
+    
+    print('✅ User profile data cleared from SharedPreferences');
+  } catch (e) {
+    print('Error clearing user profile data: $e');
+    rethrow;
+  }
+}
+
 }
 
 
@@ -215,135 +240,7 @@ class SharedPrefsHelper {
 
 
 
-//perff
-// import 'dart:convert';
-// import 'package:shared_preferences/shared_preferences.dart';
 
-// class SharedPrefsHelper {
-//   // Private constructor
-//   SharedPrefsHelper._privateConstructor();
-  
-//   // Singleton instance
-//   static final SharedPrefsHelper _instance = SharedPrefsHelper._privateConstructor();
-  
-//   // Factory constructor to provide the same instance
-//   factory SharedPrefsHelper() {
-//     return _instance;
-//   }
 
-  
-//   // Keys for SharedPreferences
-//   static const String _userDataKey = 'user_data';
-//   static const String _rememberUserKey = 'remember_user';
 
-//   /// Sets whether the user wants to be remembered
-//   Future<void> setRememberUser(bool remember) async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       await prefs.setBool(_rememberUserKey, remember);
-      
-//       print('Remember user preference set to: $remember');
-//     } catch (e) {
-//       print('Error setting remember user preference: $e');
-//       rethrow;
-//     }
-//   }
 
-//   /// Checks if the user has opted to be remembered
-//   Future<bool> rememberUser() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       return prefs.getBool(_rememberUserKey) ?? false;
-//     } catch (e) {
-//       print('Error getting remember user preference: $e');
-//       return false;
-//     }
-//   }
-
-//   /// Loads all user data from SharedPreferences
-//   Future<Map<String, dynamic>?> getUserData() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       final userDataString = prefs.getString(_userDataKey);
-//       if (userDataString != null) {
-//         return jsonDecode(userDataString) as Map<String, dynamic>;
-//       }
-//       return null;
-//     } catch (e) {
-//       print('Error loading user data: $e');
-//       return null;
-//     }
-//   }
-
-//   /// Gets user email from stored data
-//   Future<String?> getUserEmail() async {
-//     final userData = await getUserData();
-//     return userData?['email'];
-//   }
-
-//   /// Gets username from stored data
-//   Future<String?> getUserName() async {
-//     final userData = await getUserData();
-//     return userData?['name'];
-//   }
-
-//   /// Gets photo URL from stored data
-//   Future<String?> getUserPhotoUrl() async {
-//     final userData = await getUserData();
-//     return userData?['photoUrl'];
-//   }
-
-//   /// Clears all user data from SharedPreferences
-//   Future<void> clearUserData() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       await prefs.remove(_userDataKey);
-//       print('User data cleared from SharedPreferences');
-//     } catch (e) {
-//       print('Error clearing user data: $e');
-//       rethrow;
-//     }
-//   }
-
-//   /// Checks if user is logged in (has email stored)
-//   Future<bool> isUserLoggedIn() async {
-//     final email = await getUserEmail();
-//     return email != null && email.isNotEmpty;
-//   }
-
-//   /// Save a single string value
-// Future<void> saveString(String key, String value) async {
-//   final prefs = await SharedPreferences.getInstance();
-//   await prefs.setString(key, value);
-//   print("✅ Saved [$key] = $value");
-// }
-
-// /// Get a single string value
-// Future<String?> getString(String key) async {
-//   final prefs = await SharedPreferences.getInstance();
-//   final value = prefs.getString(key);
-//   print("📥 Loaded [$key] = $value");
-//   return value;
-// }
-// Future<void> saveProfileImageUrl(String imageUrl) async {
-//   await saveString("profile_image_url", imageUrl);
-// }
-
-// /// Get profile image URL
-// Future<String?> getProfileImageUrl() async {
-//   return await getString("profile_image_url");
-// }
-
-// /// Save complete user data including profile image
-// Future<void> saveUserDataWithImage(String name, String email, String? imageUrl) async {
-//   final prefs = await SharedPreferences.getInstance();
-//   final userData = {
-//     'name': name,
-//     'email': email,
-//     'photoUrl': imageUrl ?? '',
-//   };
-//   await prefs.setString(_userDataKey, jsonEncode(userData));
-//   print('✅ User data with image saved');
-// }
-
-// }

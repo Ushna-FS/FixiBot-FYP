@@ -113,7 +113,7 @@ class SignupController extends GetxController {
   final data = jsonDecode(response.body);
 
   // 🚨 Clear old data
-  await _sharedPrefs.clearUserData();
+  await _sharedPrefs.clearAllData();
 
   // Save new signup data
   await _sharedPrefs.saveString("user_id", data["_id"] ?? "");

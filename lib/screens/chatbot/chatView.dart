@@ -36,6 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // UI / chat state
   File? _selectedImage;
   Map<String, dynamic>? _selectedVehicle;
+  bool _isProcessing = false; // NEW: Loading state
 
   /// All sessions are stored here:
   /// key = sessionId, value = list of message maps
@@ -205,14 +206,25 @@ class _ChatScreenState extends State<ChatScreen> {
       await _activateVehicleSession(vehicleId);
     }
 
+    // Store user input temporarily
+    final userText = text;
+    final userImage = _selectedImage;
+
+    // NEW: Clear input immediately and show loader
+    setState(() {
+      _controller.clear();
+      _selectedImage = null;
+      _isProcessing = true; // Start loading
+    });
+
     // Add user message locally
     setState(() {
       _allSessions[_activeSessionId]!.add({
-        "text": text,
+        "text": userText,
         "isSent": true,
         "vehicleId": vehicleId,
-        "brand": _selectedVehicle?['brand'], // add this
-        "model": _selectedVehicle?['model'], // add this
+        "brand": _selectedVehicle?['brand'],
+        "model": _selectedVehicle?['model'],
         "timestamp": DateTime.now().toIso8601String(),
       });
     });
@@ -225,12 +237,12 @@ class _ChatScreenState extends State<ChatScreen> {
       request.headers["Authorization"] = "$_tokenType $_accessToken";
 
       if (_sessionId != null) request.fields["session_id"] = _sessionId!;
-      if (text.isNotEmpty) request.fields["message"] = text;
+      if (userText.isNotEmpty) request.fields["message"] = userText;
       request.fields["vehicle_json"] = json.encode(_selectedVehicle);
 
-      if (_selectedImage != null) {
+      if (userImage != null) {
         request.files.add(
-          await http.MultipartFile.fromPath("image", _selectedImage!.path),
+          await http.MultipartFile.fromPath("image", userImage.path),
         );
       }
 
@@ -257,10 +269,12 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       debugPrint("⚠️ Error sending message: $e");
+    } finally {
+      // NEW: Stop loading regardless of success/error
+      setState(() {
+        _isProcessing = false;
+      });
     }
-
-    _controller.clear();
-    setState(() => _selectedImage = null);
   }
 
   Future<void> _pickImage() async {
@@ -376,51 +390,140 @@ class _ChatScreenState extends State<ChatScreen> {
 
           // Chat messages
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: messages.length,
-              itemBuilder: (_, i) {
-                final m = messages[i];
-                final isUser = m["isSent"] == true;
-                return Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color:
-                          isUser ? AppColors.mainColor : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (m.containsKey("imagePath"))
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(m["imagePath"]),
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        if (m.containsKey("text"))
-                          Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(
-                              m["text"],
-                              style: TextStyle(
-                                  color:
-                                      isUser ? Colors.white : Colors.black87),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            child: Stack(
+              children: [
+                ListView.builder(
+                  padding: const EdgeInsets.all(10),
+                  itemCount: messages.length,
+                  itemBuilder: (_, i) {
+                    final m = messages[i];
+                    final isUser = m["isSent"] == true;
+                    return Align(
+                      alignment:
+                          isUser ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color:
+                              isUser ? AppColors.mainColor : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (m.containsKey("imagePath"))
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(m["imagePath"]),
+                                  width: 150,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            if (m.containsKey("text"))
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  m["text"],
+                                  style: TextStyle(
+                                      color:
+                                          isUser ? Colors.white : Colors.black87),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+              Expanded(
+  child: Column(
+    children: [
+      // Messages list
+      Expanded(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(10),
+          itemCount: messages.length,
+          itemBuilder: (_, i) {
+            final m = messages[i];
+            final isUser = m["isSent"] == true;
+            return Align(
+              alignment:
+                  isUser ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color:
+                      isUser ? AppColors.mainColor : Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (m.containsKey("imagePath"))
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(m["imagePath"]),
+                          width: 150,
+                          height: 150,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    if (m.containsKey("text"))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          m["text"],
+                          style: TextStyle(
+                              color:
+                                  isUser ? Colors.white : Colors.black87),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      
+      // NEW: Loading indicator that appears below the messages
+      if (_isProcessing)
+        Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.mainColor),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "FixiBot is thinking...",
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+    ],
+  ),
+),
+              ],
             ),
           ),
 
@@ -542,10 +645,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                 maxLines: 4,
                               ),
                             ),
+                            // NEW: Disable send button when processing
                             IconButton(
-                              icon: const Icon(Icons.send_rounded,
-                                  color: AppColors.mainColor),
-                              onPressed: sendMessage,
+                              icon: _isProcessing
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                            AppColors.mainColor),
+                                      ),
+                                    )
+                                  : const Icon(Icons.send_rounded,
+                                      color: AppColors.mainColor),
+                              onPressed: _isProcessing ? null : sendMessage,
                             ),
                           ],
                         ),

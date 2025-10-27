@@ -78,8 +78,8 @@ class LoginController extends GetxController {
         final accessToken = data["access_token"];
         final tokenType = data["token_type"];
 
-        // 🚨 Clear old data
-        await _sharedPrefs.clearUserData();
+        // 🚨 Clear old authentication data
+          await _sharedPrefs.clearAuthData();
 
         // Save token + email
         await _sharedPrefs.saveString("access_token", accessToken);
