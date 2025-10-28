@@ -261,6 +261,114 @@ String _generateLocalFeedbackId(String serviceId) {
 }
 
 // Update the submitFeedback method to always generate IDs for local services
+// Future<bool> submitFeedback({
+//   required String serviceId,
+//   required String mechanicId,
+//   required String mechanicName,
+//   required int rating,
+//   required String comment,
+// }) async {
+//   try {
+//     final prefs = await SharedPreferences.getInstance();
+//     final userId = prefs.getString('user_id');
+
+//     // Build feedback object
+//     final feedbackData = {
+//       'service_id': serviceId,
+//       'mechanic_id': mechanicId,
+//       'user_id': userId,
+//       'mechanic_name': mechanicName,
+//       'rating': rating,
+//       'comment': comment,
+//       'created_at': DateTime.now().toIso8601String(),
+//     };
+
+//     print('📤 [FEEDBACK] Submitting feedback for service: $serviceId');
+    
+//     // Check if this is a local service
+//     final isLocalService = serviceId.startsWith('local_');
+    
+//     String? feedbackId;
+//     FeedbackModel submittedFeedback;
+
+//     if (!isLocalService) {
+//       // For non-local services, try to submit to backend
+//       try {
+//         final response = await http.post(
+//           Uri.parse('$baseUrl/feedback'),
+//           headers: {'Content-Type': 'application/json'},
+//           body: jsonEncode(feedbackData),
+//         );
+
+//         if (response.statusCode == 200 || response.statusCode == 201) {
+//           final data = jsonDecode(response.body);
+//           print('✅ [FEEDBACK] Backend response: $data');
+          
+//           // Extract feedback ID from response
+//           feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
+//         }
+//       } catch (e) {
+//         print('❌ [FEEDBACK] Backend submission failed: $e');
+//         // Continue with local storage
+//       }
+//     }
+
+//     // If no backend ID (either local service or backend failed), generate local ID
+//     if (feedbackId == null) {
+//       feedbackId = _generateLocalFeedbackId(serviceId);
+//       print('🔧 [FEEDBACK] Using local feedback ID: $feedbackId');
+//     }
+
+//     // Create the feedback model with the ID
+//     submittedFeedback = FeedbackModel(
+//       id: feedbackId,
+//       serviceId: serviceId,
+//       mechanicId: mechanicId,
+//       mechanicName: mechanicName,
+//       serviceType: lastServiceForFeedback['service_type'] ?? 'General Service',
+//       rating: rating,
+//       comment: comment,
+//       createdAt: DateTime.now(),
+//       status: isLocalService ? 'submitted_local' : 'submitted',
+//     );
+
+//     // Store the feedback ID for future reference
+//     await prefs.setString('feedback_$serviceId', feedbackId);
+//     print('💾 [FEEDBACK] Feedback ID stored for service $serviceId: $feedbackId');
+
+//     // Add to history
+//     feedbackHistory.add(submittedFeedback);
+//     await _saveFeedbackHistoryToLocal();
+
+//     // Remove from pending
+//     removePendingFeedback(serviceId);
+
+//     // Mark this service as feedback given
+//     await prefs.setBool('feedback_given_$serviceId', true);
+
+//     // Close popup
+//     showFeedbackPopup.value = false;
+//     hasPendingFeedback.value = false;
+//     lastServiceForFeedback.value = {};
+
+//     print('✅ [FEEDBACK] Feedback submitted successfully');
+//     return true;
+    
+//   } catch (e) {
+//     print('❌ [FEEDBACK] Error in submitFeedback: $e');
+    
+//     // Emergency fallback
+//     return await _emergencySaveFeedback(
+//       serviceId: serviceId,
+//       mechanicId: mechanicId,
+//       mechanicName: mechanicName,
+//       rating: rating,
+//       comment: comment,
+//     );
+//   }
+// }
+
+// Update the submitFeedback method with detailed debug statements
 Future<bool> submitFeedback({
   required String serviceId,
   required String mechanicId,
@@ -283,16 +391,25 @@ Future<bool> submitFeedback({
       'created_at': DateTime.now().toIso8601String(),
     };
 
-    print('📤 [FEEDBACK] Submitting feedback for service: $serviceId');
+    print('📤 [FEEDBACK] === STARTING FEEDBACK SUBMISSION ===');
+    print('📤 [FEEDBACK] Service ID: $serviceId');
+    print('📤 [FEEDBACK] User ID: $userId');
+    print('📤 [FEEDBACK] Rating: $rating, Comment length: ${comment.length}');
     
     // Check if this is a local service
     final isLocalService = serviceId.startsWith('local_');
+    print('🔍 [FEEDBACK] Service type: ${isLocalService ? 'LOCAL SERVICE' : 'REMOTE SERVICE'}');
     
     String? feedbackId;
     FeedbackModel submittedFeedback;
+    bool storedInBackend = false;
+    bool storedInLocal = false;
 
     if (!isLocalService) {
       // For non-local services, try to submit to backend
+      print('🌐 [FEEDBACK] Attempting to store in BACKEND...');
+      print('🌐 [FEEDBACK] Backend URL: $baseUrl/feedback');
+      
       try {
         final response = await http.post(
           Uri.parse('$baseUrl/feedback'),
@@ -300,23 +417,35 @@ Future<bool> submitFeedback({
           body: jsonEncode(feedbackData),
         );
 
+        print('🌐 [FEEDBACK] Backend response status: ${response.statusCode}');
+        
         if (response.statusCode == 200 || response.statusCode == 201) {
           final data = jsonDecode(response.body);
-          print('✅ [FEEDBACK] Backend response: $data');
+          print('✅ [FEEDBACK] BACKEND STORAGE SUCCESSFUL');
+          print('✅ [FEEDBACK] Backend response data: $data');
           
           // Extract feedback ID from response
           feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
+          print('✅ [FEEDBACK] Backend Feedback ID: $feedbackId');
+          storedInBackend = true;
+        } else {
+          print('❌ [FEEDBACK] BACKEND STORAGE FAILED - Status: ${response.statusCode}');
+          print('❌ [FEEDBACK] Response body: ${response.body}');
         }
       } catch (e) {
-        print('❌ [FEEDBACK] Backend submission failed: $e');
+        print('❌ [FEEDBACK] BACKEND STORAGE ERROR: $e');
         // Continue with local storage
       }
+    } else {
+      print('📱 [FEEDBACK] Local service detected - skipping backend storage');
     }
 
     // If no backend ID (either local service or backend failed), generate local ID
     if (feedbackId == null) {
+      print('📱 [FEEDBACK] Using LOCAL STORAGE fallback...');
       feedbackId = _generateLocalFeedbackId(serviceId);
-      print('🔧 [FEEDBACK] Using local feedback ID: $feedbackId');
+      storedInLocal = true;
+      print('📱 [FEEDBACK] Generated Local Feedback ID: $feedbackId');
     }
 
     // Create the feedback model with the ID
@@ -329,45 +458,60 @@ Future<bool> submitFeedback({
       rating: rating,
       comment: comment,
       createdAt: DateTime.now(),
-      status: isLocalService ? 'submitted_local' : 'submitted',
+      status: isLocalService ? 'submitted_local' : (storedInBackend ? 'submitted' : 'submitted_local_fallback'),
     );
 
     // Store the feedback ID for future reference
     await prefs.setString('feedback_$serviceId', feedbackId);
-    print('💾 [FEEDBACK] Feedback ID stored for service $serviceId: $feedbackId');
+    print('💾 [FEEDBACK] Stored feedback ID in SharedPreferences: feedback_$serviceId = $feedbackId');
 
     // Add to history
     feedbackHistory.add(submittedFeedback);
     await _saveFeedbackHistoryToLocal();
+    print('💾 [FEEDBACK] Added to feedbackHistory list (count: ${feedbackHistory.length})');
 
     // Remove from pending
     removePendingFeedback(serviceId);
+    print('🗑️ [FEEDBACK] Removed from pending feedback');
 
     // Mark this service as feedback given
     await prefs.setBool('feedback_given_$serviceId', true);
+    print('🏷️ [FEEDBACK] Marked service as feedback given: feedback_given_$serviceId = true');
 
     // Close popup
     showFeedbackPopup.value = false;
     hasPendingFeedback.value = false;
     lastServiceForFeedback.value = {};
 
-    print('✅ [FEEDBACK] Feedback submitted successfully');
+    // FINAL STORAGE SUMMARY
+    print('\n📊 [FEEDBACK] === STORAGE SUMMARY ===');
+    print('📊 [FEEDBACK] ✅ BACKEND STORAGE: ${storedInBackend ? "SUCCESS" : "FAILED/SKIPPED"}');
+    print('📊 [FEEDBACK] ✅ LOCAL STORAGE: ${storedInLocal ? "USED AS PRIMARY" : "USED AS BACKUP"}');
+    print('📊 [FEEDBACK] ✅ SHARED PREFERENCES: SUCCESS');
+    print('📊 [FEEDBACK] ✅ IN-MEMORY LIST: SUCCESS (${feedbackHistory.length} items)');
+    print('📊 [FEEDBACK] Final Feedback ID: $feedbackId');
+    print('📊 [FEEDBACK] Final Status: ${submittedFeedback.status}');
+    print('📊 [FEEDBACK] === FEEDBACK SUBMISSION COMPLETE ===\n');
+
     return true;
     
   } catch (e) {
-    print('❌ [FEEDBACK] Error in submitFeedback: $e');
+    print('❌ [FEEDBACK] CRITICAL ERROR in submitFeedback: $e');
     
-    // Emergency fallback
-    return await _emergencySaveFeedback(
+    // Emergency fallback with debug info
+    print('🆘 [FEEDBACK] Attempting emergency local storage...');
+    final emergencyResult = await _emergencySaveFeedback(
       serviceId: serviceId,
       mechanicId: mechanicId,
       mechanicName: mechanicName,
       rating: rating,
       comment: comment,
     );
+    
+    print('🆘 [FEEDBACK] Emergency storage result: ${emergencyResult ? "SUCCESS" : "FAILED"}');
+    return emergencyResult;
   }
 }
-
 // Emergency fallback method
 Future<bool> _emergencySaveFeedback({
   required String serviceId,

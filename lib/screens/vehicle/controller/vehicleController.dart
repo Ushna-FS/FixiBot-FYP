@@ -152,6 +152,7 @@ class VehicleController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // SUCCESS - Clear form and show success message
         resetForm();
+        Get.back();
         
         Get.snackbar(
           "Success",
@@ -161,13 +162,11 @@ class VehicleController extends GetxController {
           colorText: Colors.white,
         );
 
+        Get.back();
+        
         // Refresh the vehicles list
         await fetchUserVehicles();
         
-        // Navigate back after a short delay
-        Future.delayed(Duration(milliseconds: 500), () {
-          Get.back();
-        });
         
       } else {
         // Server error

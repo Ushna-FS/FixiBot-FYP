@@ -324,7 +324,7 @@ class MechanicScreen extends GetView<MechanicController> {
                                     final model = (vehicle['model'] ??
                                             'Unknown Model')
                                         .toString();
-                                    final vehicleType = (vehicle['vehicle_type'] ??
+                                    final vehicleType = (vehicle['category'] ??
                                             vehicle['category'] )
                                         .toString();
                                     final vehicleId = (vehicle['_id'] ??
@@ -379,9 +379,7 @@ class MechanicScreen extends GetView<MechanicController> {
                                         final model =
                                             (vehicle['model'] ?? '').toString();
                                         final vehicleType =
-                                            (vehicle['vehicle_type'] ??
-                                                    vehicle['type'] ??
-                                                    'car')
+                                            (vehicle['category'])
                                                 .toString();
 
                                         final uniqueValue =
@@ -399,9 +397,7 @@ class MechanicScreen extends GetView<MechanicController> {
 
                                     if (selectedVehicle.isNotEmpty) {
                                       final vehicleType =
-                                          (selectedVehicle['vehicle_type'] ??
-                                                  selectedVehicle['type'] ??
-                                                  'car')
+                                          (selectedVehicle['category'] )
                                               .toString()
                                               .toLowerCase();
                                       final onlyType =
@@ -506,20 +502,7 @@ class MechanicScreen extends GetView<MechanicController> {
                                   onTap: () =>
                                       controller.selectCategory("Brakes"),
                                 )),
-                            // Obx(() => CategoryChips(
-                            //       icon: "assets/icons/battery.png",
-                            //       category: "Electrical",
-                            //       isSmallScreen: isSmallScreen,
-                            //       isSelected: controller.selectedCategory.value == "Electrical",
-                            //       onTap: () => controller.selectCategory("Electrical"),
-                            //     )),
-                            // Obx(() => CategoryChips(
-                            //       icon: "assets/icons/suspension.png",
-                            //       category: "Suspension",
-                            //       isSmallScreen: isSmallScreen,
-                            //       isSelected: controller.selectedCategory.value == "Suspension",
-                            //       onTap: () => controller.selectCategory("Suspension"),
-                            //     )),
+                            
                           ],
                         ),
                       ),
@@ -841,7 +824,7 @@ class MechanicScreen extends GetView<MechanicController> {
         final vehicleId = (v['_id'] ?? v['id'] ?? '').toString();
         final brand = (v['brand'] ?? '').toString();
         final model = (v['model'] ?? '').toString();
-        final vehicleType = (v['vehicle_type'] ?? v['type'] ?? 'car').toString();
+        final vehicleType = (v['category']).toString();
 
         final uniqueValue = vehicleId.isNotEmpty && vehicleId != 'null'
             ? vehicleId
@@ -855,7 +838,7 @@ class MechanicScreen extends GetView<MechanicController> {
     if (vehicle.isNotEmpty) {
       final brand = (vehicle['brand'] ?? 'Unknown Brand').toString();
       final model = (vehicle['model'] ?? 'Unknown Model').toString();
-      final vehicleType = (vehicle['vehicle_type'] ?? vehicle['type'] ?? 'car').toString();
+      final vehicleType = (vehicle['category']).toString();
       return '$brand $model (${_formatVehicleType(vehicleType)})';
     }
 
