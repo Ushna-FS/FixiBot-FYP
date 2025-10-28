@@ -89,9 +89,9 @@ class _SplashScreenState extends State<SplashScreen> {
     final double width = screenSize.width;
     
     if (width < 320) return width * 0.12;      // Very small phones
-    if (width < 360) return width * 0.11;      // Small phones
-    if (width < 414) return width * 0.10;      // Medium phones
-    if (width < 600) return width * 0.09;      // Large phones
+    if (width < 360) return width * 0.12;      // Small phones
+    if (width < 414) return width * 0.11;      // Medium phones
+    if (width < 600) return width * 0.13;      // Large phones
     if (width < 768) return width * 0.08;      // Small tablets
     if (width < 1024) return width * 0.07;     // Tablets
     if (width < 1440) return width * 0.05;     // Laptops
@@ -110,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   double _getIconVerticalOffset(double fontSize, double iconSize) {
-    return fontSize * 0.09; // Slight downward adjustment to match text baseline
+    return fontSize * 0.23; // Slight downward adjustment to match text baseline
   }
 
   @override
@@ -141,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   AnimatedPositioned(
                     duration: const Duration(milliseconds: 800),
                     left: _animateText 
-                        ? iconPosition - fontSize * 2.6 - iconSpacing 
+                        ? iconPosition - fontSize * 3.0 - iconSpacing 
                         : -screenSize.width,
                     top: screenSize.height / 2 - fontSize / 2,
                     child: AnimatedOpacity(
