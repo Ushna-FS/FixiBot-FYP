@@ -68,7 +68,6 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
         break;
       case 'motorcycle':
         vehicleIcon = Icons.motorcycle;
-        iconColor = Colors.orange; // Different color for motorcycles
         break;
       case 'truck':
         vehicleIcon = Icons.local_shipping;

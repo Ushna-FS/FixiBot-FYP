@@ -73,15 +73,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print('============================');
   }
 
-  Future<void> _logout() async {
-    print('🚪 Logging out...');
-    // Clear user controller data
-    userController.clearUserData();
-    // Clear shared preferences
-    await _sharedPrefs.clearAllData();
-    // Navigate to login
-    Get.offAll(() => Login());
-  }
+
+
+Future<void> _logout() async {
+  print('🚪 Logging out...');
+  
+  // Get user info before clearing
+  final userController = Get.find<UserController>();
+  final userId = userController.userId.value;
+  final rememberMe = await _sharedPrefs.getRememberUser();
+  
+  print('👤 Logging out user: $userId (remember me: $rememberMe)');
+  
+  // Clear user controller data (preserves user ID if remember me is enabled)
+  await userController.clearUserData();
+  
+  // Clear shared preferences appropriately
+  await _sharedPrefs.clearUserDataOnLogout(rememberMe);
+  
+  print('✅ User $userId logged out successfully');
+  
+  // Navigate to login
+  Get.offAll(() => Login());
+}
+
+
+
+
+
+  // Future<void> _logout() async {
+  //   print('🚪 Logging out...');
+  //   // Clear user controller data
+  //   userController.clearUserData();
+  //   // Clear shared preferences
+  //   await _sharedPrefs.clearAllData();
+  //   // Navigate to login
+  //   Get.offAll(() => Login());
+  // }
 
   @override
   Widget build(BuildContext context) {

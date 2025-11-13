@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:io';
-
+import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/model/breakdownsModel.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
+import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/feedback/view/feedback_popup.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
@@ -18,7 +20,7 @@ import 'package:fixibot_app/screens/profile/view/profile.dart';
 import 'package:fixibot_app/screens/search/searchScreen.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
-import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart'; // ADD THIS
+import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:fixibot_app/services/breakdown-serv.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
@@ -28,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -119,13 +122,183 @@ void initState() {
     }
   }
 
-  Future<void> pickImage(ImageSource source) async {
+Future<void> pickImage(ImageSource source) async {
+  try {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: source, imageQuality: 75);
     if (picked != null) {
-      userController.updateProfileImage(File(picked.path));
+      final imageFile = File(picked.path);
+      final fileSize = await imageFile.length();
+      final maxImageSize = 5 * 1024 * 1024; // 5MB
+      
+      // Check file size
+      if (fileSize > maxImageSize) {
+        Get.snackbar(
+          "Image Too Large",
+          "Please select an image smaller than 5MB",
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
+        return;
+      }
+      
+      print('📸 Image picked from home screen: ${picked.path}');
+      
+      // Update controller with the image
+      userController.updateProfileImage(imageFile);
+      
+      // Immediately upload and save to backend
+      await _uploadProfileImageFromHome(imageFile);
     }
+  } catch (e) {
+    print('❌ Error picking image from home: $e');
+    Get.snackbar(
+      "Error",
+      "Failed to pick image. Please try again.",
+      colorText: Colors.white,
+      backgroundColor: Colors.red,
+    );
   }
+}
+
+
+Future<void> _uploadProfileImageFromHome(File imageFile) async {
+  try {
+    print('🔄 Uploading profile image from home screen...');
+    
+    final SharedPrefsHelper _prefs = SharedPrefsHelper();
+    final token = await _prefs.getString("access_token");
+    if (token == null) {
+      Get.snackbar("Error", "Authentication token not found");
+      return;
+    }
+
+    final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+    final url = Uri.parse("$baseUrl/auth/users/me");
+    final request = http.MultipartRequest("PUT", url);
+
+    // Set headers
+    request.headers["Authorization"] = "Bearer $token";
+    
+    // Get current user data to preserve it
+    final currentName = userController.fullName.value;
+    final currentEmail = userController.email.value;
+    final parts = currentName.split(" ");
+    final firstName = parts.isNotEmpty ? parts.first : "";
+    final lastName = parts.length > 1 ? parts.sublist(1).join(" ") : "";
+
+    request.fields["first_name"] = firstName;
+    request.fields["last_name"] = lastName;
+    request.fields["email"] = currentEmail;
+
+    // Add the image file using http prefix
+    request.files.add(await http.MultipartFile.fromPath(
+      "profile_picture",
+      imageFile.path,
+    ));
+
+    // Show loading indicator
+    Get.dialog(
+      const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+           SizedBox(height: 10),
+Text(
+  "Updating profile picture...",
+  style: TextStyle(
+    color: Color.fromARGB(255, 124, 116, 202),
+    fontSize: 14,
+  ),
+),
+
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    print("📡 Sending profile image upload request from home...");
+    final response = await request.send().timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {
+        throw TimeoutException("Image upload took too long. Please try again.");
+      },
+    );
+
+    final respStr = await response.stream.bytesToString();
+    print("📡 Response status: ${response.statusCode}");
+
+    // Close loading dialog
+    Get.back();
+
+    if (response.statusCode == 200) {
+      final updatedUser = json.decode(respStr);
+      print("✅ Profile image updated successfully from home screen");
+      
+      // Handle the backend response for profile image URL
+      if (updatedUser['profile_picture'] != null) {
+        final imageUrl = updatedUser['profile_picture'].toString();
+        print("✅ Backend returned image URL: $imageUrl");
+        
+        // Update controller and save to SharedPreferences
+        userController.updateProfileImageUrl(imageUrl);
+        
+        // Clear the local file since we now have a URL
+        userController.updateProfileImage(null);
+        
+        print("🖼️ Profile image successfully saved to persistent storage from home");
+        
+        // Show success message
+        Get.snackbar(
+          "Success",
+          "Profile picture updated successfully",
+          colorText: Colors.white,
+          backgroundColor: AppColors.minorColor,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } else {
+      print("❌ Error uploading profile image. Status: ${response.statusCode}");
+      print("❌ Error response: $respStr");
+      
+      Get.snackbar(
+        "Upload Failed",
+        "Failed to update profile picture. Please try again.",
+        colorText: Colors.white,
+        backgroundColor: Colors.red,
+      );
+    }
+  } on TimeoutException catch (e) {
+    Get.back();
+    print("❌ Upload timeout from home: $e");
+    Get.snackbar(
+      "Upload Timeout",
+      "Image upload took too long. Please try with a smaller image.",
+      colorText: Colors.white,
+      backgroundColor: Colors.red,
+    );
+  } catch (e) {
+    Get.back();
+    print("❌ Unexpected error uploading from home: $e");
+    Get.snackbar(
+      "Error",
+      "Failed to update profile picture. Please try again.",
+      colorText: Colors.white,
+      backgroundColor: Colors.red,
+    );
+  }
+}
+
+
+  // Future<void> pickImage(ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final picked = await picker.pickImage(source: source, imageQuality: 75);
+  //   if (picked != null) {
+  //     userController.updateProfileImage(File(picked.path));
+  //   }
+  // }
 
   void _showImagePickerDialog() {
     Get.dialog(
@@ -173,24 +346,45 @@ void initState() {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                CircleAvatar(
-                  radius: 15,
-                  backgroundColor: AppColors.textColor4,
-                  backgroundImage: userController.profileImage.value != null
-                      ? FileImage(userController.profileImage.value!)
-                      : (userController.profileImageUrl.value.isNotEmpty
-                          ? NetworkImage(userController.profileImageUrl.value)
-                              as ImageProvider
-                          : null),
-                  child: userController.profileImage.value == null &&
-                          userController.profileImageUrl.value.isEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.add, size: 10),
-                          color: Colors.white,
-                          onPressed: _showImagePickerDialog,
-                        )
-                      : null,
-                ),
+                // CircleAvatar(
+                //   radius: 15,
+                //   backgroundColor: AppColors.textColor4,
+                //   backgroundImage: userController.profileImage.value != null
+                //       ? FileImage(userController.profileImage.value!)
+                //       : (userController.profileImageUrl.value.isNotEmpty
+                //           ? NetworkImage(userController.profileImageUrl.value)
+                //               as ImageProvider
+                //           : null),
+                //   child: userController.profileImage.value == null &&
+                //           userController.profileImageUrl.value.isEmpty
+                //       ? IconButton(
+                //           icon: const Icon(Icons.add, size: 10),
+                //           color: Colors.white,
+                //           onPressed: _showImagePickerDialog,
+                //         )
+                //       : null,
+                // ),
+
+                // In homescreen.dart - Update the CircleAvatar in AppBar
+CircleAvatar(
+  radius: 15,
+  backgroundColor: AppColors.textColor4,
+  backgroundImage: userController.profileImage.value != null
+      ? FileImage(userController.profileImage.value!)
+      : (userController.profileImageUrl.value.isNotEmpty
+          ? NetworkImage(userController.profileImageUrl.value)
+              as ImageProvider
+          : null),
+  child: userController.profileImage.value == null &&
+          userController.profileImageUrl.value.isEmpty
+      ? IconButton(
+          icon: const Icon(Icons.add, size: 10),
+          color: Colors.white,
+          onPressed: _showImagePickerDialog,
+        )
+      : null,
+),
+
                 Image.asset("assets/icons/locationIcon.png",
                     color: AppColors.textColor),
                 TextButton(

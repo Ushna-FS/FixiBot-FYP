@@ -1,3 +1,4 @@
+import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
@@ -18,6 +19,7 @@ void main() async {
   
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs);
+  Get.put(GoogleSignInController());
   Get.put(LocationController()); 
   Get.put(UserController()); 
   Get.put(FeedbackController(), permanent: true);
@@ -42,34 +44,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// import 'bindings/initialBinding.dart';
-// import 'screens/splashScreen.dart';
-// import 'constants/app_colors.dart';
-
-// void main() {
-//   // Ensure Flutter bindings are initialized before running the app
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       title: 'My App',
-//       debugShowCheckedModeBanner: false,
-//       initialBinding: InitialBinding(), // optional, if you're using GetX bindings
-    
-//       home: const SplashScreen(), // 👈 This is the important part
-//     );
-//   }
-// }
 

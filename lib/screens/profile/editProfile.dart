@@ -207,8 +207,14 @@ class _EditProfileState extends State<EditProfile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text("Updating profile..."),
+              SizedBox(height: 10),
+              Text(
+  "Updating profile ..",
+  style: TextStyle(
+    color: Color.fromARGB(255, 124, 116, 202),
+    fontSize: 14, // smaller text
+  ),
+),
             ],
           ),
         ),
