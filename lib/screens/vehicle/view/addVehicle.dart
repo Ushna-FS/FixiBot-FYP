@@ -178,59 +178,138 @@ class _AddVehicleState extends State<AddVehicle> {
     }
   }
 
-  Future<void> _onAddVehiclePressed() async {
-    // Validate required fields
-    if (controller.selectedVehicleType.value.isEmpty) {
-      Get.snackbar("Error", "Please select a vehicle type");
-      return;
-    }
-    if (controller.selectedBrand.value.isEmpty) {
-      Get.snackbar("Error", "Please select a vehicle brand");
-      return;
-    }
-    if (controller.selectedModel.value.isEmpty) {
-      Get.snackbar("Error", "Please select a vehicle model");
-      return;
-    }
-    if (controller.selectedSubType.value.isEmpty) {
-      Get.snackbar("Error", "Please select a vehicle sub-type");
-      return;
-    }
-    if (controller.selectedFuelType.value.isEmpty) {
-      Get.snackbar("Error", "Please select fuel type");
-      return;
-    }
-    if (controller.selectedTransmission.value.isEmpty) {
-      Get.snackbar("Error", "Please select transmission type");
-      return;
-    }
-    if (controller.carModelYear.text.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter model year");
-      return;
-    }
-    if (controller.carMileage.text.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter mileage");
-      return;
-    }
-
-    // Validate year
-    final validatedYear = _validateYear(controller.carModelYear.text.trim());
-    if (validatedYear == null) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString("user_id");
-
-    if (userId == null || userId.isEmpty) {
-      Get.snackbar("Error", "User not logged in. Please log in again.");
-      return;
-    }
-
-    await controller.saveVehicle(
-      userId: userId,
-      isPrimary: true,
-      isActive: true,
-    );
+Future<void> _onAddVehiclePressed() async {
+  // Validate required fields
+  if (controller.selectedVehicleType.value.isEmpty) {
+    Get.snackbar("Error", "Please select a vehicle type");
+    return;
   }
+  if (controller.selectedBrand.value.isEmpty) {
+    Get.snackbar("Error", "Please select a vehicle brand");
+    return;
+  }
+  if (controller.selectedModel.value.isEmpty) {
+    Get.snackbar("Error", "Please select a vehicle model");
+    return;
+  }
+  if (controller.selectedSubType.value.isEmpty) {
+    Get.snackbar("Error", "Please select a vehicle sub-type");
+    return;
+  }
+  if (controller.selectedFuelType.value.isEmpty) {
+    Get.snackbar("Error", "Please select fuel type");
+    return;
+  }
+  if (controller.selectedTransmission.value.isEmpty) {
+    Get.snackbar("Error", "Please select transmission type");
+    return;
+  }
+  if (controller.carModelYear.text.trim().isEmpty) {
+    Get.snackbar("Error", "Please enter model year");
+    return;
+  }
+  if (controller.carMileage.text.trim().isEmpty) {
+    Get.snackbar("Error", "Please enter mileage");
+    return;
+  }
+
+  // Validate year
+  final validatedYear = _validateYear(controller.carModelYear.text.trim());
+  if (validatedYear == null) return;
+
+  // ✅ UPDATED: Call saveVehicle without userId parameter
+  await controller.saveVehicle(
+    isPrimary: true,
+    isActive: true,
+  );
+}
+
+// Add this method to your AddVehicleScreen class
+Future<void> _debugAuthState() async {
+  final prefs = await SharedPreferences.getInstance();
+  final accessToken = prefs.getString('access_token');
+  final userId = prefs.getString('user_id');
+  final email = prefs.getString('email');
+  
+  print('=== ADD VEHICLE DEBUG ===');
+  print('Access Token: ${accessToken != null ? "EXISTS (${accessToken.substring(0, 20)}...)" : "NULL"}');
+  print('User ID: ${userId ?? "NULL"}');
+  print('Email: ${email ?? "NULL"}');
+  print('==========================');
+  
+  // Show debug info to user
+  Get.defaultDialog(
+    title: "Debug Info",
+    content: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Access Token: ${accessToken != null ? "✅ EXISTS" : "❌ MISSING"}'),
+        Text('User ID: ${userId != null ? "✅ $userId" : "❌ MISSING"}'),
+        Text('Email: ${email ?? "Not set"}'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Get.back(),
+        child: Text("Close"),
+      ),
+    ],
+  );
+}
+
+  // Future<void> _onAddVehiclePressed() async {
+  //   // Validate required fields
+  //   if (controller.selectedVehicleType.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select a vehicle type");
+  //     return;
+  //   }
+  //   if (controller.selectedBrand.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select a vehicle brand");
+  //     return;
+  //   }
+  //   if (controller.selectedModel.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select a vehicle model");
+  //     return;
+  //   }
+  //   if (controller.selectedSubType.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select a vehicle sub-type");
+  //     return;
+  //   }
+  //   if (controller.selectedFuelType.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select fuel type");
+  //     return;
+  //   }
+  //   if (controller.selectedTransmission.value.isEmpty) {
+  //     Get.snackbar("Error", "Please select transmission type");
+  //     return;
+  //   }
+  //   if (controller.carModelYear.text.trim().isEmpty) {
+  //     Get.snackbar("Error", "Please enter model year");
+  //     return;
+  //   }
+  //   if (controller.carMileage.text.trim().isEmpty) {
+  //     Get.snackbar("Error", "Please enter mileage");
+  //     return;
+  //   }
+
+  //   // Validate year
+  //   final validatedYear = _validateYear(controller.carModelYear.text.trim());
+  //   if (validatedYear == null) return;
+
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final userId = prefs.getString("user_id");
+
+  //   if (userId == null || userId.isEmpty) {
+  //     Get.snackbar("Error", "User not logged in. Please log in again.");
+  //     return;
+  //   }
+
+  //   await controller.saveVehicle(
+  //     userId: userId,
+  //     isPrimary: true,
+  //     isActive: true,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -535,11 +614,36 @@ class _AddVehicleState extends State<AddVehicle> {
                       ),
                       SizedBox(height: verticalPadding * 2),
 
-                      // Add Vehicle Button (ALWAYS VISIBLE)
-                      Obx(() => CustomButton(
-                            text: controller.isLoading.value ? 'Adding Vehicle...' : 'Add Vehicle',
-                            onPressed: controller.isLoading.value ? () {} : _onAddVehiclePressed,
-                          )),
+// Enhanced Add Vehicle Button with better error handling
+Obx(() => CustomButton(
+  text: controller.isLoading.value ? 'Adding Vehicle...' : 'Add Vehicle',
+  onPressed: controller.isLoading.value 
+      ? null 
+      : () async {
+          // Quick pre-check before showing validation errors
+          final prefs = await SharedPreferences.getInstance();
+          final accessToken = prefs.getString('access_token');
+          final userId = prefs.getString('user_id');
+          
+          if (accessToken == null || userId == null) {
+            Get.snackbar(
+              "Login Required", 
+              "Please login again to add vehicles",
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+            return;
+          }
+          
+          // Proceed with normal validation
+          _onAddVehiclePressed();
+        },
+)),
+                      // // Add Vehicle Button (ALWAYS VISIBLE)
+                      // Obx(() => CustomButton(
+                      //       text: controller.isLoading.value ? 'Adding Vehicle...' : 'Add Vehicle',
+                      //       onPressed: controller.isLoading.value ? () {} : _onAddVehiclePressed,
+                      //     )),
                     ],
                   ),
                 ),

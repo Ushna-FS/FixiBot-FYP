@@ -277,6 +277,14 @@ class SharedPrefsHelper {
     return prefs.getBool("remember_user") ?? false;
   }
 
+// Add this method to your SharedPrefsHelper if it doesn't exist
+Future<void> saveTokenType(String tokenType) async {
+  await saveString('token_type', tokenType);
+}
+
+Future<String?> getTokenType() async {
+  return await getString('token_type');
+}
   // Add this method to clear user profile data specifically
   Future<void> clearUserProfileData() async {
     final prefs = await SharedPreferences.getInstance();

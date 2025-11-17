@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:http/http.dart' as http;
@@ -31,8 +32,10 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
+
+final baseUrl  = AppConfig.baseUrl;
   final UserController userController = Get.find<UserController>();
   
   // Image size validation - 5MB

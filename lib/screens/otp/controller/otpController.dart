@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,9 @@ class OtpController extends GetxController {
   final canResend = true.obs;
   final cooldownSeconds = 0.obs;
 
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+final baseUrl  = AppConfig.baseUrl;
+
   Timer? _cooldownTimer;
 
   void showError(String message) {

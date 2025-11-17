@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/model/feedbackModel.dart';
 import 'package:fixibot_app/screens/feedback/view/feedback_popup.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,8 @@ class FeedbackController extends GetxController {
   var pendingFeedback = <FeedbackModel>[].obs;
   var isLoadingHistory = false.obs;
 
-  String baseUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev';
+final baseUrl  = AppConfig.baseUrl;
+  // String baseUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev';
   Timer? _feedbackTimer;
 
   @override

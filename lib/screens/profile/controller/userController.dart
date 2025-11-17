@@ -244,6 +244,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
@@ -252,7 +253,8 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserController extends GetxController {
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  final baseUrl  = AppConfig.baseUrl;
+  // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
   var fullName = "Guest".obs;
   var email = "".obs;
   var profileImage = Rx<File?>(null); // local picked file
@@ -264,52 +266,6 @@ class UserController extends GetxController {
   var isProfileUpdated = false.obs;
   var isImageUploaded = false.obs;
   var lastUpdateError = "".obs;
-
-
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   _loadUserData();
-  // }
-
-  // Load user data from SharedPreferences on app start
-  // Future<void> _loadUserData() async {
-  //   try {
-  //     final savedName = await _prefs.getString("full_name");
-  //     final savedEmail = await _prefs.getString("email");
-  //     final savedImageUrl = await _prefs.getProfileImageUrl();
-      
-  //     print('🔄 Loading user data from storage...');
-  //     print('📝 Name: $savedName, Email: $savedEmail');
-  //     print('🖼️ Image URL from storage: ${savedImageUrl ?? "None"}');
-      
-  //     if (savedName != null && savedName.isNotEmpty) {
-  //       fullName.value = savedName;
-  //       print('✅ Name loaded: $savedName');
-  //     } else {
-  //       print('ℹ️ No name found in storage, using default: Guest');
-  //     }
-      
-  //     if (savedEmail != null && savedEmail.isNotEmpty) {
-  //       email.value = savedEmail;
-  //       print('✅ Email loaded: $savedEmail');
-  //     } else {
-  //       print('ℹ️ No email found in storage');
-  //     }
-      
-  //     if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
-  //       profileImageUrl.value = savedImageUrl;
-  //       print('✅ Profile image URL loaded: $savedImageUrl');
-  //     } else {
-  //       print('ℹ️ No profile image found in storage');
-  //     }
-      
-  //   } catch (e) {
-  //     print('❌ Error loading user data in UserController: $e');
-  //   }
-  // }
-
 
 
   // Add these to your UserController class
@@ -406,57 +362,6 @@ Future<void> clearUserData() async {
 }
 
 
-
-
-
-// Update _loadUserData method to include user ID
-// Future<void> _loadUserData() async {
-//   try {
-//     final savedName = await _prefs.getString("full_name");
-//     final savedEmail = await _prefs.getString("email");
-//     final savedImageUrl = await _prefs.getProfileImageUrl();
-//     final savedUserId = await _prefs.getString("user_id"); // Add this line
-    
-//     print('🔄 Loading user data from storage...');
-//     print('📝 Name: $savedName, Email: $savedEmail');
-//     print('👤 User ID: $savedUserId'); // Add this line
-//     print('🖼️ Image URL from storage: ${savedImageUrl ?? "None"}');
-    
-//     if (savedName != null && savedName.isNotEmpty) {
-//       fullName.value = savedName;
-//       print('✅ Name loaded: $savedName');
-//     } else {
-//       print('ℹ️ No name found in storage, using default: Guest');
-//     }
-    
-//     if (savedEmail != null && savedEmail.isNotEmpty) {
-//       email.value = savedEmail;
-//       print('✅ Email loaded: $savedEmail');
-//     } else {
-//       print('ℹ️ No email found in storage');
-//     }
-    
-//     if (savedUserId != null && savedUserId.isNotEmpty) {
-//       userId.value = savedUserId;
-//       print('✅ User ID loaded: $savedUserId');
-//     } else {
-//       print('ℹ️ No user ID found in storage');
-//     }
-    
-//     if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
-//       profileImageUrl.value = savedImageUrl;
-//       print('✅ Profile image URL loaded: $savedImageUrl');
-//     } else {
-//       print('ℹ️ No profile image found in storage');
-//     }
-    
-//   } catch (e) {
-//     print('❌ Error loading user data in UserController: $e');
-//   }
-// }
-
-
-
   /// NEW METHOD: Refresh user data from SharedPreferences
   Future<void> refreshUserData() async {
     print('🔄 Refreshing user data from SharedPreferences...');
@@ -464,12 +369,39 @@ Future<void> clearUserData() async {
   }
 
   /// NEW METHOD: Update user data after Google Sign-In
-  Future<void> updateUserFromGoogleSignIn(String name, String userEmail, {String? profileImageUrl}) async {
+//   Future<void> updateUserFromGoogleSignIn(String name, String userEmail, {String? profileImageUrl}) async {
+//   print('👤 Updating user data from Google Sign-In: $name, $userEmail');
+  
+//   // Update observable variables - use different parameter name to avoid conflict
+//   fullName.value = name.isNotEmpty ? name : "Google User";
+//   email.value = userEmail; // Changed parameter name to userEmail
+  
+//   if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+//     this.profileImageUrl.value = profileImageUrl;
+//     print('🖼️ Google profile image URL set: $profileImageUrl');
+//   }
+  
+//   // Save to SharedPreferences
+//   await _prefs.saveUserBasicInfo(name, userEmail); // Use userEmail here too
+//   if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+//     await _prefs.saveProfileImageUrl(profileImageUrl);
+//   }
+  
+//   // Set remember user preference
+//   await _prefs.setRememberUser(true);
+  
+//   print('✅ User data updated from Google Sign-In');
+//   debugState();
+// }
+
+
+/// NEW METHOD: Update user data after Google Sign-In - ENHANCED
+Future<void> updateUserFromGoogleSignIn(String name, String userEmail, {String? profileImageUrl, String? userId}) async {
   print('👤 Updating user data from Google Sign-In: $name, $userEmail');
   
-  // Update observable variables - use different parameter name to avoid conflict
+  // Update observable variables
   fullName.value = name.isNotEmpty ? name : "Google User";
-  email.value = userEmail; // Changed parameter name to userEmail
+  email.value = userEmail;
   
   if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
     this.profileImageUrl.value = profileImageUrl;
@@ -477,7 +409,14 @@ Future<void> clearUserData() async {
   }
   
   // Save to SharedPreferences
-  await _prefs.saveUserBasicInfo(name, userEmail); // Use userEmail here too
+  await _prefs.saveUserBasicInfo(name, userEmail);
+  
+  // ✅ NEW: Save user ID if provided
+  if (userId != null && userId.isNotEmpty) {
+    await _prefs.saveUserId(userId);
+    print('✅ User ID saved from Google Sign-In: $userId');
+  }
+  
   if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
     await _prefs.saveProfileImageUrl(profileImageUrl);
   }
@@ -520,7 +459,10 @@ Future<void> clearUserData() async {
       print('🔍 Verification - Saved URL in SharedPreferences: $savedUrl');
     });
   }
-
+// Add this method to UserController
+Future<String?> getUserId() async {
+  return await _prefs.getUserId();
+}
 
   void removeProfileImage() {
     print('🗑️ Removing profile image');
@@ -551,26 +493,7 @@ Future<void> clearUserData() async {
     print('✅ Image marked as uploaded successfully');
   }
 
-  // // Clear all user data on logout
-  // Future<void> clearUserData() async {
-  //   print('🚪 Clearing all user data on logout');
-  //   fullName.value = "Guest";
-  //   email.value = "";
-  //   profileImage.value = null;
-  //   profileImageUrl.value = "";
-  //   isProfileUpdated.value = false;
-  //   isImageUploaded.value = false;
-  //   lastUpdateError.value = "";
-    
-  //   // Clear SharedPreferences data
-  //   await _prefs.clearAuthData();
-  //   await _prefs.setRememberUser(false);
-  //   await _prefs.clearUserProfileData();
-    
-  //   print('✅ All user data cleared');
-  // }
-
-  // Check if user has a profile image (either local or URL)
+    // Check if user has a profile image (either local or URL)
   bool get hasProfileImage {
     return profileImage.value != null || profileImageUrl.value.isNotEmpty;
   }

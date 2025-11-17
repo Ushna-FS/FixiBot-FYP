@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/screens/auth/view/confirm_forgetPassword.dart' show ConfirmResetScreen;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,8 @@ class ForgotPasswordController extends GetxController {
   var newPasswordController = TextEditingController();
 
   var isLoading = false.obs;
-   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  //  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  final baseUrl  = AppConfig.baseUrl;
 
 
   /// 🔹 Extract error message properly

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/model/breakdownsModel.dart';
@@ -172,8 +173,9 @@ Future<void> _uploadProfileImageFromHome(File imageFile) async {
       Get.snackbar("Error", "Authentication token not found");
       return;
     }
+     final baseUrl  = AppConfig.baseUrl;
 
-    final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+    // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
     final url = Uri.parse("$baseUrl/auth/users/me");
     final request = http.MultipartRequest("PUT", url);
 

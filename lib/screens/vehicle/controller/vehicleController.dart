@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class VehicleController extends GetxController {
-    final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+    // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+    final baseUrl  = AppConfig.baseUrl;
+
   RxList<Map<String,dynamic>> userVehicles = <Map<String,dynamic>>[].obs;
   
   var transmissionAuto = false.obs;
@@ -60,147 +63,371 @@ class VehicleController extends GetxController {
     print('✅ Form cleared successfully');
   }
 
-  Future<void> saveVehicle({
-    required String userId,
-    required bool isPrimary,
-    required bool isActive,
-  }) async {
-    isLoading.value = true;
+Future<void> saveVehicle({
+  required bool isPrimary,
+  required bool isActive,
+}) async { // ✅ REMOVE userId parameter - we'll get it internally
+  isLoading.value = true;
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+    final userId = await getValidUserId();
 
-      if (accessToken == null) {
-        Get.snackbar('Error', 'No authentication token found');
-        isLoading.value = false;
-        return;
-      }
+    // ✅ SIMPLE VALIDATION
+    if (accessToken == null || accessToken.isEmpty) {
+      Get.snackbar('Error', 'Please login first');
+      isLoading.value = false;
+      return;
+    }
 
-      // Debug: Print all form data
-      print('📋 Vehicle Data to be sent:');
-      print('user_id: $userId');
-      print('model: ${selectedModel.value}');
-      print('brand: ${selectedBrand.value}');
-      print('year: ${carModelYear.text.trim()}');
-      print('category: ${selectedVehicleType.value}');
-      print('sub_type: ${selectedSubType.value}');
-      print('fuel_type: ${selectedFuelType.value}');
-      print('transmission: ${selectedTransmission.value}');
-      print('mileage_km: ${carMileage.text.trim()}');
-      print('registration_number: ${registrationNumber.text.trim()}');
+    if (userId == null || userId.isEmpty) {
+      Get.snackbar('Error', 'User session expired. Please login again.');
+      isLoading.value = false;
+      return;
+    }
 
-      // Create multipart request
-      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/vehicles/create'));
+    print('🚗 Adding Vehicle for User: $userId');
+    print('🔑 Access Token: ${accessToken.substring(0, 20)}...');
+
+    // Create multipart request
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/vehicles/create'));
+    
+    // Add headers
+    request.headers['Authorization'] = 'Bearer $accessToken';
+
+    // Add required form fields - ✅ Use the userId we got internally
+    request.fields['user_id'] = userId;
+    request.fields['model'] = selectedModel.value;
+    request.fields['category'] = selectedVehicleType.value;
+    request.fields['fuel_type'] = selectedFuelType.value;
+    request.fields['transmission'] = selectedTransmission.value;
+    request.fields['mileage_km'] = carMileage.text.trim().isEmpty ? '0' : carMileage.text.trim();
+    request.fields['is_primary'] = isPrimary.toString();
+    request.fields['is_active'] = isActive.toString();
+
+    // Add optional fields
+    if (selectedBrand.value.isNotEmpty) {
+      request.fields['brand'] = selectedBrand.value;
+    }
+    if (carModelYear.text.trim().isNotEmpty) {
+      request.fields['year'] = carModelYear.text.trim();
+    }
+    if (selectedSubType.value.isNotEmpty) {
+      request.fields['sub_type'] = selectedSubType.value;
+    }
+    if (registrationNumber.text.trim().isNotEmpty) {
+      request.fields['registration_number'] = registrationNumber.text.trim();
+    }
+
+    // Add image if available (your existing code)
+    if (kIsWeb && imageBytes.value != null) {
+      final multipartFile = http.MultipartFile.fromBytes(
+        'images',
+        imageBytes.value!,
+        filename: 'vehicle_image.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      );
+      request.files.add(multipartFile);
+    } else if (!kIsWeb && image.value != null) {
+      final multipartFile = await http.MultipartFile.fromPath(
+        'images',
+        image.value!.path,
+        contentType: MediaType('image', 'jpeg'),
+      );
+      request.files.add(multipartFile);
+    }
+
+    print('📦 Sending vehicle data for user: $userId');
+
+    // Send the request
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('📡 Response status: ${response.statusCode}');
+    print('📡 Response body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // SUCCESS
+      resetForm();
+      Get.back();
       
-      // Add headers
-      request.headers['Authorization'] = 'Bearer $accessToken';
-
-      // Add required form fields
-      request.fields['user_id'] = userId;
-      request.fields['model'] = selectedModel.value;
-      request.fields['category'] = selectedVehicleType.value;
-      request.fields['fuel_type'] = selectedFuelType.value;
-      request.fields['transmission'] = selectedTransmission.value;
-      request.fields['mileage_km'] = carMileage.text.trim().isEmpty ? '0' : carMileage.text.trim();
-      request.fields['is_primary'] = isPrimary.toString();
-      request.fields['is_active'] = isActive.toString();
-
-      // Add optional fields if they have values
-      if (selectedBrand.value.isNotEmpty) {
-        request.fields['brand'] = selectedBrand.value;
-      }
-      if (carModelYear.text.trim().isNotEmpty) {
-        request.fields['year'] = carModelYear.text.trim();
-      }
-      if (selectedSubType.value.isNotEmpty) {
-        request.fields['sub_type'] = selectedSubType.value;
-      }
-      if (registrationNumber.text.trim().isNotEmpty) {
-        request.fields['registration_number'] = registrationNumber.text.trim();
-      }
-
-      // Add image if available
-      if (kIsWeb && imageBytes.value != null) {
-        final multipartFile = http.MultipartFile.fromBytes(
-          'images',
-          imageBytes.value!,
-          filename: 'vehicle_image.jpg',
-          contentType: MediaType('image', 'jpeg'),
-        );
-        request.files.add(multipartFile);
-        print('📸 Web image added to request');
-      } else if (!kIsWeb && image.value != null) {
-        final multipartFile = await http.MultipartFile.fromPath(
-          'images',
-          image.value!.path,
-          contentType: MediaType('image', 'jpeg'),
-        );
-        request.files.add(multipartFile);
-        print('📸 Mobile image added to request: ${image.value!.path}');
-      }
-
-      print('📦 Sending form data with fields: ${request.fields}');
-
-      // Send the request
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      print('📡 Response status: ${response.statusCode}');
-      print('📡 Response body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // SUCCESS - Clear form and show success message
-        resetForm();
-        Get.back();
-        
-        Get.snackbar(
-          "Success",
-          "Vehicle saved successfully!",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-
-        Get.back();
-        
-        // Refresh the vehicles list
-        await fetchUserVehicles();
-        
-        
-      } else {
-        // Server error
-        String errorMessage = "Failed to save vehicle (Error: ${response.statusCode})";
-        try {
-          final errorData = jsonDecode(response.body);
-          errorMessage = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? errorMessage;
-        } catch (e) {
-          errorMessage = "Server error: ${response.statusCode}\n${response.body}";
-        }
-
-        Get.snackbar(
-          "Error",
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          duration: Duration(seconds: 5),
-        );
-      }
-      
-    } catch (e) {
-      print('❌ Error saving vehicle: $e');
       Get.snackbar(
-        "Error",
-        "Failed to connect to server: ${e.toString()}",
+        "Success",
+        "Vehicle saved successfully!",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-    } finally {
-      isLoading.value = false;
+
+      // Refresh the vehicles list
+      await fetchUserVehicles();
+      
+    } else {
+      // Server error
+      String errorMessage = "Failed to save vehicle";
+      try {
+        final errorData = jsonDecode(response.body);
+        errorMessage = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? errorMessage;
+      } catch (e) {
+        errorMessage = "Server error: ${response.statusCode}";
+      }
+
+      Get.snackbar("Error", errorMessage);
     }
+      
+  } catch (e) {
+    print('❌ Error saving vehicle: $e');
+    Get.snackbar("Error", "Failed to save vehicle: ${e.toString()}");
+  } finally {
+    isLoading.value = false;
   }
+}
+
+
+/// Safe method to get user ID with proper validation
+Future<String?> getValidUserId() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    
+    if (userId == null || userId.isEmpty) {
+      print('❌ No user ID found in storage');
+      return null;
+    }
+    
+    // ✅ Validate MongoDB ObjectId format
+    final isValidObjectId = RegExp(r'^[a-fA-F0-9]{24}$').hasMatch(userId);
+    if (!isValidObjectId) {
+      print('❌ Invalid user ID format: $userId');
+      return null;
+    }
+    
+    print('✅ Valid User ID: $userId');
+    return userId;
+  } catch (e) {
+    print('❌ Error getting user ID: $e');
+    return null;
+  }
+}
+
+// Future<void> saveVehicle({
+//   required String userId,
+//   required bool isPrimary,
+//   required bool isActive,
+// }) async {
+//   isLoading.value = true;
+
+//   try {
+//     final prefs = await SharedPreferences.getInstance();
+//     final accessToken = prefs.getString('access_token');
+    
+//     // ✅ ENHANCED: Get user ID from SharedPreferences if not provided
+//     String actualUserId = userId;
+//     if (actualUserId.isEmpty) {
+//       actualUserId = prefs.getString('user_id') ?? '';
+//     }
+
+//     if (accessToken == null) {
+//       Get.snackbar('Error', 'No authentication token found');
+//       isLoading.value = false;
+//       return;
+//     }
+
+//     if (actualUserId.isEmpty) {
+//       Get.snackbar('Error', 'User not logged in properly. Please login again.');
+//       isLoading.value = false;
+//       return;
+//     }
+
+//     // Debug: Print all form data
+//     print('📋 Vehicle Data to be sent:');
+//     print('user_id: $actualUserId'); // ✅ Use actualUserId
+//     print('model: ${selectedModel.value}');
+//     print('brand: ${selectedBrand.value}');
+//     // ... rest of your existing debug code
+
+//     // Create multipart request
+//     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/vehicles/create'));
+    
+//     // Add headers
+//     request.headers['Authorization'] = 'Bearer $accessToken';
+
+//     // ✅ Use actualUserId instead of userId parameter
+//     request.fields['user_id'] = actualUserId;
+//     request.fields['model'] = selectedModel.value;
+//     // ... rest of your existing fields
+
+//     // ... rest of your existing saveVehicle method
+//   } catch (e) {
+//     // ... your existing error handling
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
+
+
+
+
+// Add this method to VehicleController
+Future<String?> getCurrentUserId() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    
+    if (userId == null || userId.isEmpty) {
+      print('❌ No user ID found in SharedPreferences');
+      return null;
+    }
+    
+    print('✅ Current User ID: $userId');
+    return userId;
+  } catch (e) {
+    print('❌ Error getting user ID: $e');
+    return null;
+  }
+}
+  // Future<void> saveVehicle({
+  //   required String userId,
+  //   required bool isPrimary,
+  //   required bool isActive,
+  // }) async {
+  //   isLoading.value = true;
+
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final accessToken = prefs.getString('access_token');
+
+  //     if (accessToken == null) {
+  //       Get.snackbar('Error', 'No authentication token found');
+  //       isLoading.value = false;
+  //       return;
+  //     }
+
+  //     // Debug: Print all form data
+  //     print('📋 Vehicle Data to be sent:');
+  //     print('user_id: $userId');
+  //     print('model: ${selectedModel.value}');
+  //     print('brand: ${selectedBrand.value}');
+  //     print('year: ${carModelYear.text.trim()}');
+  //     print('category: ${selectedVehicleType.value}');
+  //     print('sub_type: ${selectedSubType.value}');
+  //     print('fuel_type: ${selectedFuelType.value}');
+  //     print('transmission: ${selectedTransmission.value}');
+  //     print('mileage_km: ${carMileage.text.trim()}');
+  //     print('registration_number: ${registrationNumber.text.trim()}');
+
+  //     // Create multipart request
+  //     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/vehicles/create'));
+      
+  //     // Add headers
+  //     request.headers['Authorization'] = 'Bearer $accessToken';
+
+  //     // Add required form fields
+  //     request.fields['user_id'] = userId;
+  //     request.fields['model'] = selectedModel.value;
+  //     request.fields['category'] = selectedVehicleType.value;
+  //     request.fields['fuel_type'] = selectedFuelType.value;
+  //     request.fields['transmission'] = selectedTransmission.value;
+  //     request.fields['mileage_km'] = carMileage.text.trim().isEmpty ? '0' : carMileage.text.trim();
+  //     request.fields['is_primary'] = isPrimary.toString();
+  //     request.fields['is_active'] = isActive.toString();
+
+  //     // Add optional fields if they have values
+  //     if (selectedBrand.value.isNotEmpty) {
+  //       request.fields['brand'] = selectedBrand.value;
+  //     }
+  //     if (carModelYear.text.trim().isNotEmpty) {
+  //       request.fields['year'] = carModelYear.text.trim();
+  //     }
+  //     if (selectedSubType.value.isNotEmpty) {
+  //       request.fields['sub_type'] = selectedSubType.value;
+  //     }
+  //     if (registrationNumber.text.trim().isNotEmpty) {
+  //       request.fields['registration_number'] = registrationNumber.text.trim();
+  //     }
+
+  //     // Add image if available
+  //     if (kIsWeb && imageBytes.value != null) {
+  //       final multipartFile = http.MultipartFile.fromBytes(
+  //         'images',
+  //         imageBytes.value!,
+  //         filename: 'vehicle_image.jpg',
+  //         contentType: MediaType('image', 'jpeg'),
+  //       );
+  //       request.files.add(multipartFile);
+  //       print('📸 Web image added to request');
+  //     } else if (!kIsWeb && image.value != null) {
+  //       final multipartFile = await http.MultipartFile.fromPath(
+  //         'images',
+  //         image.value!.path,
+  //         contentType: MediaType('image', 'jpeg'),
+  //       );
+  //       request.files.add(multipartFile);
+  //       print('📸 Mobile image added to request: ${image.value!.path}');
+  //     }
+
+  //     print('📦 Sending form data with fields: ${request.fields}');
+
+  //     // Send the request
+  //     final streamedResponse = await request.send();
+  //     final response = await http.Response.fromStream(streamedResponse);
+
+  //     print('📡 Response status: ${response.statusCode}');
+  //     print('📡 Response body: ${response.body}');
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       // SUCCESS - Clear form and show success message
+  //       resetForm();
+  //       Get.back();
+        
+  //       Get.snackbar(
+  //         "Success",
+  //         "Vehicle saved successfully!",
+  //         snackPosition: SnackPosition.BOTTOM,
+  //         backgroundColor: Colors.green,
+  //         colorText: Colors.white,
+  //       );
+
+  //       Get.back();
+        
+  //       // Refresh the vehicles list
+  //       await fetchUserVehicles();
+        
+        
+  //     } else {
+  //       // Server error
+  //       String errorMessage = "Failed to save vehicle (Error: ${response.statusCode})";
+  //       try {
+  //         final errorData = jsonDecode(response.body);
+  //         errorMessage = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? errorMessage;
+  //       } catch (e) {
+  //         errorMessage = "Server error: ${response.statusCode}\n${response.body}";
+  //       }
+
+  //       Get.snackbar(
+  //         "Error",
+  //         errorMessage,
+  //         snackPosition: SnackPosition.BOTTOM,
+  //         backgroundColor: Colors.red,
+  //         colorText: Colors.white,
+  //         duration: Duration(seconds: 5),
+  //       );
+  //     }
+      
+  //   } catch (e) {
+  //     print('❌ Error saving vehicle: $e');
+  //     Get.snackbar(
+  //       "Error",
+  //       "Failed to connect to server: ${e.toString()}",
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       colorText: Colors.white,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   // FIXED API CALL - Use the correct endpoint
 Future<List<dynamic>> getUserVehicles(String userId) async {
@@ -306,28 +533,54 @@ Future<List<dynamic>> _tryAlternativeEndpoints(String userId, String accessToken
   
   throw Exception('No working endpoint found for fetching vehicles');
 }
-  Future<void> fetchUserVehicles() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString("user_id");
 
-      if (userId == null) {
-        throw Exception("No userId found in storage");
-      }
 
-      await getUserVehicles(userId);
-    } catch (e) {
-      print("❌ fetchUserVehicles error: $e");
-      // Show error to user
-      Get.snackbar(
-        "Error",
-        "Failed to load vehicles: ${e.toString()}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+
+Future<void> fetchUserVehicles() async {
+  try {
+    // ✅ ENHANCED: Use the safe method to get user ID
+    final userId = await getCurrentUserId();
+
+    if (userId == null) {
+      throw Exception("User not logged in properly. Please login again.");
     }
+
+    await getUserVehicles(userId);
+  } catch (e) {
+    print("❌ fetchUserVehicles error: $e");
+    // Show error to user
+    Get.snackbar(
+      "Error",
+      "Failed to load vehicles: ${e.toString()}",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
   }
+}
+
+  // Future<void> fetchUserVehicles() async {
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final userId = prefs.getString("user_id");
+
+  //     if (userId == null) {
+  //       throw Exception("No userId found in storage");
+  //     }
+
+  //     await getUserVehicles(userId);
+  //   } catch (e) {
+  //     print("❌ fetchUserVehicles error: $e");
+  //     // Show error to user
+  //     Get.snackbar(
+  //       "Error",
+  //       "Failed to load vehicles: ${e.toString()}",
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       colorText: Colors.white,
+  //     );
+  //   }
+  // }
  
 
   void _debugJsonBody(String jsonBody) {

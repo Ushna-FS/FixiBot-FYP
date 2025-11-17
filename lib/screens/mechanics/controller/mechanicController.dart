@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/model/mechanicModel.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
@@ -33,8 +34,8 @@ class MechanicController extends GetxController {
   // Track successful service creation locally
   var locallyCreatedServices = <Map<String, dynamic>>[].obs;
 
-  // String apiUrl = 'https://chalky-anjelica-bovinely.ngrok-free.dev/mechanics';
-  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+final baseUrl  = AppConfig.baseUrl;
+  // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
 
   @override
   void onInit() {

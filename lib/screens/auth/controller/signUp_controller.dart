@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
 import 'package:get/get.dart';
@@ -26,9 +27,8 @@ class SignupController extends GetxController {
   final canResendEmail = true.obs;
   final cooldownSeconds = 0.obs;
 
-  // API Base URL
-  //final String baseUrl = "http://10.135.54.128:8000";
-   final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  //  final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+final baseUrl  = AppConfig.baseUrl;
 
   Timer? _cooldownTimer;
 

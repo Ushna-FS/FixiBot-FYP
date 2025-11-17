@@ -27,12 +27,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userEmail = "email@email.com";
   String userName = 'Guest';
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserInfo();
-    _debugCurrentState();
-  }
+// In ProfileScreen.dart - Update initState to refresh data
+@override
+void initState() {
+  super.initState();
+  _loadUserInfo();
+  _debugCurrentState();
+  
+  // Listen for login events to refresh profile data
+  ever(userController.userId, (String userId) {
+    if (userId.isNotEmpty) {
+      print('🔄 User ID changed, refreshing profile data...');
+      _loadUserInfo();
+    }
+  });
+}
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadUserInfo();
+  //   _debugCurrentState();
+  // }
 
   Future<void> _loadUserInfo() async {
     print('🔄 Loading user info for profile screen...');
