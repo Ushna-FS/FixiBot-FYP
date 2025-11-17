@@ -57,90 +57,171 @@ class GoogleSignInController extends GetxController {
     }
   }
 
-  /// Main Sign-In Method with comprehensive error handling
-  Future<void> signInWithGoogle() async {
-    try {
-      isLoading.value = true;
-      print("🔄 Starting Google Sign-In process...");
 
-      // Check platform support
-      if (!await _checkGoogleSignInSupport()) {
-        throw Exception("Google Sign-In not supported on this platform");
-      }
+  /// Enhanced Main Sign-In Method with fallbacks
+Future<void> signInWithGoogle() async {
+  try {
+    isLoading.value = true;
+    print("🔄 Starting Google Sign-In process...");
 
-      // Initialize if needed
-      if (_googleSignIn == null) {
-        _initializeGoogleSignIn();
-      }
-
-      print("1️⃣ Triggering Google sign-in UI...");
-      
-      // 1. Trigger Google sign-in flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        print("❌ User cancelled Google Sign-In");
-        isLoading.value = false;
-        return;
-      }
-
-      print("✅ Google user obtained: ${googleUser.email}");
-
-      print("2️⃣ Getting authentication tokens...");
-      // 2. Get authentication object
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      // 3. Get the idToken (this is what we send to backend)
-      final String? idToken = googleAuth.idToken;
-      final String? accessToken = googleAuth.accessToken;
-
-      print("🔑 ID Token: ${idToken != null ? 'Received' : 'NULL'}");
-      print("🔑 Access Token: ${accessToken != null ? 'Received' : 'NULL'}");
-
-      if (idToken == null) {
-        throw Exception("Google ID Token was null - authentication failed");
-      }
-
-      print("3️⃣ Sending token to backend...");
-      // 4. Send token to backend for verification
-      final bool loginSuccess = await _sendTokenToBackend(idToken, googleUser);
-
-      if (loginSuccess) {
-        await _handleSuccessfulLogin(googleUser);
-      } else {
-        throw Exception("Backend authentication failed");
-      }
-
-    } catch (error) {
-      print("❌ Error during Google Sign-In: $error");
-      print("❌ Error type: ${error.runtimeType}");
-      print("❌ Stack trace: ${error.toString()}");
-      
-      // Enhanced error handling
-      String errorMessage = "Unable to sign in with Google. Please try again.";
-      
-      if (error.toString().contains('MissingPluginException')) {
-        errorMessage = "Google Sign-In is not available on this device. Please check if Google Play Services are installed.";
-      } else if (error.toString().contains('network') || error.toString().contains('SocketException')) {
-        errorMessage = "Network error. Please check your internet connection.";
-      } else if (error.toString().contains('sign_in_failed') || error.toString().contains('sign_in_canceled')) {
-        errorMessage = "Google Sign-In was cancelled or failed. Please try again.";
-      } else if (error.toString().contains('INVALID_CREDENTIALS')) {
-        errorMessage = "Invalid Google account credentials. Please check your account.";
-      }
-      
-      Get.snackbar(
-        "Sign In Failed", 
-        errorMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: Duration(seconds: 5),
-      );
-    } finally {
-      isLoading.value = false;
+    // Initialize if needed
+    if (_googleSignIn == null) {
+      _initializeGoogleSignIn();
     }
+
+    print("1️⃣ Triggering Google sign-in UI...");
+    
+    // 1. Trigger Google sign-in flow
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+    if (googleUser == null) {
+      print("❌ User cancelled Google Sign-In");
+      isLoading.value = false;
+      return;
+    }
+
+    print("✅ Google user obtained: ${googleUser.email}");
+
+    // 2. Get authentication object
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final String? idToken = googleAuth.idToken;
+
+    if (idToken == null) {
+      throw Exception("Google ID Token was null - authentication failed");
+    }
+
+    print("3️⃣ Attempting backend authentication...");
+    
+    // Try the enhanced method first
+    bool success = await _sendTokenToBackendEnhanced(idToken, googleUser);
+    
+    if (!success) {
+      // Fallback to original method
+      print("🔄 Falling back to original method...");
+      success = await _sendTokenToBackendEnhanced(idToken, googleUser);
+    }
+
+    if (success) {
+      await _handleSuccessfulLogin(googleUser);
+    } else {
+      throw Exception("All authentication methods failed");
+    }
+
+  } catch (error) {
+    print("❌ Error during Google Sign-In: $error");
+    
+    // More specific error handling
+    String errorMessage = "Unable to sign in with Google. Please try again.";
+    
+    if (error.toString().contains('400')) {
+      errorMessage = "Invalid request. Please contact support.";
+    } else if (error.toString().contains('422')) {
+      errorMessage = "Validation error. Please check your Google account.";
+    } else if (error.toString().contains('500')) {
+      errorMessage = "Server error. Please try again later.";
+    } else if (error.toString().contains('No access token')) {
+      errorMessage = "Authentication failed. Please try again.";
+    } else if (error.toString().contains('network') || error.toString().contains('SocketException')) {
+      errorMessage = "Network error. Please check your internet connection.";
+    }
+    
+    Get.snackbar(
+      "Sign In Failed", 
+      errorMessage,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: Duration(seconds: 5),
+    );
+  } finally {
+    isLoading.value = false;
   }
+}
+
+  // /// Main Sign-In Method with comprehensive error handling
+  // Future<void> signInWithGoogle() async {
+  //   try {
+  //     isLoading.value = true;
+  //     print("🔄 Starting Google Sign-In process...");
+
+  //     // Check platform support
+  //     if (!await _checkGoogleSignInSupport()) {
+  //       throw Exception("Google Sign-In not supported on this platform");
+  //     }
+
+  //     // Initialize if needed
+  //     if (_googleSignIn == null) {
+  //       _initializeGoogleSignIn();
+  //     }
+
+  //     print("1️⃣ Triggering Google sign-in UI...");
+      
+  //     // 1. Trigger Google sign-in flow
+  //     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+  //     if (googleUser == null) {
+  //       print("❌ User cancelled Google Sign-In");
+  //       isLoading.value = false;
+  //       return;
+  //     }
+
+  //     print("✅ Google user obtained: ${googleUser.email}");
+
+  //     print("2️⃣ Getting authentication tokens...");
+  //     // 2. Get authentication object
+  //     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+  //     // 3. Get the idToken (this is what we send to backend)
+  //     final String? idToken = googleAuth.idToken;
+  //     final String? accessToken = googleAuth.accessToken;
+
+  //     print("🔑 ID Token: ${idToken != null ? 'Received' : 'NULL'}");
+  //     print("🔑 Access Token: ${accessToken != null ? 'Received' : 'NULL'}");
+
+  //     if (idToken == null) {
+  //       throw Exception("Google ID Token was null - authentication failed");
+  //     }
+
+  //     print("3️⃣ Sending token to backend...");
+  //     // 4. Send token to backend for verification
+  //     final bool loginSuccess = await _sendTokenToBackend(idToken, googleUser);
+
+  //     if (loginSuccess) {
+  //       await _handleSuccessfulLogin(googleUser);
+  //     } else {
+  //       throw Exception("Backend authentication failed");
+  //     }
+
+  //   } catch (error) {
+  //     print("❌ Error during Google Sign-In: $error");
+  //     print("❌ Error type: ${error.runtimeType}");
+  //     print("❌ Stack trace: ${error.toString()}");
+      
+  //     // Enhanced error handling
+  //     String errorMessage = "Unable to sign in with Google. Please try again.";
+      
+  //     if (error.toString().contains('MissingPluginException')) {
+  //       errorMessage = "Google Sign-In is not available on this device. Please check if Google Play Services are installed.";
+  //     } else if (error.toString().contains('network') || error.toString().contains('SocketException')) {
+  //       errorMessage = "Network error. Please check your internet connection.";
+  //     } else if (error.toString().contains('sign_in_failed') || error.toString().contains('sign_in_canceled')) {
+  //       errorMessage = "Google Sign-In was cancelled or failed. Please try again.";
+  //     } else if (error.toString().contains('INVALID_CREDENTIALS')) {
+  //       errorMessage = "Invalid Google account credentials. Please check your account.";
+  //     }
+      
+  //     Get.snackbar(
+  //       "Sign In Failed", 
+  //       errorMessage,
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       colorText: Colors.white,
+  //       duration: Duration(seconds: 5),
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   /// Check if Google Sign-In is supported on this platform
   Future<bool> _checkGoogleSignInSupport() async {
@@ -157,184 +238,300 @@ class GoogleSignInController extends GetxController {
 
 
 
-
-/// Send token to backend and handle response
-Future<bool> _sendTokenToBackend(String googleIdToken, GoogleSignInAccount googleUser) async {
+/// Alternative method with more user data
+Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccount googleUser) async {
   final url = Uri.parse("$_baseUrl/auth/google");
 
   try {
-    print("📡 Sending POST request to: $url");
-    print("📦 Payload: {token: $googleIdToken}");
+    print("📡 Sending enhanced POST request to: $url");
+    
+    // Prepare the request payload with additional user info
+    final Map<String, dynamic> payload = {
+      "token": googleIdToken,
+      "user_info": {
+        "email": googleUser.email,
+        "name": googleUser.displayName,
+        "photo_url": googleUser.photoUrl,
+      }
+    };
+
+    print("📦 Enhanced Payload: ${json.encode(payload)}");
 
     final response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
       },
-      body: json.encode({
-        "token": googleIdToken,
-      }),
+      body: json.encode(payload),
     ).timeout(Duration(seconds: 30));
 
     print("📨 Backend response status: ${response.statusCode}");
     print("📨 Backend response body: ${response.body}");
 
-    if (response.statusCode == 200) {
-      // Success! Parse the response
+    // Handle successful response
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final Map<String, dynamic> responseData = json.decode(response.body);
-      
-      // Extract access token and user data
       final String? accessToken = responseData['access_token'];
       final Map<String, dynamic>? userData = responseData['user'];
 
       if (accessToken == null) {
-        print("❌ No access token in backend response");
-        return false;
+        throw Exception("No access token received");
       }
 
-      print("✅ Backend authentication successful");
-      print("🔑 App Access Token: $accessToken");
-      print("👤 User Data: $userData");
-
-      // Store the backend access token
+      print("✅ Authentication successful");
+      
+      // Store data
       await _sharedPrefs.saveAccessToken(accessToken);
       
-      // Store user data - use data from backend if available, otherwise from Google
       if (userData != null) {
         await _storeUserDataFromBackend(userData);
       } else {
         await _storeUserDataFromGoogle(googleUser);
       }
 
-      // Update UserController with the user data
       await _updateUserController(googleUser, userData);
-
       return true;
-
-    } else if (response.statusCode == 201) {
-      // Handle 201 Created (new user registered)
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      final String? accessToken = responseData['access_token'];
-      final Map<String, dynamic>? userData = responseData['user'];
-
-      if (accessToken == null) {
-        print("❌ No access token in backend response (201)");
-        return false;
-      }
-
-      print("✅ New user registered successfully");
-      print("🔑 App Access Token: $accessToken");
-      print("👤 User Data: $userData");
-
-      // Store the backend access token
-      await _sharedPrefs.saveAccessToken(accessToken);
-      
-      // Store user data
-      if (userData != null) {
-        await _storeUserDataFromBackend(userData);
-      } else {
-        await _storeUserDataFromGoogle(googleUser);
-      }
-
-      // Update UserController with the user data
-      await _updateUserController(googleUser, userData);
-
-      return true;
-
     } else {
-      // Handle backend errors
-      print("❌ Backend login failed. Status: ${response.statusCode}");
-      
-      // Try to parse error message
-      try {
-        final errorData = json.decode(response.body);
-        final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? response.body;
-        throw Exception("Backend error: $errorMsg");
-      } catch (e) {
-        throw Exception("Backend returned status ${response.statusCode}");
-      }
+      // Parse and throw detailed error
+      final errorData = json.decode(response.body);
+      final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? "Unknown error";
+      throw Exception("Error ${response.statusCode}: $errorMsg");
     }
   } catch (error) {
-    print("❌ Error sending token to backend: $error");
+    print("❌ Enhanced method error: $error");
     rethrow;
   }
 }
 
 
 
+/// Send token to backend and handle response - ENHANCED DEBUGGING VERSION
+// Future<bool> _sendTokenToBackend(String googleIdToken, GoogleSignInAccount googleUser) async {
+//   final url = Uri.parse("$_baseUrl/auth/google");
+
+//   try {
+//     print("📡 Sending POST request to: $url");
+//     print("📦 Payload: {token: $googleIdToken}");
+//     print("👤 Google User Email: ${googleUser.email}");
+//     print("👤 Google User Name: ${googleUser.displayName}");
+
+//     final response = await http.post(
+//       url,
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: json.encode({
+//         "token": googleIdToken,
+//       }),
+//     ).timeout(Duration(seconds: 30));
+
+//     print("📨 Backend response status: ${response.statusCode}");
+//     print("📨 Backend response headers: ${response.headers}");
+//     print("📨 Backend response body: ${response.body}");
+
+//     // Handle successful responses (200 OK)
+//     if (response.statusCode == 200) {
+//       // Success! Parse the response
+//       final Map<String, dynamic> responseData = json.decode(response.body);
+      
+//       // Extract access token and user data
+//       final String? accessToken = responseData['access_token'];
+//       final Map<String, dynamic>? userData = responseData['user'];
+
+//       if (accessToken == null) {
+//         print("❌ No access token in backend response");
+//         throw Exception("Authentication failed: No access token received");
+//       }
+
+//       print("✅ Backend authentication successful");
+//       print("🔑 App Access Token: $accessToken");
+//       print("👤 User Data: $userData");
+
+//       // Store the backend access token
+//       await _sharedPrefs.saveAccessToken(accessToken);
+      
+//       // Store user data - use data from backend if available, otherwise from Google
+//       if (userData != null) {
+//         await _storeUserDataFromBackend(userData);
+//       } else {
+//         await _storeUserDataFromGoogle(googleUser);
+//       }
+
+//       // Update UserController with the user data
+//       await _updateUserController(googleUser, userData);
+
+//       return true;
+
+//     } 
+//     // Handle user creation (201 Created) - if your backend uses this
+//     else if (response.statusCode == 201) {
+//       final Map<String, dynamic> responseData = json.decode(response.body);
+//       final String? accessToken = responseData['access_token'];
+//       final Map<String, dynamic>? userData = responseData['user'];
+
+//       if (accessToken == null) {
+//         print("❌ No access token in backend response (201)");
+//         throw Exception("Registration failed: No access token received");
+//       }
+
+//       print("✅ New user registered successfully");
+//       print("🔑 App Access Token: $accessToken");
+//       print("👤 User Data: $userData");
+
+//       // Store the backend access token
+//       await _sharedPrefs.saveAccessToken(accessToken);
+      
+//       // Store user data
+//       if (userData != null) {
+//         await _storeUserDataFromBackend(userData);
+//       } else {
+//         await _storeUserDataFromGoogle(googleUser);
+//       }
+
+//       // Update UserController with the user data
+//       await _updateUserController(googleUser, userData);
+
+//       return true;
+
+//     }
+//     // Handle 400 Bad Request (common for validation errors)
+//     else if (response.statusCode == 400) {
+//       final Map<String, dynamic> errorData = json.decode(response.body);
+//       final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? "Bad request";
+//       throw Exception("Bad request: $errorMsg");
+//     }
+//     // Handle 422 Validation Error
+//     else if (response.statusCode == 422) {
+//       final Map<String, dynamic> errorData = json.decode(response.body);
+//       final errorMsg = errorData['detail'] ?? "Validation error";
+//       throw Exception("Validation error: $errorMsg");
+//     }
+//     // Handle 500 Internal Server Error
+//     else if (response.statusCode == 500) {
+//       throw Exception("Server error: Please try again later");
+//     }
+//     // Handle all other status codes
+//     else {
+//       // Try to parse error message
+//       try {
+//         final errorData = json.decode(response.body);
+//         final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? "Unknown error";
+//         throw Exception("Backend error (${response.statusCode}): $errorMsg");
+//       } catch (e) {
+//         throw Exception("Backend returned status ${response.statusCode}: ${response.body}");
+//       }
+//     }
+//   } catch (error) {
+//     print("❌ Error sending token to backend: $error");
+//     print("❌ Error type: ${error.runtimeType}");
+//     rethrow;
+//   }
+// }
 
 
 
+// /// Send token to backend and handle response
+// Future<bool> _sendTokenToBackend(String googleIdToken, GoogleSignInAccount googleUser) async {
+//   final url = Uri.parse("$_baseUrl/auth/google");
 
+//   try {
+//     print("📡 Sending POST request to: $url");
+//     print("📦 Payload: {token: $googleIdToken}");
 
-  // /// Send token to backend and handle response
-  // Future<bool> _sendTokenToBackend(String googleIdToken, GoogleSignInAccount googleUser) async {
-  //   final url = Uri.parse("$_baseUrl/auth/google");
+//     final response = await http.post(
+//       url,
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: json.encode({
+//         "token": googleIdToken,
+//       }),
+//     ).timeout(Duration(seconds: 30));
 
-  //   try {
-  //     print("📡 Sending POST request to: $url");
-  //     print("📦 Payload: {token: $googleIdToken}");
+//     print("📨 Backend response status: ${response.statusCode}");
+//     print("📨 Backend response body: ${response.body}");
 
-  //     final response = await http.post(
-  //       url,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: json.encode({
-  //         "token": googleIdToken,
-  //       }),
-  //     ).timeout(Duration(seconds: 30));
+//     if (response.statusCode == 200) {
+//       // Success! Parse the response
+//       final Map<String, dynamic> responseData = json.decode(response.body);
+      
+//       // Extract access token and user data
+//       final String? accessToken = responseData['access_token'];
+//       final Map<String, dynamic>? userData = responseData['user'];
 
-  //     print("📨 Backend response status: ${response.statusCode}");
-  //     print("📨 Backend response body: ${response.body}");
+//       if (accessToken == null) {
+//         print("❌ No access token in backend response");
+//         return false;
+//       }
 
-  //     if (response.statusCode == 200) {
-  //       // Success! Parse the response
-  //       final Map<String, dynamic> responseData = json.decode(response.body);
-        
-  //       // Extract access token and user data
-  //       final String? accessToken = responseData['access_token'];
-  //       final Map<String, dynamic>? userData = responseData['user'];
+//       print("✅ Backend authentication successful");
+//       print("🔑 App Access Token: $accessToken");
+//       print("👤 User Data: $userData");
 
-  //       if (accessToken == null) {
-  //         print("❌ No access token in backend response");
-  //         return false;
-  //       }
+//       // Store the backend access token
+//       await _sharedPrefs.saveAccessToken(accessToken);
+      
+//       // Store user data - use data from backend if available, otherwise from Google
+//       if (userData != null) {
+//         await _storeUserDataFromBackend(userData);
+//       } else {
+//         await _storeUserDataFromGoogle(googleUser);
+//       }
 
-  //       print("✅ Backend authentication successful");
-  //       print("🔑 App Access Token: $accessToken");
-  //       print("👤 User Data: $userData");
+//       // Update UserController with the user data
+//       await _updateUserController(googleUser, userData);
 
-  //       // Store the backend access token
-  //       await _sharedPrefs.saveAccessToken(accessToken);
-        
-  //       // Store user data - use data from backend if available, otherwise from Google
-  //       if (userData != null) {
-  //         await _storeUserDataFromBackend(userData);
-  //       } else {
-  //         await _storeUserDataFromGoogle(googleUser);
-  //       }
+//       return true;
 
-  //       return true;
+//     } else if (response.statusCode == 201) {
+//       // Handle 201 Created (new user registered)
+//       final Map<String, dynamic> responseData = json.decode(response.body);
+//       final String? accessToken = responseData['access_token'];
+//       final Map<String, dynamic>? userData = responseData['user'];
 
-  //     } else {
-  //       // Handle backend errors
-  //       print("❌ Backend login failed. Status: ${response.statusCode}");
-        
-  //       // Try to parse error message
-  //       try {
-  //         final errorData = json.decode(response.body);
-  //         final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? response.body;
-  //         throw Exception("Backend error: $errorMsg");
-  //       } catch (e) {
-  //         throw Exception("Backend returned status ${response.statusCode}");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     print("❌ Error sending token to backend: $error");
-  //     rethrow;
-  //   }
-  // }
+//       if (accessToken == null) {
+//         print("❌ No access token in backend response (201)");
+//         return false;
+//       }
+
+//       print("✅ New user registered successfully");
+//       print("🔑 App Access Token: $accessToken");
+//       print("👤 User Data: $userData");
+
+//       // Store the backend access token
+//       await _sharedPrefs.saveAccessToken(accessToken);
+      
+//       // Store user data
+//       if (userData != null) {
+//         await _storeUserDataFromBackend(userData);
+//       } else {
+//         await _storeUserDataFromGoogle(googleUser);
+//       }
+
+//       // Update UserController with the user data
+//       await _updateUserController(googleUser, userData);
+
+//       return true;
+
+//     } else {
+//       // Handle backend errors
+//       print("❌ Backend login failed. Status: ${response.statusCode}");
+      
+//       // Try to parse error message
+//       try {
+//         final errorData = json.decode(response.body);
+//         final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? response.body;
+//         throw Exception("Backend error: $errorMsg");
+//       } catch (e) {
+//         throw Exception("Backend returned status ${response.statusCode}");
+//       }
+//     }
+//   } catch (error) {
+//     print("❌ Error sending token to backend: $error");
+//     rethrow;
+//   }
+// }
+
 
   /// Store user data from backend response
   Future<void> _storeUserDataFromBackend(Map<String, dynamic> userData) async {
@@ -416,31 +613,6 @@ Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser, {Map<String,
   );
 }
 
-
-
-
-
-  // /// Handle successful login
-  // Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser) async {
-  //   isLoggedIn.value = true;
-    
-  //   print("🎉 Google Sign-In Successful!");
-  //   print("👤 User: ${googleUser.displayName}");
-  //   print("📧 Email: ${googleUser.email}");
-
-  //   // Navigate to home screen
-  //   Get.offAllNamed(AppRoutes.home);
-    
-  //   // Show success message
-  //   Get.snackbar(
-  //     "Welcome!", 
-  //     "Signed in as ${googleUser.displayName ?? 'User'}",
-  //     snackPosition: SnackPosition.BOTTOM,
-  //     backgroundColor: Colors.green,
-  //     colorText: Colors.white,
-  //     duration: Duration(seconds: 3),
-  //   );
-  // }
 
   // Add this method to your GoogleSignInController
 Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, dynamic>? userData) async {
@@ -939,36 +1111,3 @@ Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, d
 //   }
 // }
 
-//   Future<void> signInWithGoogle() async {
-//     try {
-//       isLoading.value = true;
-//       final credentials = await _googleSignIn.signIn();
-//       if (credentials == null) return;
-
-//       // You now have an accessToken and ID token in credentials
-//       final idToken = credentials.idToken;
-
-//       final response = await http.post(
-//         Uri.parse("$baseUrl/auth/google"),
-//         headers: {"Content-Type": "application/json"},
-//         body: jsonEncode({"token": idToken}),
-//       );
-
-//       if (response.statusCode == 200) {
-//         final data = jsonDecode(response.body);
-//         await _sharedPrefs.saveString("access_token", data["access_token"]);
-//         await _sharedPrefs.saveString("email", data["email"] ?? "");
-//         Get.offAllNamed(AppRoutes.home);
-//       } else {
-//         throw Exception("Google login failed: ${response.body}");
-//       }
-//     } catch (e) {
-//       Get.snackbar("Error", e.toString(),
-//           snackPosition: SnackPosition.BOTTOM,
-//           backgroundColor: Colors.red,
-//           colorText: Colors.white);
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   }
-// }
