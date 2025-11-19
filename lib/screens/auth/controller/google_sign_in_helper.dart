@@ -19,9 +19,6 @@ class GoogleSignInController extends GetxController {
       "577923430113-5el4v5guab66f4tvmeukhmalfeju0obv.apps.googleusercontent.com";
 
   final baseUrl  = AppConfig.baseUrl;
-  // Your backend base URL
-  // static const String _baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
-
   late GoogleSignIn _googleSignIn;
 
   @override
@@ -597,7 +594,8 @@ Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser, {Map<String,
   }
 }
 
-  // Add this method to your GoogleSignInController
+
+/// Smart profile image detection with persistent custom image support
 Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, dynamic>? userData) async {
   try {
     final UserController userController = Get.find<UserController>();
@@ -606,16 +604,58 @@ Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, d
     String userEmail = googleUser.email;
     String? profileImageUrl;
     
-    // Priority: Backend data > Google data > Fallback
     if (userData != null) {
       userName = userData['name'] ?? userData['full_name'] ?? googleUser.displayName ?? 'Google User';
-      profileImageUrl = userData['picture'] ?? userData['profile_image_url'] ?? googleUser.photoUrl;
+      profileImageUrl = userData['profile_image']?.toString();
+      
+      print("🔍 Profile image analysis:");
+      print("   - Backend provided: $profileImageUrl");
+      
+      // ✅ CRITICAL FIX: Check if we have a stored custom image that should override backend
+      final String? storedCustomImage = await _getStoredCustomImage();
+      print("   - Stored custom image: $storedCustomImage");
+      
+      if (storedCustomImage != null && storedCustomImage.isNotEmpty) {
+        // We have a custom image stored - use it instead of backend image
+        profileImageUrl = storedCustomImage;
+        print("✅ Using stored custom profile image instead of backend image");
+      } else if (_isCustomProfileImage(profileImageUrl)) {
+        // Backend already has a custom image
+        print("✅ Using custom profile image from backend");
+        // Store it for future use
+        if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+          await storeCustomProfileImage(profileImageUrl);
+        }
+      } else if (profileImageUrl != null && profileImageUrl.isNotEmpty && _isGoogleImage(profileImageUrl)) {
+        // Backend has Google image - check if we should keep using a previous custom image
+        print("ℹ️ Backend returned Google image, checking for custom image preference...");
+        
+        // If user previously had a custom image, we should preserve that preference
+        final bool hasCustomImageHistory = await _hasCustomImageHistory();
+        if (hasCustomImageHistory) {
+          // Try to get the custom image from various sources
+          final String? previousCustomImage = await _getPreviousCustomImage();
+          if (previousCustomImage != null && previousCustomImage.isNotEmpty) {
+            profileImageUrl = previousCustomImage;
+            print("✅ Restoring previous custom image: $profileImageUrl");
+          }
+        }
+      } else if (profileImageUrl == null || profileImageUrl.isEmpty) {
+        // Fallback to Google image
+        profileImageUrl = googleUser.photoUrl;
+        print("ℹ️ Using Google profile image as fallback");
+      }
     } else {
       userName = googleUser.displayName ?? 'Google User';
-      profileImageUrl = googleUser.photoUrl;
+      // Check for stored custom image first
+      final String? storedCustomImage = await _getStoredCustomImage();
+      profileImageUrl = storedCustomImage ?? googleUser.photoUrl;
+      print(storedCustomImage != null 
+          ? "✅ Using stored custom image (no backend data)" 
+          : "ℹ️ Using Google profile image (no backend data)");
     }
     
-    print('👤 Updating UserController with Google data:');
+    print('👤 Final UserController update:');
     print('   Name: $userName');
     print('   Email: $userEmail');
     print('   Profile Image: $profileImageUrl');
@@ -627,10 +667,172 @@ Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, d
       profileImageUrl: profileImageUrl
     );
     
+    // Ensure the custom image is properly stored for future logins
+    if (_isCustomProfileImage(profileImageUrl)) {
+      await storeCustomProfileImage(profileImageUrl!);
+    }
+    
   } catch (e) {
     print('❌ Error updating UserController: $e');
   }
 }
+
+/// Get stored custom image from shared preferences
+Future<String?> _getStoredCustomImage() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final customImage = prefs.getString('custom_profile_image');
+    print("📥 Loaded stored custom image: ${customImage ?? 'None'}");
+    return customImage;
+  } catch (e) {
+    print("❌ Error getting stored custom image: $e");
+    return null;
+  }
+}
+
+/// Store custom profile image when user updates it
+Future<void> storeCustomProfileImage(String imageUrl) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('custom_profile_image', imageUrl);
+    
+    // Also store a timestamp to track when custom image was last set
+    await prefs.setString('custom_image_timestamp', DateTime.now().toIso8601String());
+    
+    print("✅ Custom profile image stored locally: $imageUrl");
+    
+    // Verify the save
+    final verify = prefs.getString('custom_profile_image');
+    print("🔍 Custom image save verification: $verify");
+  } catch (e) {
+    print("❌ Error storing custom profile image: $e");
+  }
+}
+
+/// Check if user has history of using custom images
+Future<bool> _hasCustomImageHistory() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final timestamp = prefs.getString('custom_image_timestamp');
+    return timestamp != null && timestamp.isNotEmpty;
+  } catch (e) {
+    return false;
+  }
+}
+
+/// Get previous custom image from various possible sources
+Future<String?> _getPreviousCustomImage() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Try stored custom image first
+    final storedCustom = prefs.getString('custom_profile_image');
+    if (storedCustom != null && storedCustom.isNotEmpty) {
+      return storedCustom;
+    }
+    
+    // Try profile_image_url from shared prefs
+    final profileUrl = prefs.getString('profile_image_url');
+    if (profileUrl != null && profileUrl.isNotEmpty && _isCustomProfileImage(profileUrl)) {
+      return profileUrl;
+    }
+    
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/// Check if profile image is a custom image (not from Google)
+bool _isCustomProfileImage(String? imageUrl) {
+  if (imageUrl == null || imageUrl.isEmpty) return false;
+  
+  // Custom image patterns (your app's domain, uploaded images, etc.)
+  final customPatterns = [
+    'fixibot', // Your app domain
+    'firebasestorage',
+    'cloudinary',
+    'aws.amazon',
+    'azure',
+    '/uploads/',
+    'profile-images',
+    'custom-avatar',
+    'storage.googleapis.com' // If you use Google Cloud Storage for custom images
+  ];
+  
+  // Google image patterns (Google account images)
+  final googlePatterns = [
+    'googleusercontent.com',
+    'ggpht.com',
+    'lh3.googleusercontent.com',
+    'lh4.googleusercontent.com',
+    'lh5.googleusercontent.com',
+    'lh6.googleusercontent.com'
+  ];
+  
+  final lowerUrl = imageUrl.toLowerCase();
+  
+  // If it matches custom patterns AND doesn't match Google patterns
+  final isCustom = customPatterns.any((pattern) => lowerUrl.contains(pattern));
+  final isGoogle = googlePatterns.any((pattern) => lowerUrl.contains(pattern));
+  
+  return isCustom || !isGoogle; // Consider it custom if it's not a Google image
+}
+
+/// Check if image is from Google
+bool _isGoogleImage(String? imageUrl) {
+  if (imageUrl == null || imageUrl.isEmpty) return false;
+  
+  final googlePatterns = [
+    'googleusercontent.com',
+    'ggpht.com',
+    'lh3.googleusercontent.com',
+    'lh4.googleusercontent.com',
+    'lh5.googleusercontent.com',
+    'lh6.googleusercontent.com'
+  ];
+  
+  final lowerUrl = imageUrl.toLowerCase();
+  return googlePatterns.any((pattern) => lowerUrl.contains(pattern));
+}
+
+
+
+
+//   // Add this method to your GoogleSignInController
+// Future<void> _updateUserController(GoogleSignInAccount googleUser, Map<String, dynamic>? userData) async {
+//   try {
+//     final UserController userController = Get.find<UserController>();
+    
+//     String userName = '';
+//     String userEmail = googleUser.email;
+//     String? profileImageUrl;
+    
+//     // Priority: Backend data > Google data > Fallback
+//     if (userData != null) {
+//       userName = userData['name'] ?? userData['full_name'] ?? googleUser.displayName ?? 'Google User';
+//       profileImageUrl = userData['picture'] ?? userData['profile_image_url'] ?? googleUser.photoUrl;
+//     } else {
+//       userName = googleUser.displayName ?? 'Google User';
+//       profileImageUrl = googleUser.photoUrl;
+//     }
+    
+//     print('👤 Updating UserController with Google data:');
+//     print('   Name: $userName');
+//     print('   Email: $userEmail');
+//     print('   Profile Image: $profileImageUrl');
+    
+//     // Update UserController
+//     await userController.updateUserFromGoogleSignIn(
+//       userName, 
+//       userEmail, 
+//       profileImageUrl: profileImageUrl
+//     );
+    
+//   } catch (e) {
+//     print('❌ Error updating UserController: $e');
+//   }
+// }
 
 
 // Add this method to GoogleSignInController for debugging
