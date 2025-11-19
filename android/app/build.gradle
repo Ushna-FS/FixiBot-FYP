@@ -5,6 +5,13 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// ADD KEY PROPERTIES SECTION HERE
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('app/key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -34,6 +41,22 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    // ADD SIGNING CONFIGS SECTION HERE
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
     defaultConfig {
         applicationId 'com.example.fixibot_app'
         minSdkVersion 23
@@ -45,7 +68,8 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            // CHANGE THIS: Use release signing config instead of debug
+            signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -68,5 +92,3 @@ dependencies {
 flutter {
     source '../..'
 }
-
-
