@@ -42,7 +42,6 @@
 //     _saveToPrefs();
 //   }
 // }
-
 import 'dart:convert';
 import 'package:fixibot_app/model/chatSession.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -130,14 +129,6 @@ class ChatSessionManager {
     }
   }
 
-  // Method to clear all sessions for current user (on logout)
-  Future<void> clearCurrentUserSessions() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_storageKey);
-    _sessions.clear();
-    print('🗑️ Cleared all sessions for user: $_currentUserId');
-  }
-
   // Convert to map for ChatHistoryScreen
   Map<String, List<Map<String, dynamic>>> getSessionsMap() {
     final Map<String, List<Map<String, dynamic>>> sessionsMap = {};
@@ -146,4 +137,10 @@ class ChatSessionManager {
     }
     return sessionsMap;
   }
+ Future<void> clearCurrentUserSessions() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(_storageKey);
+  _sessions.clear();
+  print('🗑️ Cleared all sessions for user: $_currentUserId');
+}
 }

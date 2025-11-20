@@ -705,6 +705,18 @@ class SharedPrefsHelper {
       }
     }
   }
+  // Add to SharedPrefsHelper class
+Future<void> debugSaveCurrentUserId(String userId) async {
+  print('=== SAVING CURRENT USER ID ===');
+  print('Before save - current_user_id: ${await getCurrentUserId()}');
+  print('Before save - user_id: ${await getString("user_id")}');
+  
+  await saveCurrentUserId(userId);
+  
+  print('After save - current_user_id: ${await getCurrentUserId()}');
+  print('After save - user_id: ${await getString("user_id")}');
+  print('==============================');
+}
 }
 
 

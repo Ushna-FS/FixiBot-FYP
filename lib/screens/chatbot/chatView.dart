@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/constants/app_colors.dart';
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/chatbot/chatHistoryParent.dart';
 import 'package:fixibot_app/screens/chatbot/chatviewHistory.dart';
+import 'package:fixibot_app/screens/chatbot/provider/chatManagerProvider.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/widgets/customAppBar.dart';
 import 'package:fixibot_app/widgets/wrapper.dart';
@@ -30,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final SharedPrefsHelper _prefs = SharedPrefsHelper();
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+    final ChatManagerProvider _chatManager = Get.find<ChatManagerProvider>();
   final baseUrl = AppConfig.baseUrl;
 
   // Auth & session
@@ -98,19 +101,34 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // Delete a session
-  Future<void> onDelete(String sessionId) async {
-    setState(() {
-      _allSessions.remove(sessionId);
-      if (_activeSessionId == sessionId) {
-        if (_allSessions.isEmpty) {
-          _startNewLocalSession();
-        } else {
-          _activeSessionId = _allSessions.keys.first;
-        }
+  // Update the delete method
+Future<void> onDelete(String sessionId) async {
+  setState(() {
+    _allSessions.remove(sessionId);
+    if (_activeSessionId == sessionId) {
+      if (_allSessions.isEmpty) {
+        _startNewLocalSession();
+      } else {
+        _activeSessionId = _allSessions.keys.first;
       }
-    });
-    await _saveSessions();
+    }
+  });
+  await _saveSessions();
+  
+  // Also delete from ChatManagerProvider
+  try {
+    if (Get.isRegistered<ChatManagerProvider>()) {
+      final chatManager = Get.find<ChatManagerProvider>();
+      // 🔥 FIXED: Use the correct method name - sessionExists
+      if (chatManager.sessionExists(sessionId)) {
+        chatManager.deleteSession(sessionId);
+        print('✅ Session deleted from ChatManagerProvider: $sessionId');
+      }
+    }
+  } catch (e) {
+    print('❌ Error deleting from ChatManagerProvider: $e');
   }
+}
 
   /* ----------------- Backend Auth/Session ------------------ */
 
@@ -446,6 +464,247 @@ class _ChatScreenState extends State<ChatScreen> {
   //   }
   // }
 
+// Future<void> sendMessage() async {
+//   if (_selectedVehicle == null) {
+//     Get.snackbar(
+//       "Select Vehicle",
+//       "Please choose a vehicle",
+//       backgroundColor: Colors.redAccent,
+//       colorText: Colors.white,
+//     );
+//     return;
+//   }
+  
+//   final text = _controller.text.trim();
+//   final vehicleId = _selectedVehicle!["_id"];
+
+//   // Validate input
+//   if (text.isEmpty && _selectedImage == null) {
+//     Get.snackbar(
+//       "Empty Message",
+//       "Please enter a message or select an image",
+//       backgroundColor: Colors.orange,
+//       colorText: Colors.white,
+//     );
+//     return;
+//   }
+
+//   // Ensure session exists
+//   if (_activeSessionId == null) {
+//     await _activateVehicleSession(vehicleId);
+//   }
+
+//   // Store user input temporarily
+//   final userText = text;
+//   final userImage = _selectedImage;
+
+//   // Clear input immediately and show loader
+//   setState(() {
+//     _controller.clear();
+//     _selectedImage = null;
+//     _isProcessing = true;
+//   });
+
+//   // Add user message locally with image preview
+//   final userMessage = {
+//     "text": userText,
+//     "isSent": true,
+//     "vehicleId": vehicleId,
+//     "brand": _selectedVehicle?['brand'],
+//     "model": _selectedVehicle?['model'],
+//     "timestamp": DateTime.now().toIso8601String(),
+//   };
+
+//   // Add image path to message if image exists
+//   if (userImage != null) {
+//     userMessage["imagePath"] = userImage.path;
+//     userMessage["hasImage"] = true;
+//   }
+
+//   setState(() {
+//     _allSessions[_activeSessionId]!.add(userMessage);
+//   });
+//   await _saveSessions();
+
+//   // Send to backend with enhanced error handling
+//   try {
+//     final request = http.MultipartRequest("POST", Uri.parse("$baseUrl/chat/message"));
+    
+//     // Add headers
+//     request.headers["Authorization"] = "$_tokenType $_accessToken";
+//     request.headers["Accept"] = "application/json";
+
+//     // Add session and message data
+//     if (_sessionId != null) {
+//       request.fields["session_id"] = _sessionId!;
+//     }
+    
+//     // ✅ CRITICAL FIX: Always send message field with proper context
+//     if (userText.isNotEmpty) {
+//       request.fields["message"] = userText;
+//     } else {
+//       // If only image is sent, provide context for CV model
+//       request.fields["message"] = "Analyze this vehicle image for any visible issues, damage, or maintenance needs";
+//     }
+    
+//     // ✅ ENHANCED: Send vehicle data as proper JSON
+//     request.fields["vehicle_json"] = json.encode(_selectedVehicle);
+
+//     print('📤 Sending chat message:');
+//     print('   Message: ${request.fields["message"]}');
+//     print('   Vehicle: ${_selectedVehicle!['brand']} ${_selectedVehicle!['model']}');
+//     print('   Has Image: ${userImage != null}');
+//     print('   Session ID: $_sessionId');
+
+//     // ✅ ENHANCED: Add image with proper field name and handling
+//     if (userImage != null) {
+//       print('📸 Adding image to request: ${userImage.path}');
+      
+//       // Get file extension and mime type
+//       final fileExtension = userImage.path.split('.').last.toLowerCase();
+//       final mimeType = _getMimeType(fileExtension);
+      
+//       // ✅ CRITICAL: Use the exact field name expected by FastAPI - 'image'
+//       final multipartFile = await http.MultipartFile.fromPath(
+//         'image', // This MUST be 'image' to match FastAPI parameter
+//         userImage.path,
+//         contentType: MediaType('image', mimeType),
+//         filename: 'vehicle_${_selectedVehicle!['brand']}_${_selectedVehicle!['model']}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension',
+//       );
+//       request.files.add(multipartFile);
+      
+//       final fileSize = userImage.lengthSync();
+//       print('   Image details: ${fileSize ~/ 1024} KB, type: $mimeType');
+//       print('   Field name: image');
+//     }
+
+//     // Send request with timeout
+//     print('🚀 Sending request to backend...');
+//     final streamedResponse = await request.send();
+//     final response = await http.Response.fromStream(streamedResponse);
+
+//     print('📥 Response received:');
+//     print('   Status: ${response.statusCode}');
+//     print('   Body: ${response.body}');
+
+//     if (response.statusCode == 200) {
+//       try {
+//         final decoded = json.decode(response.body);
+//         print('   Response keys: ${decoded.keys}');
+        
+//         // ✅ ENHANCED: Handle different response formats
+//         String reply;
+//         if (decoded.containsKey("reply")) {
+//           reply = decoded["reply"];
+//         } else if (decoded.containsKey("message")) {
+//           reply = decoded["message"];
+//         } else if (decoded.containsKey("response")) {
+//           reply = decoded["response"];
+//         } else if (decoded.containsKey("analysis")) {
+//           reply = decoded["analysis"];
+//         } else {
+//           // If no specific field found, try to get the first string value
+//           reply = _extractReplyFromResponse(decoded);
+//         }
+
+//         // Add bot response to chat
+//         setState(() {
+//           _allSessions[_activeSessionId]!.add({
+//             "text": reply,
+//             "isSent": false,
+//             "timestamp": DateTime.now().toIso8601String(),
+//             "isImageAnalysis": userImage != null,
+//             "cvAnalysis": userImage != null,
+//           });
+//         });
+        
+//         await _saveSessions();
+        
+//         // Show success for image analysis
+//         if (userImage != null) {
+//           Get.snackbar(
+//             "Image Analysis Complete",
+//             "FixiBot has processed your vehicle image",
+//             backgroundColor: Colors.green,
+//             colorText: Colors.white,
+//             duration: Duration(seconds: 3),
+//           );
+//         }
+        
+//       } catch (e) {
+//         print('❌ JSON parsing error: $e');
+//         print('   Raw response: ${response.body}');
+//         _handleErrorResponse("Failed to parse server response: $e");
+//       }
+//     } else if (response.statusCode == 422) {
+//       // Handle validation errors from FastAPI
+//       print('❌ FastAPI Validation Error: ${response.body}');
+//       _handleValidationError(response.body);
+//     } else if (response.statusCode == 415) {
+//       _handleErrorResponse("Unsupported media type. The image format may not be supported.");
+//     } else if (response.statusCode == 413) {
+//       _handleErrorResponse("Image file too large. Please select a smaller image.");
+//     } else {
+//       print('❌ Server error: ${response.statusCode}');
+//       _handleErrorResponse("Server error: ${response.statusCode}\n${response.body}");
+//     }
+//   } catch (e) {
+//     print('❌ Network error: $e');
+//     _handleErrorResponse("Network error: ${e.toString()}");
+//   } finally {
+//     setState(() {
+//       _isProcessing = false;
+//     });
+//   }
+// }
+
+// Helper method to save messages to ChatManagerProvider
+// Helper method to save messages to ChatManagerProvider
+Future<void> _saveToChatManager(String sessionId, Map<String, dynamic> message, String chatTitle) async {
+  try {
+    // Check if ChatManagerProvider is available and initialized
+    if (!Get.isRegistered<ChatManagerProvider>()) {
+      print('❌ ChatManagerProvider not registered');
+      return;
+    }
+
+    final chatManager = Get.find<ChatManagerProvider>();
+    
+    if (!chatManager.isInitialized) {
+      print('❌ ChatManagerProvider not initialized, trying to initialize...');
+      
+      // Try to initialize with current user
+      final userId = await _prefs.getCurrentUserId();
+      if (userId != null) {
+        await chatManager.initializeForUser(userId);
+        print('✅ ChatManagerProvider initialized in chat screen');
+      } else {
+        print('❌ No user ID found for ChatManagerProvider initialization');
+        return;
+      }
+    }
+
+    // 🔥 FIXED: Use the correct method name - sessionExists
+    if (!chatManager.sessionExists(sessionId)) {
+      // Create new session
+      chatManager.createSession(
+        id: sessionId,
+        title: chatTitle,
+        firstMessage: message['text']?.toString() ?? 'New chat',
+      );
+      print('✅ Created new session in ChatManagerProvider: $sessionId');
+    } else {
+      // Add message to existing session
+      chatManager.addMessageToSession(sessionId, message);
+      print('✅ Added message to existing session in ChatManagerProvider: $sessionId');
+    }
+
+    print('💾 Message saved to ChatManagerProvider: ${message['text']}');
+
+  } catch (e) {
+    print('❌ Error saving to ChatManagerProvider: $e');
+  }
+}
 Future<void> sendMessage() async {
   if (_selectedVehicle == null) {
     Get.snackbar(
@@ -487,7 +746,7 @@ Future<void> sendMessage() async {
     _isProcessing = true;
   });
 
-  // Add user message locally with image preview
+  // Create user message
   final userMessage = {
     "text": userText,
     "isSent": true,
@@ -503,10 +762,15 @@ Future<void> sendMessage() async {
     userMessage["hasImage"] = true;
   }
 
+  // 🔥 CRITICAL: Save to BOTH systems
+  // 1. Save to local SharedPreferences (your existing system)
   setState(() {
     _allSessions[_activeSessionId]!.add(userMessage);
   });
   await _saveSessions();
+
+  // 2. Save to ChatManagerProvider (for chat history)
+  await _saveToChatManager(_activeSessionId!, userMessage, 'New Chat');
 
   // Send to backend with enhanced error handling
   try {
@@ -589,18 +853,24 @@ Future<void> sendMessage() async {
           reply = _extractReplyFromResponse(decoded);
         }
 
-        // Add bot response to chat
+        // Create bot message
+        final botMessage = {
+          "text": reply,
+          "isSent": false,
+          "timestamp": DateTime.now().toIso8601String(),
+          "isImageAnalysis": userImage != null,
+          "cvAnalysis": userImage != null,
+        };
+
+        // 🔥 CRITICAL: Save bot response to BOTH systems
+        // 1. Save to local SharedPreferences
         setState(() {
-          _allSessions[_activeSessionId]!.add({
-            "text": reply,
-            "isSent": false,
-            "timestamp": DateTime.now().toIso8601String(),
-            "isImageAnalysis": userImage != null,
-            "cvAnalysis": userImage != null,
-          });
+          _allSessions[_activeSessionId]!.add(botMessage);
         });
-        
         await _saveSessions();
+
+        // 2. Save to ChatManagerProvider
+        await _saveToChatManager(_activeSessionId!, botMessage, decoded["chat_title"] ?? 'New Chat');
         
         // Show success for image analysis
         if (userImage != null) {
@@ -925,7 +1195,7 @@ String _extractReplyFromResponse(Map<String, dynamic> response) {
               //   },
               //   onDeleteSession: (id) => onDelete(id),
               // ));
-              Get.to(ChatHistoryWrapper());
+              Get.to(ChatHistoryParentWidget());
             },
           ),
           IconButton(

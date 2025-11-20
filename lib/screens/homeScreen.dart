@@ -9,6 +9,7 @@ import 'package:fixibot_app/constants/app_fontStyles.dart';
 import 'package:fixibot_app/model/breakdownsModel.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/chatbot/provider/chatManagerProvider.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/feedback/view/feedback_popup.dart';
 import 'package:fixibot_app/screens/location/locationScreen.dart';
@@ -75,7 +76,45 @@ void initState() {
   });
   Get.find<LocationController>().fetchCurrentLocation();
 
+  
+    _initializeChatManagerIfNeeded();
+    _initializeDependencies();
+
 }
+
+Future<void> _initializeDependencies() async {
+    // Ensure dependencies are registered
+    if (!Get.isRegistered<SharedPrefsHelper>()) {
+      Get.put(SharedPrefsHelper(), permanent: true);
+    }
+    
+    if (!Get.isRegistered<ChatManagerProvider>()) {
+      Get.put(ChatManagerProvider(), permanent: true);
+    }
+
+    // Try to initialize chat manager if user is logged in
+    final sharedPrefs = Get.find<SharedPrefsHelper>();
+    final userId = await sharedPrefs.getCurrentUserId();
+    
+    if (userId != null && Get.isRegistered<ChatManagerProvider>()) {
+      final chatManager = Get.find<ChatManagerProvider>();
+      if (!chatManager.isInitialized) {
+        await chatManager.initializeForUser(userId);
+      }
+    }
+  }
+
+  Future<void> _initializeChatManagerIfNeeded() async {
+    final sharedPrefs = Get.find<SharedPrefsHelper>();
+    final userId = await sharedPrefs.getCurrentUserId();
+    
+    if (userId != null && Get.isRegistered<ChatManagerProvider>()) {
+      final chatManager = Get.find<ChatManagerProvider>();
+      if (!chatManager.isInitialized) {
+        await chatManager.initializeForUser(userId);
+      }
+    }
+  }
 
 
 
