@@ -48,28 +48,7 @@
           "bikeSpareTube": "assets/images/selfHelp/b-tube.png",
           "bikeHandpump": "assets/images/selfHelp/bPump.png"
         }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Tools Required": [
-          "Warning cones",
-          "Jack (heavy-duty)",
-          "Wheel brace"
-        ],
-        "Steps": [
-          "Stop on safe flat ground, place cones behind truck.",
-          "Loosen wheel nuts of punctured tire.",
-          "Use hydraulic jack to lift axle.",
-          "Remove tire (may need extra help due to size/weight).",
-          "Mount spare tire, tighten nuts by hand.",
-          "Lower jack, fully tighten nuts with wheel brace.",
-          "If no spare tire, call professional roadside service."
-        ],
-        "Images": {
-          "tr-flat": "assets/images/selfHelp/t3.png",
-          "warningCone": "assets/images/selfHelp/tr-cone.png",
-          "wheelBraceTRuck": "assets/images/selfHelp/tr-wheelbrace.png"
-        }
-      }
+      } 
     },
     {
       "Name": "Battery Failure / Dead Battery",
@@ -110,23 +89,6 @@
           "BikebatteryBooster": "assets/images/selfHelp/B_batteryBooster.png",
           "bikejumperCable": "assets/images/selfHelp/B_jumperCable.png"
         }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Tools Required": [
-          "Heavy-duty jump cables",
-          "Second truck battery"
-        ],
-        "Steps": [
-          "Park assisting vehicle close, ignition OFF.",
-          "Connect red to +ve of both batteries, black to -ve and ground.",
-          "Start assisting vehicle, run for a few minutes.",
-          "Try starting truck; once on, remove cables safely.",
-          "If battery keeps failing, get alternator or wiring checked."
-        ],
-        "Images": {
-          "defectedbatterytruck": "assets/images/selfHelp/T_batteryFailure.png",
-          "truckbatteryBooster": "assets/images/selfHelp/T_batteryBooster.png"
-          }
       }
     },
     {
@@ -164,19 +126,6 @@
           "bikecoolant": "assets/images/selfHelp/b_coolant.png",
           "bikeoverheat": "assets/images/selfHelp/B_overheat.png"
         }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "Park safely, engine OFF, wait until cooled.",
-          "Check coolant level, refill with water/coolant.",
-          "Inspect radiator for leaks or scaling.",
-          "Check coolant pump/belts for breakage.",
-          "Continue only if temperature is stable; otherwise call service."
-        ],
-        "Images": {
-          "truckengine": "assets/images/selfHelp/T_engine.png",
-          "truckcoolant": "assets/images/selfHelp/T_coolant.png"
-        }
       }
     },
     {
@@ -196,7 +145,7 @@
         ],
         "Images": {
           
-          "carBrakefailure": "assets/images/selfHelp/cC_brakefailure.png",
+          "carBrakefailure": "assets/images/selfHelp/C_brakefailure.png",
           "carBrakeFluid": "assets/images/selfHelp/carBrakefluid.png"
         }
       },
@@ -212,19 +161,6 @@
           "bikeBrakefailure": "assets/images/selfHelp/B_brakeFailure.png",
           "BikeBrakepad": "assets/images/selfHelp/B_brakePad.png"
           
-        }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "Use engine braking and downshift immediately.",
-          "Apply parking brake slowly if service brakes fail.",
-          "Inspect air brake system; check compressor and air pressure gauge.",
-          "Drain water/oil from air tanks if blocked.",
-          "Do not continue long-distance driving without brake repair."
-        ],
-        "Images": {
-          "truckBrakefail": "assets/images/selfHelp/T_brakefailure.png",
-          "truckBrakePad": "assets/images/selfHelp/T_brakepad.png"
         }
       }
     },
@@ -260,19 +196,6 @@
           "BikeWiring": "assets/images/selfHelp/b_wiring.png",
           "BikeFuses": "assets/images/selfHelp/b_fuses.png"
           
-        }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "Check alternator output and main wiring harness.",
-          "Inspect relays/fuses in fuse box.",
-          "Secure loose wires with tape or clamps.",
-          "If major wiring fault, do not drive further, instead call mechanic."
-        ],
-        "Images": {
-         
-          "truckWiring": "assets/images/selfHelp/T_wiring.png",
-           "truckFuses": "assets/images/selfHelp/T_fuses.png"
         }
       }
     },
@@ -314,19 +237,6 @@
         "Images": {
           "bikeFuelLeak": "assets/images/selfHelp/B_Fuel.png"
         }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "If the engine stalls or loses power, check the diesel gauge first.",
-          "Step out and look beneath the truck for diesel leakage — often visible as a strong-smelling puddle.",
-          "If leakage is found, place a container beneath to reduce spillage, and avoid starting the engine.",
-          "If the tank is simply empty, arrange diesel in a proper container and refill using a funnel.",
-          "After refueling, prime the diesel pump (if required) to remove air bubbles.",
-          "Drive only to the nearest service station for further checks — never continue long distance with a leak."
-        ],
-        "Images": {
-          "truckFuelLeak": "assets/images/selfHelp/T_FuelLeak.png"
-        }
       }
     },
     {
@@ -358,18 +268,6 @@
         ],
         "Images": {
           "bikeClutch": "assets/images/selfHelp/B_Clutch.png"
-        }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "If the clutch pedal doesn’t respond, stop immediately and switch off the engine.",
-          "Check for hydraulic leaks around the clutch master/slave cylinder.",
-          "If fluid is low, refill temporarily with brake fluid.",
-          "If mechanical linkage or plate is broken, do not attempt to continue driving.",
-          "Call for roadside service or towing — heavy vehicles require professional repair."
-        ],
-        "Images": {
-          "truckClutch": "assets/images/selfHelp/T_Clutch.png"
         }
       }
     },
@@ -403,18 +301,6 @@
         "Images": {
           "bikeStarter": "assets/images/selfHelp/B_motor.png"
         }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "If the ignition key produces only a click, first confirm battery health.",
-          "Check heavy-duty starter relay and cables for looseness.",
-          "If the starter motor spins slowly, tap gently with a hammer to unjam it.",
-          "If it fails completely, professional heavy-vehicle mechanics are required.",
-          "Avoid repeated attempts, as it may overheat the system and drain batteries."
-        ],
-        "Images": {
-          "truckStarter": "assets/images/selfHelp/T_motor.png"
-        }
       }
     },
     {
@@ -447,18 +333,6 @@
         ],
         "Images": {
           "bikeHeadlight": "assets/images/selfHelp/B_indicator.png"
-        }
-      },
-      "In Trucks/Heavy Vehicles": {
-        "Steps": [
-          "Check the truck’s fuse panel for headlight/indicator circuits.",
-          "Replace the blown fuse with the correct rating.",
-          "If bulbs are fused, replace them with spares (commonly carried in trucks).",
-          "If no lights work at all, check alternator output or wiring harness.",
-          "Use reflective triangles and hazard lights until repairs are done."
-        ],
-        "Images": {
-          "truckHeadlight": "assets/images/selfHelp/T_indicator.png"
         }
       }
     }

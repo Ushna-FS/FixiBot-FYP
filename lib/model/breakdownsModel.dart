@@ -10,7 +10,6 @@ class BreakdownModel {
       categories: {
         "Car": json["In Cars"],
         "Bike": json["In Bikes"],
-        "Truck": json["In Trucks/Heavy Vehicles"],
       },
     );
   }

@@ -60,7 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 borderSide: BorderSide.none,
               ),
             ),
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.textColor2),
           ),
         ),
       ),
@@ -90,7 +90,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 title: Text(
                                   module.name,
                                   style: const TextStyle(
-                                      color: AppColors.textColor4,
+                                      color: AppColors.textColor2,
                                       fontSize: 14),
                                 ),
                                 onTap: () {

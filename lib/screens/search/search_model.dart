@@ -1,4 +1,7 @@
 
+import 'package:fixibot_app/screens/chatbot/chatDetailScreen.dart';
+import 'package:fixibot_app/screens/chatbot/chatView.dart';
+import 'package:fixibot_app/screens/chatbot/chatviewHistory.dart';
 import 'package:fixibot_app/screens/help/support.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
@@ -19,6 +22,7 @@ class SearchModel {
     SearchModel(name: 'Add Vehicle', screen: const AddVehicle()),
     SearchModel(name: 'My Vehicle', screen: const MyVehicleScreen()),
     SearchModel(name: 'Mechanic ', screen: const MechanicScreen()),
+    SearchModel(name: 'Chatbot ', screen: const ChatScreen()),
     SearchModel(name: 'Help', screen:  HelpSupportPage()),
   ];
 }

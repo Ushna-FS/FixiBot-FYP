@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:fixibot_app/constants/appConfig.dart';
+import 'package:fixibot_app/constants/feedbackConstants.dart';
 import 'package:fixibot_app/model/feedbackModel.dart';
 import 'package:fixibot_app/screens/feedback/view/feedback_popup.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,8 @@ final baseUrl  = AppConfig.baseUrl;
     
     // Load feedback history when controller initializes
     loadFeedbackHistory();
+    // Check for scheduled feedback when app starts
+    _checkScheduledFeedbackOnStartup();
   }
 
   @override
@@ -43,6 +46,278 @@ final baseUrl  = AppConfig.baseUrl;
     super.onClose();
   }
 
+// Check for scheduled feedback when app starts
+  Future<void> _checkScheduledFeedbackOnStartup() async {
+    try {
+      print('🔄 [FEEDBACK] Checking for scheduled feedback on app start...');
+      
+      final prefs = await SharedPreferences.getInstance();
+      final scheduledTimeString = prefs.getString(Feedbackconstants.FEEDBACK_SCHEDULED_TIME_KEY);
+      final lastServiceDataString = prefs.getString(Feedbackconstants.LAST_SERVICE_DATA_KEY);
+      
+      if (scheduledTimeString == null || lastServiceDataString == null) {
+        print('⏭️ [FEEDBACK] No scheduled feedback found');
+        return;
+      }
+      
+      final scheduledTime = DateTime.parse(scheduledTimeString);
+      final lastServiceData = jsonDecode(lastServiceDataString);
+      final serviceId = lastServiceData['_id'] ?? lastServiceData['id'];
+      
+      if (serviceId == null) {
+        print('❌ [FEEDBACK] Invalid service data in storage');
+        await _clearScheduledFeedback();
+        return;
+      }
+      
+      final now = DateTime.now();
+      final timeDifference = now.difference(scheduledTime).inSeconds;
+      
+      print('⏰ [FEEDBACK] Scheduled time: $scheduledTime');
+      print('⏰ [FEEDBACK] Current time: $now');
+      print('⏰ [FEEDBACK] Time difference: $timeDifference seconds');
+      
+      // Check if feedback was already given for this service
+      final feedbackGiven = prefs.getBool('feedback_given_$serviceId') ?? false;
+      if (feedbackGiven) {
+        print('✅ [FEEDBACK] Feedback already given for service: $serviceId');
+        await _clearScheduledFeedback();
+        return;
+      }
+      
+      if (timeDifference >= Feedbackconstants.FEEDBACK_DELAY_SECONDS) {
+        // Time has passed - add to pending but don't show popup
+        print('⏰ [FEEDBACK] Feedback time passed, adding to pending only');
+        addPendingFeedback(
+          serviceId: serviceId,
+          mechanicId: lastServiceData['mechanic_id'] ?? '',
+          mechanicName: lastServiceData['mechanic_name'] ?? 'Unknown Mechanic',
+          serviceType: lastServiceData['service_type'] ?? 'General Service',
+        );
+        
+        lastServiceForFeedback.value = lastServiceData;
+        hasPendingFeedback.value = true;
+        showFeedbackPopup.value = false; // Don't show popup
+        
+        await _clearScheduledFeedback();
+      } else {
+        // Time hasn't passed yet - schedule the popup
+        final remainingSeconds = Feedbackconstants.FEEDBACK_DELAY_SECONDS - timeDifference;
+        print('⏰ [FEEDBACK] Scheduling popup in $remainingSeconds seconds');
+        
+        lastServiceForFeedback.value = lastServiceData;
+        hasPendingFeedback.value = true;
+        
+        _schedulePopup(remainingSeconds);
+      }
+      
+    } catch (e) {
+      print('❌ [FEEDBACK] Error checking scheduled feedback: $e');
+      await _clearScheduledFeedback();
+    }
+  }
+
+  // Clear scheduled feedback data
+  Future<void> _clearScheduledFeedback() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(Feedbackconstants.FEEDBACK_SCHEDULED_TIME_KEY);
+    await prefs.remove(Feedbackconstants.LAST_SERVICE_DATA_KEY);
+    print('🗑️ [FEEDBACK] Cleared scheduled feedback data');
+  }
+
+  // Save scheduled feedback data
+  Future<void> _saveScheduledFeedback(Map<String, dynamic> service) async {
+    final prefs = await SharedPreferences.getInstance();
+    final scheduledTime = DateTime.now().add(Duration(seconds: Feedbackconstants.FEEDBACK_DELAY_SECONDS));
+    
+    await prefs.setString(Feedbackconstants.FEEDBACK_SCHEDULED_TIME_KEY, scheduledTime.toIso8601String());
+    await prefs.setString(Feedbackconstants.LAST_SERVICE_DATA_KEY, jsonEncode(service));
+    
+    print('💾 [FEEDBACK] Scheduled feedback for: ${scheduledTime.toIso8601String()}');
+  }
+
+  // Schedule popup with remaining time
+  void _schedulePopup(int seconds) {
+    _feedbackTimer?.cancel();
+    
+    _feedbackTimer = Timer(Duration(seconds: seconds), () {
+      _showGlobalPopup();
+    });
+    
+    print("🕐 Feedback popup scheduled in $seconds seconds");
+  }
+
+  // ============ UPDATED FEEDBACK SCHEDULING ============
+
+  // Call this method right after a mechanic service is completed
+  void scheduleFeedback(Map<String, dynamic> service) async {
+    try {
+      final serviceId = service['_id'] ?? service['id'];
+      if (serviceId == null) {
+        print('❌ [FEEDBACK] Service ID is null - cannot schedule feedback');
+        return;
+      }
+
+      // Check if feedback was already given
+      final prefs = await SharedPreferences.getInstance();
+      final feedbackGiven = prefs.getBool('feedback_given_$serviceId') ?? false;
+      
+      if (feedbackGiven) {
+        print('✅ [FEEDBACK] Feedback already given for service: $serviceId');
+        return;
+      }
+
+      lastServiceForFeedback.value = service;
+
+      // Add to pending feedback immediately
+      addPendingFeedback(
+        serviceId: serviceId,
+        mechanicId: service['mechanic_id'] ?? '',
+        mechanicName: service['mechanic_name'] ?? 'Unknown Mechanic',
+        serviceType: service['service_type'] ?? 'General Service',
+      );
+
+      // Save scheduled feedback data for persistence
+      await _saveScheduledFeedback(service);
+
+      // Cancel existing timer if any
+      _feedbackTimer?.cancel();
+
+      // Schedule feedback popup after 10 seconds
+      _schedulePopup(Feedbackconstants.FEEDBACK_DELAY_SECONDS);
+
+      print("🕐 Feedback popup scheduled in $Feedbackconstants.FEEDBACK_DELAY_SECONDS seconds for service: $serviceId");
+      
+    } catch (e) {
+      print('❌ [FEEDBACK] Error scheduling feedback: $e');
+    }
+  }
+
+  void _showGlobalPopup() {
+    final service = lastServiceForFeedback.value;
+
+    if (service.isEmpty) return;
+    if (Get.isDialogOpen == true) return;
+
+    Get.dialog(
+      FeedbackPopup(
+        service: service,
+        controller: this,
+      ),
+      barrierDismissible: false,
+      useSafeArea: true,
+    );
+
+    print("💬 Feedback popup displayed for service: ${service['_id']}");
+  }
+
+  // ============ UPDATED FEEDBACK SUBMISSION ============
+
+  Future<bool> submitFeedback({
+    required String serviceId,
+    required String mechanicId,
+    required String mechanicName,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+      final accessToken = prefs.getString('access_token');
+
+      // ✅ Generate valid MongoDB ObjectId if service is local
+      String backendServiceId = serviceId;
+      if (serviceId.startsWith('local_')) {
+        backendServiceId = _generateMongoId();
+        print('🔧 [FEEDBACK] Generated MongoID for local service: $backendServiceId');
+      }
+
+      // Build feedback payload
+      final feedbackData = {
+        'service_id': backendServiceId, // Always a valid MongoDB ID
+        'mechanic_id': mechanicId,
+        'user_id': userId,
+        'mechanic_name': mechanicName,
+        'rating': rating,
+        'comment': comment,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      print('📤 [FEEDBACK] Submitting feedback: $feedbackData');
+
+      String? feedbackId;
+      bool storedInBackend = false;
+      bool storedInLocal = false;
+
+      // Attempt backend submission
+      try {
+        final response = await http.post(
+          Uri.parse('$baseUrl/feedback/'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode(feedbackData),
+        );
+
+        print('🌐 [FEEDBACK] Backend response status: ${response.statusCode}');
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final data = jsonDecode(response.body);
+          feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
+          storedInBackend = true;
+          print('✅ [FEEDBACK] Backend storage successful. Feedback ID: $feedbackId');
+        } else {
+          print('❌ [FEEDBACK] Backend storage failed. Status: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('❌ [FEEDBACK] Backend error: $e');
+      }
+
+      // Local fallback if backend fails
+      if (feedbackId == null) {
+        feedbackId = serviceId.startsWith('local_') ? serviceId : _generateLocalFeedbackId(serviceId);
+        storedInLocal = true;
+        print('📱 [FEEDBACK] Using local fallback ID: $feedbackId');
+      }
+
+      // Create FeedbackModel
+      final submittedFeedback = FeedbackModel(
+        id: feedbackId,
+        serviceId: serviceId,
+        mechanicId: mechanicId,
+        mechanicName: mechanicName,
+        serviceType: 'General Service',
+        rating: rating,
+        comment: comment,
+        createdAt: DateTime.now(),
+        status: storedInBackend ? 'submitted' : 'submitted_local',
+      );
+
+      // Store locally for reference
+      await prefs.setString('feedback_$serviceId', feedbackId);
+      await prefs.setBool('feedback_given_$serviceId', true); // Mark as given
+
+      // Add to history and remove from pending
+      feedbackHistory.add(submittedFeedback);
+      await _saveFeedbackHistoryToLocal();
+      removePendingFeedback(serviceId);
+
+      // Clear scheduled feedback data
+      await _clearScheduledFeedback();
+
+      // Close popup and reset state
+      showFeedbackPopup.value = false;
+      hasPendingFeedback.value = false;
+      lastServiceForFeedback.value = {};
+
+      print('💾 [FEEDBACK] Stored feedback locally: $feedbackId');
+      return true;
+    } catch (e) {
+      print('❌ [FEEDBACK] Critical error: $e');
+      return false;
+    }
+  }
   // ============ FEEDBACK HISTORY METHODS ============
 
   // Load feedback history from backend and local storage
@@ -263,207 +538,6 @@ String _generateLocalFeedbackId(String serviceId) {
   return 'local_fb_${DateTime.now().millisecondsSinceEpoch}';
 }
 
-// Update the submitFeedback method to always generate IDs for local services
-// Future<bool> submitFeedback({
-//   required String serviceId,
-//   required String mechanicId,
-//   required String mechanicName,
-//   required int rating,
-//   required String comment,
-// }) async {
-//   try {
-//     final prefs = await SharedPreferences.getInstance();
-//     final userId = prefs.getString('user_id');
-
-//     // Build feedback object
-//     final feedbackData = {
-//       'service_id': serviceId,
-//       'mechanic_id': mechanicId,
-//       'user_id': userId,
-//       'mechanic_name': mechanicName,
-//       'rating': rating,
-//       'comment': comment,
-//       'created_at': DateTime.now().toIso8601String(),
-//     };
-
-//     print('📤 [FEEDBACK] Submitting feedback for service: $serviceId');
-    
-//     // Check if this is a local service
-//     final isLocalService = serviceId.startsWith('local_');
-    
-//     String? feedbackId;
-//     FeedbackModel submittedFeedback;
-
-//     if (!isLocalService) {
-//       // For non-local services, try to submit to backend
-//       try {
-//         final response = await http.post(
-//           Uri.parse('$baseUrl/feedback'),
-//           headers: {'Content-Type': 'application/json'},
-//           body: jsonEncode(feedbackData),
-//         );
-
-//         if (response.statusCode == 200 || response.statusCode == 201) {
-//           final data = jsonDecode(response.body);
-//           print('✅ [FEEDBACK] Backend response: $data');
-          
-//           // Extract feedback ID from response
-//           feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
-//         }
-//       } catch (e) {
-//         print('❌ [FEEDBACK] Backend submission failed: $e');
-//         // Continue with local storage
-//       }
-//     }
-
-//     // If no backend ID (either local service or backend failed), generate local ID
-//     if (feedbackId == null) {
-//       feedbackId = _generateLocalFeedbackId(serviceId);
-//       print('🔧 [FEEDBACK] Using local feedback ID: $feedbackId');
-//     }
-
-//     // Create the feedback model with the ID
-//     submittedFeedback = FeedbackModel(
-//       id: feedbackId,
-//       serviceId: serviceId,
-//       mechanicId: mechanicId,
-//       mechanicName: mechanicName,
-//       serviceType: lastServiceForFeedback['service_type'] ?? 'General Service',
-//       rating: rating,
-//       comment: comment,
-//       createdAt: DateTime.now(),
-//       status: isLocalService ? 'submitted_local' : 'submitted',
-//     );
-
-//     // Store the feedback ID for future reference
-//     await prefs.setString('feedback_$serviceId', feedbackId);
-//     print('💾 [FEEDBACK] Feedback ID stored for service $serviceId: $feedbackId');
-
-//     // Add to history
-//     feedbackHistory.add(submittedFeedback);
-//     await _saveFeedbackHistoryToLocal();
-
-//     // Remove from pending
-//     removePendingFeedback(serviceId);
-
-//     // Mark this service as feedback given
-//     await prefs.setBool('feedback_given_$serviceId', true);
-
-//     // Close popup
-//     showFeedbackPopup.value = false;
-//     hasPendingFeedback.value = false;
-//     lastServiceForFeedback.value = {};
-
-//     print('✅ [FEEDBACK] Feedback submitted successfully');
-//     return true;
-    
-//   } catch (e) {
-//     print('❌ [FEEDBACK] Error in submitFeedback: $e');
-    
-//     // Emergency fallback
-//     return await _emergencySaveFeedback(
-//       serviceId: serviceId,
-//       mechanicId: mechanicId,
-//       mechanicName: mechanicName,
-//       rating: rating,
-//       comment: comment,
-//     );
-//   }
-// }
-
-
-Future<bool> submitFeedback({
-  required String serviceId,
-  required String mechanicId,
-  required String mechanicName,
-  required int rating,
-  required String comment,
-}) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
-    final accessToken = prefs.getString('access_token');
-
-    // ✅ Generate valid MongoDB ObjectId if service is local
-    String backendServiceId = serviceId;
-    if (serviceId.startsWith('local_')) {
-      backendServiceId = _generateMongoId();
-      print('🔧 [FEEDBACK] Generated MongoID for local service: $backendServiceId');
-    }
-
-    // Build feedback payload
-    final feedbackData = {
-      'service_id': backendServiceId, // Always a valid MongoDB ID
-      'mechanic_id': mechanicId,
-      'user_id': userId,
-      'mechanic_name': mechanicName,
-      'rating': rating,
-      'comment': comment,
-      'created_at': DateTime.now().toIso8601String(),
-    };
-
-    print('📤 [FEEDBACK] Submitting feedback: $feedbackData');
-
-    String? feedbackId;
-    bool storedInBackend = false;
-    bool storedInLocal = false;
-
-    // Attempt backend submission
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/feedback/'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (accessToken != null) 'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(feedbackData),
-      );
-
-      print('🌐 [FEEDBACK] Backend response status: ${response.statusCode}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
-        storedInBackend = true;
-        print('✅ [FEEDBACK] Backend storage successful. Feedback ID: $feedbackId');
-      } else {
-        print('❌ [FEEDBACK] Backend storage failed. Status: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('❌ [FEEDBACK] Backend error: $e');
-    }
-
-    // Local fallback if backend fails
-    if (feedbackId == null) {
-      feedbackId = serviceId.startsWith('local_') ? serviceId : _generateLocalFeedbackId(serviceId);
-      storedInLocal = true;
-      print('📱 [FEEDBACK] Using local fallback ID: $feedbackId');
-    }
-
-    // Create FeedbackModel
-    final submittedFeedback = FeedbackModel(
-      id: feedbackId,
-      serviceId: serviceId,
-      mechanicId: mechanicId,
-      mechanicName: mechanicName,
-      serviceType: 'General Service',
-      rating: rating,
-      comment: comment,
-      createdAt: DateTime.now(),
-      status: storedInBackend ? 'submitted' : 'submitted_local',
-    );
-
-    // Store locally for reference
-    await prefs.setString('feedback_$serviceId', feedbackId);
-
-    print('💾 [FEEDBACK] Stored feedback locally: $feedbackId');
-
-    return true;
-  } catch (e) {
-    print('❌ [FEEDBACK] Critical error: $e');
-    return false;
-  }
-}
 
 // Helper: Generate MongoDB ObjectId
 String _generateMongoId() {
@@ -473,139 +547,6 @@ String _generateMongoId() {
 }
 
 
-// Update the submitFeedback method with detailed debug statements
-// Future<bool> submitFeedback({
-//   required String serviceId,
-//   required String mechanicId,
-//   required String mechanicName,
-//   required int rating,
-//   required String comment,
-// }) async {
-//   try {
-//     final prefs = await SharedPreferences.getInstance();
-//     final userId = prefs.getString('user_id');
-
-//     // ✅ Build feedback object
-//     final feedbackData = {
-//       'service_id': serviceId, // ✅ Fix: don't send invalid ObjectId
-//       'mechanic_id': mechanicId,
-//       'user_id': userId,
-//       'mechanic_name': mechanicName,
-//       'rating': rating,
-//       'comment': comment,
-//       'created_at': DateTime.now().toIso8601String(),
-//     };
-
-//     print('📤 [FEEDBACK] === STARTING FEEDBACK SUBMISSION ===');
-//     print('📤 [FEEDBACK] Service ID: $serviceId');
-//     print('📤 [FEEDBACK] User ID: $userId');
-//     print('📤 [FEEDBACK] Rating: $rating, Comment length: ${comment.length}');
-    
-//     // ✅ Check if local or remote
-//     final isLocalService = serviceId.startsWith('local_');
-//     print('🔍 [FEEDBACK] Service type: ${isLocalService ? 'LOCAL SERVICE' : 'REMOTE SERVICE'}');
-
-//     String? feedbackId;
-//     FeedbackModel submittedFeedback;
-//     bool storedInBackend = false;
-//     bool storedInLocal = false;
-
-//     final accessToken = prefs.getString('access_token');
-
-//     // ✅ Always try backend first
-//     print('🌐 [FEEDBACK] Attempting to store in BACKEND...');
-//     print('🌐 [FEEDBACK] Backend URL: $baseUrl/feedback/');
-
-//     try {
-//       final response = await http.post(
-//         Uri.parse('$baseUrl/feedback/'),
-//         headers: {
-//           'Content-Type': 'application/json',
-//           if (accessToken != null) 'Authorization': 'Bearer $accessToken',
-//         },
-//         body: jsonEncode(feedbackData),
-//       );
-
-//       print('🌐 [FEEDBACK] Backend response status: ${response.statusCode}');
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         final data = jsonDecode(response.body);
-//         print('✅ [FEEDBACK] BACKEND STORAGE SUCCESSFUL');
-//         print('✅ [FEEDBACK] Backend response data: $data');
-
-//         // ✅ Extract backend ID safely
-//         feedbackId = data['_id'] ?? data['id'] ?? data['feedback_id'];
-//         print('✅ [FEEDBACK] Backend Feedback ID: $feedbackId');
-//         storedInBackend = true;
-//       } else {
-//         print('❌ [FEEDBACK] BACKEND STORAGE FAILED - Status: ${response.statusCode}');
-//         print('❌ [FEEDBACK] Response body: ${response.body}');
-//       }
-//     } catch (e) {
-//       print('❌ [FEEDBACK] BACKEND STORAGE ERROR: $e');
-//     }
-
-//     // ✅ Local fallback if backend failed
-//     if (feedbackId == null) {
-//       print('📱 [FEEDBACK] Using LOCAL STORAGE fallback...');
-//       feedbackId = _generateLocalFeedbackId(serviceId);
-//       storedInLocal = true;
-//       print('📱 [FEEDBACK] Generated Local Feedback ID: $feedbackId');
-//     }
-
-//     // ✅ Create the feedback model
-//     submittedFeedback = FeedbackModel(
-//       id: feedbackId,
-//       serviceId: serviceId,
-//       mechanicId: mechanicId,
-//       mechanicName: mechanicName,
-//       serviceType: lastServiceForFeedback['service_type'] ?? 'General Service',
-//       rating: rating,
-//       comment: comment,
-//       createdAt: DateTime.now(),
-//       status: isLocalService
-//           ? 'submitted_local'
-//           : (storedInBackend ? 'submitted' : 'submitted_local_fallback'),
-//     );
-
-//     // ✅ Save locally for reference
-//     await prefs.setString('feedback_$serviceId', feedbackId);
-//     print('💾 [FEEDBACK] Stored feedback ID: feedback_$serviceId = $feedbackId');
-
-//     feedbackHistory.add(submittedFeedback);
-//     await _saveFeedbackHistoryToLocal();
-//     print('💾 [FEEDBACK] Added to feedback history (${feedbackHistory.length} total)');
-
-//     removePendingFeedback(serviceId);
-//     await prefs.setBool('feedback_given_$serviceId', true);
-
-//     // ✅ Close popup and reset state
-//     showFeedbackPopup.value = false;
-//     hasPendingFeedback.value = false;
-//     lastServiceForFeedback.value = {};
-
-//     // ✅ Summary
-//     print('\n📊 [FEEDBACK] === STORAGE SUMMARY ===');
-//     print('📊 BACKEND: ${storedInBackend ? "SUCCESS" : "FAILED"}');
-//     print('📊 LOCAL: ${storedInLocal ? "USED" : "NOT USED"}');
-//     print('📊 Final Feedback ID: $feedbackId');
-//     print('📊 Status: ${submittedFeedback.status}');
-//     print('📊 === COMPLETE ===\n');
-
-//     return true;
-//   } catch (e) {
-//     print('❌ [FEEDBACK] CRITICAL ERROR in submitFeedback: $e');
-//     final emergencyResult = await _emergencySaveFeedback(
-//       serviceId: serviceId,
-//       mechanicId: mechanicId,
-//       mechanicName: mechanicName,
-//       rating: rating,
-//       comment: comment,
-//     );
-//     print('🆘 [FEEDBACK] Emergency storage result: ${emergencyResult ? "SUCCESS" : "FAILED"}');
-//     return emergencyResult;
-//   }
-// }
 // Emergency fallback method
 Future<bool> _emergencySaveFeedback({
   required String serviceId,
@@ -753,47 +694,6 @@ Future<bool> updateFeedback({
 } 
   // ============ POPUP MANAGEMENT ============
 
-  // Call this method right after a mechanic service is completed
-  void scheduleFeedback(Map<String, dynamic> service) {
-    lastServiceForFeedback.value = service;
-
-    // Add to pending feedback
-    addPendingFeedback(
-      serviceId: service['_id'] ?? service['id'],
-      mechanicId: service['mechanic_id'] ?? '',
-      mechanicName: service['mechanic_name'] ?? 'Unknown Mechanic',
-      serviceType: service['service_type'] ?? 'General Service',
-    );
-
-    // Cancel existing timer if any
-    _feedbackTimer?.cancel();
-
-    // Schedule feedback popup 30 seconds later
-    _feedbackTimer = Timer(const Duration(seconds: 30), () {
-      _showGlobalPopup();
-    });
-
-    print("🕐 Feedback popup scheduled in 30 seconds for service: ${service['_id']}");
-  }
-
-  void _showGlobalPopup() {
-    final service = lastServiceForFeedback.value;
-
-    if (service.isEmpty) return;
-    if (Get.isDialogOpen == true) return;
-
-    Get.dialog(
-      FeedbackPopup(
-        service: service,
-        controller: this,
-      ),
-      barrierDismissible: false,
-      useSafeArea: true,
-    );
-
-    print("💬 Feedback popup displayed for service: ${service['_id']}");
-  }
-
   // Core feedback check (called when app launches or after new service creation)
   void checkForPendingServicesFeedback() async {
     try {
@@ -936,3 +836,5 @@ Future<bool> updateFeedback({
     }
   }
 }
+
+

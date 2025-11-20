@@ -257,60 +257,6 @@ Future<void> _debugAuthState() async {
   );
 }
 
-  // Future<void> _onAddVehiclePressed() async {
-  //   // Validate required fields
-  //   if (controller.selectedVehicleType.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select a vehicle type");
-  //     return;
-  //   }
-  //   if (controller.selectedBrand.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select a vehicle brand");
-  //     return;
-  //   }
-  //   if (controller.selectedModel.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select a vehicle model");
-  //     return;
-  //   }
-  //   if (controller.selectedSubType.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select a vehicle sub-type");
-  //     return;
-  //   }
-  //   if (controller.selectedFuelType.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select fuel type");
-  //     return;
-  //   }
-  //   if (controller.selectedTransmission.value.isEmpty) {
-  //     Get.snackbar("Error", "Please select transmission type");
-  //     return;
-  //   }
-  //   if (controller.carModelYear.text.trim().isEmpty) {
-  //     Get.snackbar("Error", "Please enter model year");
-  //     return;
-  //   }
-  //   if (controller.carMileage.text.trim().isEmpty) {
-  //     Get.snackbar("Error", "Please enter mileage");
-  //     return;
-  //   }
-
-  //   // Validate year
-  //   final validatedYear = _validateYear(controller.carModelYear.text.trim());
-  //   if (validatedYear == null) return;
-
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final userId = prefs.getString("user_id");
-
-  //   if (userId == null || userId.isEmpty) {
-  //     Get.snackbar("Error", "User not logged in. Please log in again.");
-  //     return;
-  //   }
-
-  //   await controller.saveVehicle(
-  //     userId: userId,
-  //     isPrimary: true,
-  //     isActive: true,
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -353,97 +299,98 @@ Future<void> _debugAuthState() async {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Image Picker Section
-                      GestureDetector(
-                        onTap: () => OpenDialog(context),
-                        child: Center(
-                          child: Obx(
-                            () => Stack(
-                              children: [
-                                Container(
-                                  width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
-                                  height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondaryColor,
-                                    borderRadius: BorderRadius.circular(30),
-                                    border: Border.all(color: AppColors.mainColor, width: 2),
-                                  ),
-                                  child: controller.image.value == null && controller.imageBytes.value == null
-                                      ? Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.add_a_photo,
-                                                size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
-                                                color: AppColors.mainColor,
-                                              ),
-                                              SizedBox(height: 8),
-                                              Text(
-                                                "Add Vehicle Photo",
-                                                style: AppFonts.montserratMainText14.copyWith(
-                                                  color: AppColors.mainColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : ClipRRect(
-                                          borderRadius: BorderRadius.circular(30),
-                                          child: kIsWeb
-                                              ? Image.memory(
-                                                  controller.imageBytes.value!,
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  height: double.infinity,
-                                                )
-                                              : Image.file(
-                                                  controller.image.value!,
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  height: double.infinity,
-                                                ),
-                                        ),
-                                ),
-                                if (controller.image.value != null || controller.imageBytes.value != null)
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: Row(
-                                      children: [
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.mainColor,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                          ),
-                                          onPressed: () => OpenDialog(context),
-                                          child: Text(
-                                            'Update',
-                                            style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                          ),
-                                          onPressed: () {
-                                            controller.image.value = null;
-                                            controller.imageBytes.value = null;
-                                          },
-                                          child: Text(
-                                            'Remove',
-                                            style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () => OpenDialog(context),
+                      //   child: Center(
+                      //     child: Obx(
+                      //       () => Stack(
+                      //         children: [
+                      //           Container(
+                      //             width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
+                      //             height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
+                      //             decoration: BoxDecoration(
+                      //               color: AppColors.secondaryColor,
+                      //               borderRadius: BorderRadius.circular(30),
+                      //               border: Border.all(color: AppColors.mainColor, width: 2),
+                      //             ),
+                      //             child: controller.image.value == null && controller.imageBytes.value == null
+                      //                 ? Center(
+                      //                     child: Column(
+                      //                       mainAxisAlignment: MainAxisAlignment.center,
+                      //                       children: [
+                      //                         Icon(
+                      //                           Icons.add_a_photo,
+                      //                           size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
+                      //                           color: AppColors.mainColor,
+                      //                         ),
+                      //                         SizedBox(height: 8),
+                      //                         Text(
+                      //                           "Add Vehicle Photo",
+                      //                           style: AppFonts.montserratMainText14.copyWith(
+                      //                             color: AppColors.mainColor,
+                      //                           ),
+                      //                         ),
+                      //                       ],
+                      //                     ),
+                      //                   )
+                      //                 : ClipRRect(
+                      //                     borderRadius: BorderRadius.circular(30),
+                      //                     child: kIsWeb
+                      //                         ? Image.memory(
+                      //                             controller.imageBytes.value!,
+                      //                             fit: BoxFit.cover,
+                      //                             width: double.infinity,
+                      //                             height: double.infinity,
+                      //                           )
+                      //                         : Image.file(
+                      //                             controller.image.value!,
+                      //                             fit: BoxFit.cover,
+                      //                             width: double.infinity,
+                      //                             height: double.infinity,
+                      //                           ),
+                      //                   ),
+                      //           ),
+                      //           if (controller.image.value != null || controller.imageBytes.value != null)
+                      //             Positioned(
+                      //               bottom: 10,
+                      //               right: 10,
+                      //               child: Row(
+                      //                 children: [
+                      //                   ElevatedButton(
+                      //                     style: ElevatedButton.styleFrom(
+                      //                       backgroundColor: AppColors.mainColor,
+                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      //                     ),
+                      //                     onPressed: () => OpenDialog(context),
+                      //                     child: Text(
+                      //                       'Update',
+                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                      //                     ),
+                      //                   ),
+                      //                   const SizedBox(width: 10),
+                      //                   ElevatedButton(
+                      //                     style: ElevatedButton.styleFrom(
+                      //                       backgroundColor: Colors.red,
+                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      //                     ),
+                      //                     onPressed: () {
+                      //                       controller.image.value = null;
+                      //                       controller.imageBytes.value = null;
+                      //                     },
+                      //                     child: Text(
+                      //                       'Remove',
+                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                      //                     ),
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      
                       SizedBox(height: verticalPadding),
 
                       // ========== FIELDS APPEAR IN SEQUENCE ==========

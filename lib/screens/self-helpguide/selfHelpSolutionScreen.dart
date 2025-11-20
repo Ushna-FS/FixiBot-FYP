@@ -51,7 +51,7 @@ class SelfHelpSolutions extends StatelessWidget {
                 const SizedBox(height: 20),
         
                 // Generate buttons for Car / Bike / Truck
-                ...["Car", "Bike", "Truck"].map((type) {
+                ...["Car", "Bike"].map((type) {
                   final categoryData = issueData["Categories"][type];
         
                   // Extract first image from "Images"
