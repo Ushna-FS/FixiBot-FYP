@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
+import 'package:fixibot_app/screens/chatbot/provider/chatManagerProvider.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -53,6 +54,21 @@ final baseUrl  = AppConfig.baseUrl;
     );
   }
 
+Future<void> _initializeChatManager(String userId) async {
+  try {
+    ChatManagerProvider chatManagerProvider;
+    if (Get.isRegistered<ChatManagerProvider>()) {
+      chatManagerProvider = Get.find<ChatManagerProvider>();
+    } else {
+      chatManagerProvider = Get.put(ChatManagerProvider());
+    }
+    
+    await chatManagerProvider.initializeForUser(userId);
+    print('✅ ChatManagerProvider initialized for new user: $userId');
+  } catch (e) {
+    print('❌ Error initializing chat manager: $e');
+  }
+}
   /// Prevent double submission: if already loading, ignore
   Future<void> signup() async {
     if (isLoading.value) return; // guard against double taps
@@ -111,7 +127,16 @@ final baseUrl  = AppConfig.baseUrl;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
   final data = jsonDecode(response.body);
-
+ final userId = data["_id"] ?? "";
+  
+  // Save user data...
+  await _sharedPrefs.saveCurrentUserId(userId); // 🔥 CRITICAL
+  
+  // 🔥 INITIALIZE CHAT MANAGER
+  await _initializeChatManager(userId);
+  
+  showSuccess("Registration successful! Please verify your email.");
+  Get.offNamed(AppRoutes.otp, arguments: {"email": email});
   // 🚨 Clear old data
   await _sharedPrefs.clearAllData();
 
@@ -141,6 +166,8 @@ final baseUrl  = AppConfig.baseUrl;
       isLoading.value = false;
     }
   }
+
+  
 
   void _startCooldown() {
     canResendEmail.value = false;

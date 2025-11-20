@@ -1,11 +1,15 @@
-// chat_manager_provider.dart
 import 'package:fixibot_app/model/chatSession.dart';
 import 'package:fixibot_app/screens/chatbot/chatsessionManager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
-class ChatManagerProvider with ChangeNotifier {
+class ChatManagerProvider extends GetxController {
   ChatSessionManager? _currentUserChatManager;
   String? _currentUserId;
+  
+  // Make sessions observable
+  final RxList<ChatSession> _sessions = <ChatSession>[].obs;
+  List<ChatSession> get sessions => _sessions;
 
   ChatSessionManager? get chatManager => _currentUserChatManager;
   String? get currentUserId => _currentUserId;
@@ -15,18 +19,19 @@ class ChatManagerProvider with ChangeNotifier {
     _currentUserId = userId;
     _currentUserChatManager = ChatSessionManager(userId);
     await _currentUserChatManager!.loadSessions();
-    notifyListeners();
+    _sessions.value = _currentUserChatManager!.sessions;
+    update();
+    print('✅ ChatManagerProvider initialized for user: $userId');
   }
 
   // Clear when user logs out
   void clearUser() {
     _currentUserId = null;
     _currentUserChatManager = null;
-    notifyListeners();
+    _sessions.clear();
+    update();
+    print('✅ ChatManagerProvider cleared');
   }
-
-  // Proxy methods to chat manager
-  List<ChatSession> get sessions => _currentUserChatManager?.sessions ?? [];
 
   void createSession({
     required String id,
@@ -38,12 +43,14 @@ class ChatManagerProvider with ChangeNotifier {
       title: title,
       firstMessage: firstMessage,
     );
-    notifyListeners();
+    _sessions.value = _currentUserChatManager?.sessions ?? [];
+    update();
   }
 
   void deleteSession(String sessionId) {
     _currentUserChatManager?.deleteSession(sessionId);
-    notifyListeners();
+    _sessions.value = _currentUserChatManager?.sessions ?? [];
+    update();
   }
 
   Map<String, List<Map<String, dynamic>>> getSessionsMap() {
@@ -54,5 +61,15 @@ class ChatManagerProvider with ChangeNotifier {
       sessionsMap[session.id] = session.messages;
     }
     return sessionsMap;
+  }
+
+  void addMessageToSession(String sessionId, Map<String, dynamic> message) {
+    _currentUserChatManager?.addMessageToSession(sessionId, message);
+    _sessions.value = _currentUserChatManager?.sessions ?? [];
+    update();
+  }
+
+  List<Map<String, dynamic>> getSessionMessages(String sessionId) {
+    return _currentUserChatManager?.getSessionMessages(sessionId) ?? [];
   }
 }

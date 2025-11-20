@@ -6,6 +6,7 @@ import 'package:fixibot_app/screens/auth/controller/shared_pref_helper.dart';
 import 'package:fixibot_app/screens/chatbot/chatviewHistory.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
 import 'package:fixibot_app/widgets/customAppBar.dart';
+import 'package:fixibot_app/widgets/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -915,15 +916,16 @@ String _extractReplyFromResponse(Map<String, dynamic> response) {
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.secondaryColor),
             onPressed: () {
-              Get.to(ChatHistoryScreen(
-                sessions: _allSessions,
-                onOpenSession: (id) async {
-                  setState(() => _activeSessionId = id);
-                  final sp = await SharedPreferences.getInstance();
-                  await sp.setString(kCurrentSessionKey, id);
-                },
-                onDeleteSession: (id) => onDelete(id),
-              ));
+              // Get.to(ChatHistoryScreen(
+              //   sessions: _allSessions,
+              //   onOpenSession: (id) async {
+              //     setState(() => _activeSessionId = id);
+              //     final sp = await SharedPreferences.getInstance();
+              //     await sp.setString(kCurrentSessionKey, id);
+              //   },
+              //   onDeleteSession: (id) => onDelete(id),
+              // ));
+              Get.to(ChatHistoryWrapper());
             },
           ),
           IconButton(

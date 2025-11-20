@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fixibot_app/constants/appConfig.dart';
+import 'package:fixibot_app/screens/chatbot/provider/chatManagerProvider.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,6 +35,162 @@ class LoginController extends GetxController {
     _loadSavedCredentials();
   }
 
+
+// In LoginController - add this method
+Future<void> _initializeChatManager(String userId) async {
+  try {
+    // Get or create ChatManagerProvider instance
+    ChatManagerProvider chatManagerProvider;
+    if (Get.isRegistered<ChatManagerProvider>()) {
+      chatManagerProvider = Get.find<ChatManagerProvider>();
+    } else {
+      chatManagerProvider = Get.put(ChatManagerProvider());
+    }
+    
+    // Initialize with current user
+    await chatManagerProvider.initializeForUser(userId);
+    print('✅ ChatManagerProvider initialized for user: $userId');
+  } catch (e) {
+    print('❌ Error initializing chat manager: $e');
+  }
+}
+
+// Future<void> _fetchUserProfile(String accessToken, String tokenType) async {
+//   try {
+//     final url = Uri.parse("$baseUrl/auth/users/me");
+//     final response = await http.get(
+//       url,
+//       headers: {
+//         "Authorization": "$tokenType $accessToken",
+//         "Content-Type": "application/json",
+//       },
+//     );
+
+//     print("Profile API response: ${response.statusCode} -> ${response.body}");
+
+//     if (response.statusCode == 200) {
+//       final user = jsonDecode(response.body);
+
+//       final firstName = user["first_name"] ?? "";
+//       final lastName = user["last_name"] ?? "";
+//       final fullName = "$firstName $lastName".trim().isEmpty
+//           ? user["email"] // fallback if name is missing
+//           : "$firstName $lastName".trim();
+
+//       final userId = user["_id"] ?? "";
+//       final profilePicture = user["profile_picture"] ?? ""; // 🔥 ADD THIS LINE
+      
+//       // Save user data to SharedPreferences
+//       await _sharedPrefs.saveString("user_id", userId);
+//       await _sharedPrefs.saveString("first_name", firstName);
+//       await _sharedPrefs.saveString("last_name", lastName);
+//       await _sharedPrefs.saveString("phone_number", user["phone_number"] ?? "");
+//       await _sharedPrefs.saveString("full_name", fullName);
+      
+//       // 🔥 CRITICAL: Save profile image URL if available
+//       if (profilePicture != null && profilePicture.toString().isNotEmpty) {
+//         await _sharedPrefs.saveProfileImageUrl(profilePicture.toString());
+//         print('🖼️ Profile image URL saved from backend: $profilePicture');
+//       } else {
+//         print('ℹ️ No profile image found in backend response');
+//       }
+      
+//       print("✅ Saved user data:");
+//       print("   - User ID: $userId");
+//       print("   - Full Name: $fullName");
+//       print("   - Profile Image: ${profilePicture ?? "None"}");
+      
+//       // 🔥 CRITICAL: Update UserController with the user ID and profile image
+//       final userController = Get.find<UserController>();
+//       userController.setUserId(userId);
+//       userController.updateUser(fullName, user["email"] ?? "");
+      
+//       // 🔥 Update profile image in UserController if available
+//       if (profilePicture != null && profilePicture.toString().isNotEmpty) {
+//         userController.updateProfileImageUrl(profilePicture.toString());
+//       }
+      
+//       print("✅ UserController updated with user ID: $userId");
+      
+//     } else {
+//       print("❌ Failed to fetch profile: ${response.body}");
+//     }
+//   } catch (e) {
+//     print("Profile fetch exception: $e");
+//   }
+// }
+
+// Call this in your _fetchUserProfile method after getting user data:
+Future<void> _fetchUserProfile(String accessToken, String tokenType) async {
+  try {
+    final url = Uri.parse("$baseUrl/auth/users/me");
+    final response = await http.get(
+      url,
+      headers: {
+        "Authorization": "$tokenType $accessToken",
+        "Content-Type": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      final userId = user["_id"] ?? "";
+      
+      // Save user data...
+      await _sharedPrefs.saveString("user_id", userId);
+      await _sharedPrefs.saveCurrentUserId(userId); // 🔥 CRITICAL
+      
+      // 🔥 INITIALIZE CHAT MANAGER
+      await _initializeChatManager(userId);
+      
+      final firstName = user["first_name"] ?? "";
+      final lastName = user["last_name"] ?? "";
+      final fullName = "$firstName $lastName".trim().isEmpty
+          ? user["email"] // fallback if name is missing
+          : "$firstName $lastName".trim();
+
+      final profilePicture = user["profile_picture"] ?? ""; // 🔥 ADD THIS LINE
+      
+      // Save user data to SharedPreferences
+      await _sharedPrefs.saveString("user_id", userId);
+      await _sharedPrefs.saveString("first_name", firstName);
+      await _sharedPrefs.saveString("last_name", lastName);
+      await _sharedPrefs.saveString("phone_number", user["phone_number"] ?? "");
+      await _sharedPrefs.saveString("full_name", fullName);
+      
+      // 🔥 CRITICAL: Save profile image URL if available
+      if (profilePicture != null && profilePicture.toString().isNotEmpty) {
+        await _sharedPrefs.saveProfileImageUrl(profilePicture.toString());
+        print('🖼️ Profile image URL saved from backend: $profilePicture');
+      } else {
+        print('ℹ️ No profile image found in backend response');
+      }
+      
+      print("✅ Saved user data:");
+      print("   - User ID: $userId");
+      print("   - Full Name: $fullName");
+      print("   - Profile Image: ${profilePicture ?? "None"}");
+      
+      // 🔥 CRITICAL: Update UserController with the user ID and profile image
+      final userController = Get.find<UserController>();
+      userController.setUserId(userId);
+      userController.updateUser(fullName, user["email"] ?? "");
+      
+      // 🔥 Update profile image in UserController if available
+      if (profilePicture != null && profilePicture.toString().isNotEmpty) {
+        userController.updateProfileImageUrl(profilePicture.toString());
+      }
+      
+      print("✅ UserController updated with user ID: $userId");
+      
+    } else {
+      print("❌ Failed to fetch profile: ${response.body}");
+    }
+    
+  } catch (e) {
+    print("Profile fetch exception: $e");
+  }
+}
   /// Load saved email/password if "Remember Me" was enabled
   Future<void> _loadSavedCredentials() async {
     try {
@@ -116,70 +273,6 @@ class LoginController extends GetxController {
     }
   }
 // In LoginController.dart - Update _fetchUserProfile method
-Future<void> _fetchUserProfile(String accessToken, String tokenType) async {
-  try {
-    final url = Uri.parse("$baseUrl/auth/users/me");
-    final response = await http.get(
-      url,
-      headers: {
-        "Authorization": "$tokenType $accessToken",
-        "Content-Type": "application/json",
-      },
-    );
-
-    print("Profile API response: ${response.statusCode} -> ${response.body}");
-
-    if (response.statusCode == 200) {
-      final user = jsonDecode(response.body);
-
-      final firstName = user["first_name"] ?? "";
-      final lastName = user["last_name"] ?? "";
-      final fullName = "$firstName $lastName".trim().isEmpty
-          ? user["email"] // fallback if name is missing
-          : "$firstName $lastName".trim();
-
-      final userId = user["_id"] ?? "";
-      final profilePicture = user["profile_picture"] ?? ""; // 🔥 ADD THIS LINE
-      
-      // Save user data to SharedPreferences
-      await _sharedPrefs.saveString("user_id", userId);
-      await _sharedPrefs.saveString("first_name", firstName);
-      await _sharedPrefs.saveString("last_name", lastName);
-      await _sharedPrefs.saveString("phone_number", user["phone_number"] ?? "");
-      await _sharedPrefs.saveString("full_name", fullName);
-      
-      // 🔥 CRITICAL: Save profile image URL if available
-      if (profilePicture != null && profilePicture.toString().isNotEmpty) {
-        await _sharedPrefs.saveProfileImageUrl(profilePicture.toString());
-        print('🖼️ Profile image URL saved from backend: $profilePicture');
-      } else {
-        print('ℹ️ No profile image found in backend response');
-      }
-      
-      print("✅ Saved user data:");
-      print("   - User ID: $userId");
-      print("   - Full Name: $fullName");
-      print("   - Profile Image: ${profilePicture ?? "None"}");
-      
-      // 🔥 CRITICAL: Update UserController with the user ID and profile image
-      final userController = Get.find<UserController>();
-      userController.setUserId(userId);
-      userController.updateUser(fullName, user["email"] ?? "");
-      
-      // 🔥 Update profile image in UserController if available
-      if (profilePicture != null && profilePicture.toString().isNotEmpty) {
-        userController.updateProfileImageUrl(profilePicture.toString());
-      }
-      
-      print("✅ UserController updated with user ID: $userId");
-      
-    } else {
-      print("❌ Failed to fetch profile: ${response.body}");
-    }
-  } catch (e) {
-    print("Profile fetch exception: $e");
-  }
-}
 
 
 

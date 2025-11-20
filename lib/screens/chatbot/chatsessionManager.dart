@@ -43,8 +43,6 @@
 //   }
 // }
 
-
-
 import 'dart:convert';
 import 'package:fixibot_app/model/chatSession.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,14 +55,11 @@ class ChatSessionManager {
 
   List<ChatSession> get sessions => List.unmodifiable(_sessions);
 
-  // Helper method to get the storage instance
-  Future<SharedPreferences> get _prefs async => await SharedPreferences.getInstance();
-
   // User-specific storage key
   String get _storageKey => 'chat_sessions_$_currentUserId';
 
   Future<void> loadSessions() async {
-    final prefs = await _prefs;
+    final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString(_storageKey);
     if (stored != null) {
       try {
@@ -82,7 +77,7 @@ class ChatSessionManager {
   }
 
   Future<void> _saveToPrefs() async {
-    final prefs = await _prefs;
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _storageKey,
       jsonEncode(_sessions.map((s) => s.toJson()).toList()),
@@ -106,14 +101,13 @@ class ChatSessionManager {
     _saveToPrefs();
   }
 
-  // Add methods to manage sessions
   void addMessageToSession(String sessionId, Map<String, dynamic> message) {
-    final session = _sessions.firstWhere(
-      (s) => s.id == sessionId,
-      orElse: () => ChatSession(id: sessionId, title: 'New Chat', messages: []),
-    );
-    
-    if (!_sessions.contains(session)) {
+    // Find existing session or create new one
+    ChatSession session;
+    try {
+      session = _sessions.firstWhere((s) => s.id == sessionId);
+    } catch (e) {
+      session = ChatSession(id: sessionId, title: 'New Chat', messages: []);
       _sessions.add(session);
     }
     
@@ -138,7 +132,7 @@ class ChatSessionManager {
 
   // Method to clear all sessions for current user (on logout)
   Future<void> clearCurrentUserSessions() async {
-    final prefs = await _prefs;
+    final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_storageKey);
     _sessions.clear();
     print('🗑️ Cleared all sessions for user: $_currentUserId');
