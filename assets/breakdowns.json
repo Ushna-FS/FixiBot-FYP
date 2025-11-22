@@ -217,7 +217,13 @@
           "If leakage is detected from the tank or pipes, do not attempt to start the vehicle — call roadside assistance immediately, as there is a fire hazard."
         ],
         "Images": {
-          "carFuelLeak": "assets/images/selfHelp/C_FuelLeak.png"
+          "carFuelLeak": "assets/images/selfHelp/C_fuelleakage1.png",
+          "carFuelLeak1": "assets/images/selfHelp/C_fuelleakage2.png",
+          "carFuelLeak2": "assets/images/selfHelp/C_fuelleakage3.png",
+          "carFuelLeak3": "assets/images/selfHelp/C_fuelleakage4.png",
+          "carFuelLeak4": "assets/images/selfHelp/C_fuelleakage5.png",
+          "carFuelLeak5": "assets/images/selfHelp/C_fuelleakage6.png",
+          "carFuelLeak6": "assets/images/selfHelp/C_fuelleakage7.png"
         }
       },
       "In Bikes": {
@@ -235,7 +241,12 @@
           "Ride slowly to the nearest petrol station or mechanic for a permanent fix if leakage exists."
         ],
         "Images": {
-          "bikeFuelLeak": "assets/images/selfHelp/B_Fuel.png"
+          "bikeFuelLeak1": "assets/images/selfHelp/B_fuelleakage1.png",
+          "bikeFuelLeak2": "assets/images/selfHelp/B_fuelleakage2.png",
+          "bikeFuelLeak3": "assets/images/selfHelp/B_fuelleakage3.png",
+          "bikeFuelLeak4": "assets/images/selfHelp/B_fuelleakage4.png",
+          "bikeFuelLeak5": "assets/images/selfHelp/B_fuelleakage5.png",
+          "bikeFuelLeak6": "assets/images/selfHelp/B_fuelleakage6.png"
         }
       }
     },
@@ -255,7 +266,12 @@
           "If clutch partially works after fluid top-up, engage gears gently and drive only to the nearest mechanic."
         ],
         "Images": {
-          "carClutch": "assets/images/selfHelp/C_clutch.png"
+          "carClutch1": "assets/images/selfHelp/C_clutchfailure1.png",
+          "carClutch2": "assets/images/selfHelp/C_clutchfailure2.png",
+          "carClutch3": "assets/images/selfHelp/C_clutchfailure3.png",
+          "carClutch4": "assets/images/selfHelp/C_clutchfailure4.png",
+          "carClutch5": "assets/images/selfHelp/C_clutchfailure5.png",
+          "carClutch6": "assets/images/selfHelp/C_clutchfailure6.png"
         }
       },
       "In Bikes": {
@@ -267,7 +283,11 @@
           "Shift gears carefully by matching throttle and engine speed (clutchless shifting)."
         ],
         "Images": {
-          "bikeClutch": "assets/images/selfHelp/B_Clutch.png"
+          "bikeClutch1": "assets/images/selfHelp/B_clutchfailure1.png",
+          "bikeClutch2": "assets/images/selfHelp/B_clutchfailure2.png",
+          "bikeClutch3": "assets/images/selfHelp/B_clutchfailure3.png",
+          "bikeClutch4": "assets/images/selfHelp/B_clutchfailure4.png",
+          "bikeClutch5": "assets/images/selfHelp/B_clutchfailure5.png"
         }
       }
     },
@@ -287,7 +307,12 @@
           "If still unresponsive, call roadside assistance — do not keep cranking as it may drain the battery."
         ],
         "Images": {
-          "carStarter": "assets/images/selfHelp/C_motor.png"
+          "carStarter1": "assets/images/selfHelp/C_startermotor1.png",
+          "carStarter2": "assets/images/selfHelp/C_startermotor2.png",
+          "carStarter3": "assets/images/selfHelp/C_startermotor3.png",
+          "carStarter4": "assets/images/selfHelp/C_startermotor4.png",
+          "carStarter5": "assets/images/selfHelp/C_startermotor5.png",
+          "carStarter6": "assets/images/selfHelp/C_startermotor6.png"
         }
       },
       "In Bikes": {
@@ -299,7 +324,11 @@
           "If the starter is burnt out, it must be replaced at a workshop."
         ],
         "Images": {
-          "bikeStarter": "assets/images/selfHelp/B_motor.png"
+          "bikeStarter1": "assets/images/selfHelp/B_startermotor1.png",
+          "bikeStarter2": "assets/images/selfHelp/B_startermotor2.png",
+          "bikeStarter3": "assets/images/selfHelp/B_startermotor3.png",
+          "bikeStarter4": "assets/images/selfHelp/B_startermotor4.png",
+          "bikeStarter5": "assets/images/selfHelp/B_startermotor5.png"
         }
       }
     },
@@ -320,7 +349,12 @@
           "Until fixed, use hazard lights and drive slowly."
         ],
         "Images": {
-          "carHeadlight": "assets/images/selfHelp/C_indicator.png"
+          "carHeadlight1": "assets/images/selfHelp/C_indicator1.png",
+          "carHeadlight2": "assets/images/selfHelp/C_indicator2.png",
+          "carHeadlight3": "assets/images/selfHelp/C_indicator3.png",
+          "carHeadlight4": "assets/images/selfHelp/C_indicator4.png",
+          "carHeadlight5": "assets/images/selfHelp/C_indicator5.png",
+          "carHeadlight6": "assets/images/selfHelp/C_indicator6.png"
         }
       },
       "In Bikes": {
@@ -332,7 +366,11 @@
           "If unable to fix roadside, use hand signals and avoid night riding until repaired."
         ],
         "Images": {
-          "bikeHeadlight": "assets/images/selfHelp/B_indicator.png"
+          "bikeHeadlight1": "assets/images/selfHelp/B_indicator1.png",
+          "bikeHeadlight2": "assets/images/selfHelp/B_indicator2.png",
+          "bikeHeadlight3": "assets/images/selfHelp/B_indicator3.png",
+          "bikeHeadlight4": "assets/images/selfHelp/B_indicator4.png",
+          "bikeHeadlight5": "assets/images/selfHelp/B_indicator5.png"
         }
       }
     }
