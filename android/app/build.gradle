@@ -25,7 +25,7 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '
 
 android {
     namespace 'com.example.fixibot_app'
-    compileSdk 36        // ✅ update to latest SDK
+    compileSdk 35       // ✅ update to latest SDK
     ndkVersion "26.1.10909125"
 
     compileOptions {
@@ -60,8 +60,9 @@ android {
 
     defaultConfig {
         applicationId 'com.example.fixibot_app'
-        minSdkVersion flutter.minSdkVersion
-        targetSdk 36
+        // minSdkVersion flutter.minSdkVersion
+        minSdkVersion 23 
+        targetSdk 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
