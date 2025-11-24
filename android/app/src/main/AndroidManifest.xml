@@ -23,8 +23,9 @@
         android:label="fixibot_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="28">
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="28"
+        tools:ignore="GoogleAppIndexingWarning">
         
         <activity
             android:name=".MainActivity"

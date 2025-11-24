@@ -57,8 +57,7 @@ class GoogleSignInController extends GetxController {
     }
   }
 
-
-  /// Enhanced Main Sign-In Method with fallbacks
+/// Enhanced Main Sign-In Method with proper first-time user flow
 Future<void> signInWithGoogle() async {
   try {
     isLoading.value = true;
@@ -102,7 +101,14 @@ Future<void> signInWithGoogle() async {
     }
 
     if (success) {
-      await _handleSuccessfulLogin(googleUser);
+      // ✅ ENHANCED: Check if first-time user and handle accordingly
+      final isFirstTime = await _checkIfFirstTimeUser(googleUser.email);
+      
+      if (isFirstTime) {
+        await _handleSuccessfulSignUp(googleUser);
+      } else {
+        await _handleSuccessfulLogin(googleUser);
+      }
     } else {
       throw Exception("All authentication methods failed");
     }
@@ -138,6 +144,87 @@ Future<void> signInWithGoogle() async {
   }
 }
 
+
+//   /// Enhanced Main Sign-In Method with fallbacks
+// Future<void> signInWithGoogle() async {
+//   try {
+//     isLoading.value = true;
+//     print("🔄 Starting Google Sign-In process...");
+
+//     // Initialize if needed
+//     if (_googleSignIn == null) {
+//       _initializeGoogleSignIn();
+//     }
+
+//     print("1️⃣ Triggering Google sign-in UI...");
+    
+//     // 1. Trigger Google sign-in flow
+//     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+//     if (googleUser == null) {
+//       print("❌ User cancelled Google Sign-In");
+//       isLoading.value = false;
+//       return;
+//     }
+
+//     print("✅ Google user obtained: ${googleUser.email}");
+
+//     // 2. Get authentication object
+//     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+//     final String? idToken = googleAuth.idToken;
+
+//     if (idToken == null) {
+//       throw Exception("Google ID Token was null - authentication failed");
+//     }
+
+//     print("3️⃣ Attempting backend authentication...");
+    
+//     // Try the enhanced method first
+//     bool success = await _sendTokenToBackendEnhanced(idToken, googleUser);
+    
+//     if (!success) {
+//       // Fallback to original method
+//       print("🔄 Falling back to original method...");
+//       success = await _sendTokenToBackendEnhanced(idToken, googleUser);
+//     }
+
+//     if (success) {
+//       await _handleSuccessfulLogin(googleUser);
+//     } else {
+//       throw Exception("All authentication methods failed");
+//     }
+
+//   } catch (error) {
+//     print("❌ Error during Google Sign-In: $error");
+    
+//     // More specific error handling
+//     String errorMessage = "Unable to sign in with Google. Please try again.";
+    
+//     if (error.toString().contains('400')) {
+//       errorMessage = "Invalid request. Please contact support.";
+//     } else if (error.toString().contains('422')) {
+//       errorMessage = "Validation error. Please check your Google account.";
+//     } else if (error.toString().contains('500')) {
+//       errorMessage = "Server error. Please try again later.";
+//     } else if (error.toString().contains('No access token')) {
+//       errorMessage = "Authentication failed. Please try again.";
+//     } else if (error.toString().contains('network') || error.toString().contains('SocketException')) {
+//       errorMessage = "Network error. Please check your internet connection.";
+//     }
+    
+//     Get.snackbar(
+//       "Sign In Failed", 
+//       errorMessage,
+//       snackPosition: SnackPosition.BOTTOM,
+//       backgroundColor: Colors.red,
+//       colorText: Colors.white,
+//       duration: Duration(seconds: 5),
+//     );
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
+
   /// Check if Google Sign-In is supported on this platform
   Future<bool> _checkGoogleSignInSupport() async {
     try {
@@ -151,9 +238,7 @@ Future<void> signInWithGoogle() async {
   }
 
 
-
-
-/// Handle successful FIRST-TIME sign-up
+/// Handle successful FIRST-TIME sign-up - UPDATED
 Future<void> _handleSuccessfulSignUp(GoogleSignInAccount googleUser, {Map<String, dynamic>? userData}) async {
   try {
     print("🎉 Google Sign-Up Successful! First-time user detected");
@@ -168,8 +253,8 @@ Future<void> _handleSuccessfulSignUp(GoogleSignInAccount googleUser, {Map<String
     // Final verification
     await _verifyUserSessionCompleteness();
     
-    // For first-time users, you can navigate to home or a welcome screen
-    Get.offAllNamed(AppRoutes.home);
+    // ✅ CHANGE: For first-time users, navigate to User Journey instead of Home
+    Get.offAllNamed(AppRoutes.userJourney);
     
     // Show welcome message for new users
     Get.snackbar(
@@ -193,6 +278,90 @@ Future<void> _handleSuccessfulSignUp(GoogleSignInAccount googleUser, {Map<String
     isLoading.value = false;
   }
 }
+
+/// Handle successful login - ENHANCED VERSION - UPDATED
+Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser, {Map<String, dynamic>? userData}) async {
+  try {
+    isLoading.value = true;
+    
+    print("🎉 Google Sign-In Successful!");
+    print("👤 User: ${googleUser.displayName}");
+    print("📧 Email: ${googleUser.email}");
+
+    // ✅ ENHANCED: Ensure complete user setup
+    await _ensureCompleteUserSetup(googleUser, userData);
+
+    isLoggedIn.value = true;
+    
+    // ✅ DEBUG: Final verification
+    await _verifyUserSessionCompleteness();
+    
+    // ✅ CHANGE: For returning users, navigate directly to Home
+    Get.offAllNamed(AppRoutes.home);
+    
+    // Show success message
+    Get.snackbar(
+      "Welcome Back!", 
+      "Signed in as ${googleUser.displayName ?? 'User'}",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      duration: Duration(seconds: 3),
+    );
+    
+  } catch (e) {
+    print('❌ Error in successful login handling: $e');
+    Get.snackbar(
+      "Setup Incomplete", 
+      "Please try logging in again",
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+    );
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// /// Handle successful FIRST-TIME sign-up
+// Future<void> _handleSuccessfulSignUp(GoogleSignInAccount googleUser, {Map<String, dynamic>? userData}) async {
+//   try {
+//     print("🎉 Google Sign-Up Successful! First-time user detected");
+//     print("👤 User: ${googleUser.displayName}");
+//     print("📧 Email: ${googleUser.email}");
+
+//     // Ensure complete user setup
+//     await _ensureCompleteUserSetup(googleUser, userData);
+
+//     isLoggedIn.value = true;
+    
+//     // Final verification
+//     await _verifyUserSessionCompleteness();
+    
+//     // For first-time users, you can navigate to home or a welcome screen
+//     Get.offAllNamed(AppRoutes.home);
+    
+//     // Show welcome message for new users
+//     Get.snackbar(
+//       "Welcome to Fixibot!", 
+//       "Your account has been created successfully!",
+//       snackPosition: SnackPosition.BOTTOM,
+//       backgroundColor: Colors.green,
+//       colorText: Colors.white,
+//       duration: Duration(seconds: 4),
+//     );
+    
+//   } catch (e) {
+//     print('❌ Error in sign-up handling: $e');
+//     Get.snackbar(
+//       "Setup Incomplete", 
+//       "Please try signing up again",
+//       backgroundColor: Colors.orange,
+//       colorText: Colors.white,
+//     );
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
 
 
 
@@ -239,21 +408,82 @@ Future<void> continueWithGoogle() async {
   }
 }
 
-/// Check if user is signing up for the first time
+/// Enhanced first-time user detection for Google Sign-In
 Future<bool> _checkIfFirstTimeUser(String email) async {
-  // You can check local storage or get this info from backend
-  final prefs = await SharedPreferences.getInstance();
-  final knownUsers = prefs.getStringList('known_users') ?? [];
-  
-  if (knownUsers.contains(email)) {
-    return false; // Returning user
-  } else {
-    // Add to known users
-    knownUsers.add(email);
-    await prefs.setStringList('known_users', knownUsers);
-    return true; // First time user
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Method 1: Check if user has seen the journey before
+    final hasSeenJourney = prefs.getBool('has_seen_user_journey') ?? false;
+    
+    // Method 2: Check if this is a fresh Google signup
+    final isFreshGoogleSignup = prefs.getBool('is_fresh_google_signup') ?? false;
+    
+    // Method 3: Check if we have existing user data
+    final hasUserData = prefs.getString('user_id') != null && 
+                       prefs.getString('user_id')!.isNotEmpty;
+    
+    print('🔍 Google First-time user check:');
+    print('   - Has seen journey: $hasSeenJourney');
+    print('   - Is fresh Google signup: $isFreshGoogleSignup');
+    print('   - Has user data: $hasUserData');
+    
+    // Show journey only if it's a fresh Google signup AND user hasn't seen journey before
+    final isFirstTime = (isFreshGoogleSignup || !hasUserData) && !hasSeenJourney;
+    
+    if (isFirstTime) {
+      print('🆕 First-time Google user detected - will show journey');
+      // Mark that we've detected first-time to prevent showing again
+      await _markGoogleUserJourneySeen();
+    } else {
+      print('✅ Returning Google user detected - going directly to home');
+    }
+    
+    return isFirstTime;
+  } catch (e) {
+    print('❌ Error checking Google first-time user: $e');
+    return false; // Default to returning user on error
   }
 }
+
+/// Mark that Google user has seen/been offered the journey
+Future<void> _markGoogleUserJourneySeen() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_user_journey', true);
+    await prefs.setBool('is_fresh_google_signup', false);
+    print('✅ Google user journey marked as seen');
+  } catch (e) {
+    print('❌ Error marking Google user journey: $e');
+  }
+}
+
+/// Mark as fresh Google signup (when user signs up with Google for first time)
+Future<void> _markAsFreshGoogleSignup() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_fresh_google_signup', true);
+    print('✅ Marked as fresh Google signup');
+  } catch (e) {
+    print('❌ Error marking fresh Google signup: $e');
+  }
+}
+
+// /// Check if user is signing up for the first time
+// Future<bool> _checkIfFirstTimeUser(String email) async {
+//   // You can check local storage or get this info from backend
+//   final prefs = await SharedPreferences.getInstance();
+//   final knownUsers = prefs.getStringList('known_users') ?? [];
+  
+//   if (knownUsers.contains(email)) {
+//     return false; // Returning user
+//   } else {
+//     // Add to known users
+//     knownUsers.add(email);
+//     await prefs.setStringList('known_users', knownUsers);
+//     return true; // First time user
+//   }
+// }
 
 
 /// Enhanced user ID extraction that works with MongoDB ObjectId
@@ -297,78 +527,7 @@ bool _isValidObjectId(String id) {
 }
 
 
-/// Enhanced backend communication that handles user ID properly - CORRECTED VERSION
-Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccount googleUser) async {
-  final url = Uri.parse("$baseUrl/auth/google");
-
-  try {
-    print("📡 Sending enhanced POST request to: $url");
-    
-    final Map<String, dynamic> payload = {
-      "token": googleIdToken,
-    };
-
-    print("📦 Payload: ${json.encode(payload)}");
-
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: json.encode(payload),
-    ).timeout(Duration(seconds: 30));
-
-    print("📨 Backend response status: ${response.statusCode}");
-    print("📨 Backend response body: ${response.body}");
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      final String? accessToken = responseData['access_token'];
-      final Map<String, dynamic>? userData = responseData['user'];
-
-      if (accessToken == null) {
-        throw Exception("No access token received");
-      }
-
-      print("✅ Authentication successful");
-      
-      // ✅ FIX: Store both access token and token type - THIS WAS MISSING
-      await _storeAuthTokens(accessToken, responseData);
-      
-      // Store user data - but be careful about user ID
-      if (userData != null) {
-        await _storeUserDataFromBackend(userData);
-      } else {
-        await _storeUserDataFromGoogle(googleUser);
-      }
-
-      await _updateUserController(googleUser, userData);
-      
-      // ✅ Check if we have a valid user ID
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('user_id');
-      
-      if (userId != null && _isValidObjectId(userId)) {
-        print("🎉 Proper User ID received: $userId");
-      } else {
-        print("⚠️ Waiting for proper User ID from backend...");
-      }
-      
-      return true;
-    } else {
-      final errorData = json.decode(response.body);
-      final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? "Unknown error";
-      throw Exception("Error ${response.statusCode}: $errorMsg");
-    }
-  } catch (error) {
-    print("❌ Enhanced method error: $error");
-    rethrow;
-  }
-}
-
-
-
-// /// Enhanced backend communication that handles user ID properly
+// /// Enhanced backend communication that handles user ID properly - CORRECTED VERSION
 // Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccount googleUser) async {
 //   final url = Uri.parse("$baseUrl/auth/google");
 
@@ -403,8 +562,8 @@ Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccou
 
 //       print("✅ Authentication successful");
       
-//       // Store access token immediately
-//       await _sharedPrefs.saveAccessToken(accessToken);
+//       // ✅ FIX: Store both access token and token type - THIS WAS MISSING
+//       await _storeAuthTokens(accessToken, responseData);
       
 //       // Store user data - but be careful about user ID
 //       if (userData != null) {
@@ -423,7 +582,6 @@ Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccou
 //         print("🎉 Proper User ID received: $userId");
 //       } else {
 //         print("⚠️ Waiting for proper User ID from backend...");
-//         // Don't throw error - user can still use the app
 //       }
       
 //       return true;
@@ -439,6 +597,83 @@ Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccou
 // }
 
 
+/// Enhanced backend communication that handles user ID properly - UPDATED
+Future<bool> _sendTokenToBackendEnhanced(String googleIdToken, GoogleSignInAccount googleUser) async {
+  final url = Uri.parse("$baseUrl/auth/google");
+
+  try {
+    print("📡 Sending enhanced POST request to: $url");
+    
+    final Map<String, dynamic> payload = {
+      "token": googleIdToken,
+    };
+
+    print("📦 Payload: ${json.encode(payload)}");
+
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: json.encode(payload),
+    ).timeout(Duration(seconds: 30));
+
+    print("📨 Backend response status: ${response.statusCode}");
+    print("📨 Backend response body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final String? accessToken = responseData['access_token'];
+      final Map<String, dynamic>? userData = responseData['user'];
+
+      if (accessToken == null) {
+        throw Exception("No access token received");
+      }
+
+      print("✅ Authentication successful");
+      
+      // ✅ CHECK: If this is likely a first-time user based on backend response
+      final bool isNewUserBackend = responseData['is_new_user'] ?? 
+                                   response.statusCode == 201; // 201 usually means created
+      
+      if (isNewUserBackend) {
+        print('🎉 Backend indicates new Google user - will show journey');
+        await _markAsFreshGoogleSignup();
+      }
+
+      // ✅ FIX: Store both access token and token type - THIS WAS MISSING
+      await _storeAuthTokens(accessToken, responseData);
+      
+      // Store user data - but be careful about user ID
+      if (userData != null) {
+        await _storeUserDataFromBackend(userData);
+      } else {
+        await _storeUserDataFromGoogle(googleUser);
+      }
+
+      await _updateUserController(googleUser, userData);
+      
+      // ✅ Check if we have a valid user ID
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+      
+      if (userId != null && _isValidObjectId(userId)) {
+        print("🎉 Proper User ID received: $userId");
+      } else {
+        print("⚠️ Waiting for proper User ID from backend...");
+      }
+      
+      return true;
+    } else {
+      final errorData = json.decode(response.body);
+      final errorMsg = errorData['detail'] ?? errorData['message'] ?? errorData['error'] ?? "Unknown error";
+      throw Exception("Error ${response.statusCode}: $errorMsg");
+    }
+  } catch (error) {
+    print("❌ Enhanced method error: $error");
+    rethrow;
+  }
+}
 
 /// Store user data from backend response - UPDATED
 Future<void> _storeUserDataFromBackend(Map<String, dynamic> userData) async {
@@ -551,48 +786,48 @@ Future<void> _ensureCompleteUserSetup(GoogleSignInAccount googleUser, Map<String
   }
 }
 
-/// Handle successful login - ENHANCED VERSION
-Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser, {Map<String, dynamic>? userData}) async {
-  try {
-    isLoading.value = true;
+// /// Handle successful login - ENHANCED VERSION
+// Future<void> _handleSuccessfulLogin(GoogleSignInAccount googleUser, {Map<String, dynamic>? userData}) async {
+//   try {
+//     isLoading.value = true;
     
-    print("🎉 Google Sign-In Successful!");
-    print("👤 User: ${googleUser.displayName}");
-    print("📧 Email: ${googleUser.email}");
+//     print("🎉 Google Sign-In Successful!");
+//     print("👤 User: ${googleUser.displayName}");
+//     print("📧 Email: ${googleUser.email}");
 
-    // ✅ ENHANCED: Ensure complete user setup
-    await _ensureCompleteUserSetup(googleUser, userData);
+//     // ✅ ENHANCED: Ensure complete user setup
+//     await _ensureCompleteUserSetup(googleUser, userData);
 
-    isLoggedIn.value = true;
+//     isLoggedIn.value = true;
     
-    // ✅ DEBUG: Final verification
-    await _verifyUserSessionCompleteness();
+//     // ✅ DEBUG: Final verification
+//     await _verifyUserSessionCompleteness();
     
-    // Navigate to home screen
-    Get.offAllNamed(AppRoutes.home);
+//     // Navigate to home screen
+//     Get.offAllNamed(AppRoutes.home);
     
-    // Show success message
-    Get.snackbar(
-      "Welcome!", 
-      "Signed in as ${googleUser.displayName ?? 'User'}",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      duration: Duration(seconds: 3),
-    );
+//     // Show success message
+//     Get.snackbar(
+//       "Welcome!", 
+//       "Signed in as ${googleUser.displayName ?? 'User'}",
+//       snackPosition: SnackPosition.BOTTOM,
+//       backgroundColor: Colors.green,
+//       colorText: Colors.white,
+//       duration: Duration(seconds: 3),
+//     );
     
-  } catch (e) {
-    print('❌ Error in successful login handling: $e');
-    Get.snackbar(
-      "Setup Incomplete", 
-      "Please try logging in again",
-      backgroundColor: Colors.orange,
-      colorText: Colors.white,
-    );
-  } finally {
-    isLoading.value = false;
-  }
-}
+//   } catch (e) {
+//     print('❌ Error in successful login handling: $e');
+//     Get.snackbar(
+//       "Setup Incomplete", 
+//       "Please try logging in again",
+//       backgroundColor: Colors.orange,
+//       colorText: Colors.white,
+//     );
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
 
 
 /// Smart profile image detection with persistent custom image support

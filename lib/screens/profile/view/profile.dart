@@ -243,14 +243,7 @@ Future<void> _logout() async {
                             style: AppFonts.montserratText2),
                       ),
                     ),
-                    ListTile(
-                      leading: Image.asset("assets/icons/help.png"),
-                      title: InkWell(
-                        onTap: () => Get.to(HelpSupportPage()),
-                        child: Text("Help & Support",
-                            style: AppFonts.montserratText2),
-                      ),
-                    ),
+                    
                     ListTile(
                       leading: Icon(Icons.build, color: AppColors.mainColor),
                       title: InkWell(
@@ -269,6 +262,13 @@ Future<void> _logout() async {
                           "FeedBacks",
                           style: AppFonts.montserratText2,
                         ),
+                      ),
+                    ),ListTile(
+                      leading: Image.asset("assets/icons/help.png"),
+                      title: InkWell(
+                        onTap: () => Get.to(HelpSupportPage()),
+                        child: Text("Help & Support",
+                            style: AppFonts.montserratText2),
                       ),
                     ),
                     const Spacer(),

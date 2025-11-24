@@ -10,19 +10,18 @@
           "Warning triangle"
         ],
         "Steps": [
-          "Park the car safely off the road and turn on hazard lights.",
-          "Place the warning triangle 30-40m behind your car for safety.",
-          "Loosen the wheel nuts slightly (do not remove yet).",
-          "Place the jack under the car at the lifting point and raise it until the tire is off the ground.",
-          "Remove the loosened nuts fully and take off the flat tire.",
-          "Mount the spare tire and tighten nuts with your hand.",
-          "Lower the jack and tighten nuts fully in a criss-cross pattern.",
-          "Store tools and flat tire in trunk, continue driving safely."
+          "Safely pull over to a flat, stable surface away from traffic and immediately turn on your hazard lights to alert other drivers.",
+          "Walk 30-40 meters behind your vehicle and place the warning triangle on the road to create a safe zone for your repair work.",
+          "Using the wheel spanner, loosen the wheel nuts by turning them counterclockwise, but do not remove them completely at this stage.",
+          "Position the car jack under the vehicle's designated lifting point near the flat tire and slowly raise the car until the tire is completely off the ground.",
+          "Now fully remove all the loosened wheel nuts and carefully pull the flat tire straight off the wheel studs, keeping it balanced.",
+          "Align the spare tire with the wheel studs and push it into place, then hand-tighten all the nuts in a star pattern to ensure even seating.",
+          "Lower the jack until the tire touches the ground, then use the wheel spanner to fully tighten the nuts in a criss-cross pattern for maximum security.",
+          "Carefully store all tools and the flat tire in your trunk, then drive cautiously to the nearest repair shop to fix or replace the damaged tire."
         ],
         "Images": {
-          "t1": "assets/images/selfHelp/t1.png",
-          "jackCar": "assets/images/selfHelp/jackCar.png",
           "flatTyre": "assets/images/selfHelp/flat-tyreCar.png",
+          "jackCar": "assets/images/selfHelp/jackCar.png",
           "carSpanner": "assets/images/selfHelp/carSapnner.png",
           "triangleCar": "assets/images/selfHelp/Trainglecar.png"
         }
@@ -35,12 +34,12 @@
           "Hand pump"
         ],
         "Steps": [
-          "Put bike on main stand. Remove the wheel (front or rear).",
-          "Use tire lever to open one side of the tire.",
-          "Remove the tube and find puncture (inflate & listen/feel air).",
-          "If small hole, use patch kit; if big tear, replace tube.",
-          "Put tube back, fit tire properly, inflate with pump.",
-          "Refit wheel and test ride slowly."
+          "Place your bike securely on its main stand or center stand, then remove either the front or rear wheel depending on which tire is punctured.",
+          "Insert the tire lever between the tire and rim, then carefully pry one side of the tire bead over the rim edge, working your way around the circumference.",
+          "Pull out the inner tube completely, then inflate it slightly and listen carefully for hissing sounds or feel for air escaping to locate the puncture.",
+          "For small holes, rough the area around the puncture with sandpaper, apply rubber cement, and firmly press the patch; for large tears, install a new tube.",
+          "Carefully tuck the repaired or new tube back inside the tire, ensuring it's not twisted, then work the tire bead back onto the rim using your hands and levers.",
+          "Use the hand pump to inflate the tire to the recommended pressure, refit the wheel onto the bike, and take a slow test ride to verify the repair holds."
         ],
         "Images": {
           "flatTyrebike": "assets/images/selfHelp/t2.png",
@@ -58,12 +57,12 @@
           "Another car with good battery"
         ],
         "Steps": [
-          "Park the assisting car close, turn both ignitions OFF.",
-          "Connect red jumper cable to dead battery's +ve terminal, then to good battery's +ve terminal.",
-          "Connect black cable to good battery's -ve terminal, and the other end to car body (metal ground) of dead car.",
-          "Start the working car, let it run for 2-3 minutes.",
-          "Try starting your car. Once it starts, remove cables in reverse order.",
-          "Drive for at least 15-20 mins to recharge."
+          "Position the assisting vehicle close enough for jumper cables to reach both batteries, but ensure the cars don't touch, then turn both ignitions completely off.",
+          "Connect one red clamp to the positive (+) terminal of your dead battery, then attach the other red clamp to the positive terminal of the good battery.",
+          "Connect one black clamp to the negative (-) terminal of the good battery, then attach the final black clamp to an unpainted metal surface on your car's engine block.",
+          "Start the engine of the working vehicle and let it run at moderate speed for 2-3 minutes to allow some charge to transfer to your dead battery.",
+          "Attempt to start your car - if it starts successfully, let both vehicles run for another minute before carefully disconnecting cables in reverse order of connection.",
+          "Drive your vehicle continuously for at least 15-20 minutes to allow the alternator to sufficiently recharge the battery before turning the engine off again."
         ],
         "Images": {
           "carBattery": "assets/images/selfHelp/carDeadbattery.png",
@@ -71,18 +70,17 @@
           "jumperCablesCar": "assets/images/selfHelp/carJumpercable.png"
         }
       },
-    
       "In Bikes": {
         "Tools Required": [
           "Portable battery booster",
           "Jumper cables"
         ],
         "Steps": [
-          "Switch ignition OFF.",
-          "Connect red cable to dead battery +ve, then to donor bike +ve.",
-          "Connect black cable to donor -ve terminal, then to dead bike frame.",
-          "Start donor bike, then try starting your bike.",
-          "Once started, disconnect cables carefully and ride to recharge."
+          "Ensure both bikes are in neutral with ignition switches turned completely off before beginning any battery connection procedures for safety.",
+          "Connect the red jumper cable to the positive terminal of your dead battery first, then attach the other red end to the donor bike's positive terminal.",
+          "Attach the black cable to the negative terminal of the donor bike's battery, then connect the final black clamp to your bike's frame or engine metal part.",
+          "Start the engine of the donor bike and let it run for a minute, then attempt to start your bike while gently giving some throttle if necessary.",
+          "Once your bike starts successfully, carefully disconnect the cables in reverse order, then ride for at least 30 minutes to allow proper battery recharging."
         ],
         "Images": {
           "defectedbatteryBike": "assets/images/selfHelp/B_batteryFailure.png",
@@ -100,12 +98,12 @@
           "Cloth"
         ],
         "Steps": [
-          "Stop car immediately, switch off engine. Do NOT open radiator cap while hot.",
-          "Wait 15-20 minutes until engine cools down.",
-          "Open bonnet and check coolant reservoir.",
-          "If low, add coolant or water up to the required level.",
-          "Check for visible leaks in radiator or hoses.",
-          "Restart gently, drive to nearest workshop."
+          "Immediately pull over to a safe location and turn off the engine completely - never attempt to open the radiator cap while the engine is still hot.",
+          "Wait patiently for 15-20 minutes to allow the engine to cool down sufficiently before attempting to inspect or touch any cooling system components.",
+          "Put on gloves for protection, then carefully open the hood and locate the coolant reservoir, checking the fluid level against the minimum and maximum marks.",
+          "If the coolant is low, slowly add a 50/50 mixture of coolant and water until it reaches the maximum fill line, being careful not to overfill the reservoir.",
+          "Visually inspect the radiator, hoses, and water pump for any signs of leakage, cracks, or damage that could be causing the coolant loss and overheating.",
+          "Restart the engine gently and drive directly to the nearest repair shop, monitoring the temperature gauge closely and stopping immediately if it rises again."
         ],
         "Images": {
           "carengine": "assets/images/selfHelp/carengineoverhea.png",
@@ -115,11 +113,11 @@
       },
       "In Bikes": {
         "Steps": [
-          "Stop in shade, turn off engine.",
-          "Check oil level; refill if low.",
-          "Inspect air-cooling fins , clean properly if blocked with mud/dust.",
-          "Avoid high revving; ride slowly to nearest mechanic.",
-          "If still overheating, do not ride further, instead tow bike."
+          "Immediately pull over to a shaded area and turn off the engine completely to prevent further damage from excessive heat and lack of cooling.",
+          "Check the engine oil level using the dipstick or sight glass, and top up with the recommended oil if it's below the minimum mark to ensure proper lubrication.",
+          "Carefully inspect the air-cooling fins around the engine cylinder for blockages from mud, dust, or debris, and clean them thoroughly if they appear clogged.",
+          "Avoid high RPMs and ride at moderate speeds with adequate airflow to help cool the engine while proceeding to the nearest mechanic for proper diagnosis.",
+          "If the bike continues to overheat despite these measures, do not risk engine damage - instead, arrange for towing to a repair facility for professional assistance."
         ],
         "Images": {
           "BikeEngine": "assets/images/selfHelp/bikeOverheat.png",
@@ -136,31 +134,29 @@
           "Wrench"
         ],
         "Steps": [
-          "If brakes fail while driving, pump pedal repeatedly to build pressure.",
-          "Downshift to lower gear, use handbrake gradually.",
-          "Pull over safely.",
-          "Check brake fluid reservoir; refill if empty.",
-          "Inspect under car for fluid leaks.",
-          "If brake pads worn out, get replaced at workshop."
+          "If brakes fail while driving, rapidly pump the brake pedal several times to build up hydraulic pressure, as there might be air in the brake lines.",
+          "Immediately downshift to lower gears to use engine braking, and gradually apply the handbrake while maintaining firm steering control of the vehicle.",
+          "Carefully maneuver to the roadside or emergency lane, using your hazard lights to alert other drivers that you're experiencing brake problems.",
+          "Open the hood and locate the brake fluid reservoir, checking if the fluid level is between the minimum and maximum marks, and top up if necessary.",
+          "Inspect underneath the vehicle and around all four wheels for any signs of brake fluid leakage, which would indicate a serious hydraulic system failure.",
+          "If brake pads are visibly worn down beyond safe limits, do not drive the vehicle - have it towed to a workshop for immediate brake system replacement."
         ],
         "Images": {
-          
           "carBrakefailure": "assets/images/selfHelp/C_brakefailure.png",
           "carBrakeFluid": "assets/images/selfHelp/carBrakefluid.png"
         }
       },
       "In Bikes": {
         "Steps": [
-          "If brakes weak, use engine braking by downshifting.",
-          "Check brake cable (for drum) or fluid (for disc).",
-          "Tighten cable or refill fluid if needed.",
-          "Replace brake pads/shoes if worn out.",
-          "Avoid riding until brakes feel firm."
+          "If you experience weak braking response, immediately use engine braking by downshifting through the gears while gradually reducing throttle input.",
+          "For drum brakes, check if the brake cable needs adjustment; for disc brakes, inspect the brake fluid level in the master cylinder reservoir.",
+          "Tighten loose brake cables at the adjustment nut, or carefully top up brake fluid using the correct type specified in your bike's owner manual.",
+          "Visually inspect brake pads or shoes for wear - if they appear thin or damaged, they must be replaced before the bike can be safely ridden again.",
+          "Do not continue riding until the brakes feel firm and responsive - test them at low speed in a safe area before returning to normal traffic conditions."
         ],
         "Images": {
           "bikeBrakefailure": "assets/images/selfHelp/B_brakeFailure.png",
           "BikeBrakepad": "assets/images/selfHelp/B_brakePad.png"
-          
         }
       }
     },
@@ -173,29 +169,30 @@
           "Basic toolkit"
         ],
         "Steps": [
-          "If headlights/indicators fail, check fuse box. Replace blown fuse.",
-          "Inspect wiring for loose connections near battery/ECU.",
-          "Use electrical tape to cover exposed wires.",
-          "If lights still fail, use hazard lights and drive to service."
+          "If multiple electrical components like headlights or indicators fail simultaneously, this typically indicates a blown fuse affecting that circuit.",
+          "Locate your vehicle's fuse box (usually under the dashboard or in the engine compartment) and consult the diagram to identify the relevant fuse.",
+          "Carefully remove the suspected blown fuse and inspect the metal strip inside - if it's broken, replace it with a new fuse of identical amperage rating.",
+          "If only a single bulb has failed, carefully remove the light assembly cover using a screwdriver and replace the burnt-out bulb with a new compatible one.",
+          "For exposed or damaged wiring, wrap the affected area thoroughly with electrical tape to prevent short circuits until proper repairs can be made.",
+          "If electrical issues persist after these basic fixes, use hazard lights when driving and proceed directly to an auto electrician for professional diagnosis."
         ],
         "Images": {
           "carWiring": "assets/images/selfHelp/carWiring.png",
           "carFuses": "assets/images/selfHelp/carFuses.png",
-          
           "carToolkit": "assets/images/selfHelp/carToolkit.png"
         }
       },
       "In Bikes": {
         "Steps": [
-          "Check battery connection and ignition wiring.",
-          "Tighten any loose connectors.",
-          "Replace small blown fuse (if equipped).",
-          "If lights/ignition still fail, push start bike temporarily."
+          "Begin by checking the main battery connections to ensure they are tight and free from corrosion, as loose terminals often cause electrical failures.",
+          "Inspect all visible wiring connectors, especially around the ignition system and handlebars, tightening any that feel loose or appear disconnected.",
+          "Locate and check the small fuse typically found under the seat or near the battery compartment, replacing it if the metal strip appears broken.",
+          "If lights or ignition continue to fail despite these checks, attempt a push-start by running with the bike in second gear and releasing the clutch abruptly.",
+          "Once temporarily running, ride carefully to the nearest motorcycle repair shop for proper electrical system diagnosis and permanent wiring repairs."
         ],
         "Images": {
           "BikeWiring": "assets/images/selfHelp/b_wiring.png",
           "BikeFuses": "assets/images/selfHelp/b_fuses.png"
-          
         }
       }
     },
@@ -208,13 +205,13 @@
           "Cloth / Tissue (to wipe spills)"
         ],
         "Steps": [
-          "If your car suddenly stops or stutters, first check the fuel gauge on the dashboard.",
-          "Step outside and visually inspect under the car — if you see wet patches or smell strong petrol/diesel, suspect a leakage.",
-          "If the fuel tank is simply empty (no leakage), fetch fuel in a safe-approved container (fuel can) from the nearest station.",
-          "Open the fuel cap carefully, and place the funnel to avoid spillage.",
-          "Pour the fuel slowly into the tank and tighten the cap securely.",
-          "Wipe any spills with a cloth before starting the car.",
-          "If leakage is detected from the tank or pipes, do not attempt to start the vehicle — call roadside assistance immediately, as there is a fire hazard."
+          "If your car suddenly stalls or engine performance becomes erratic, immediately check the fuel gauge on your dashboard to rule out simple fuel exhaustion.",
+          "Carefully exit the vehicle and inspect the ground underneath for fresh wet patches or strong fuel odors that would indicate a dangerous fuel leakage.",
+          "If there's no leakage but the tank is empty, obtain fuel in an approved safety container from the nearest station, ensuring proper ventilation during transport.",
+          "Slowly open the fuel filler cap and position the funnel securely in the neck to prevent spillage during the refueling process with your portable fuel supply.",
+          "Pour fuel gradually into the tank, pausing occasionally to allow air to escape and prevent overflow, then securely tighten the fuel cap when finished.",
+          "Thoroughly wipe any spilled fuel from the vehicle's exterior using a cloth, as residual fuel presents a significant fire hazard when the engine becomes hot.",
+          "If you confirmed an actual fuel leak from tank or lines, do not attempt to start the engine - immediately call for professional roadside assistance due to extreme fire risk."
         ],
         "Images": {
           "carFuelLeak": "assets/images/selfHelp/C_fuelleakage1.png",
@@ -233,12 +230,12 @@
           "Tape (for minor leaks)"
         ],
         "Steps": [
-          "If the bike stalls, check whether the fuel tap is in ON or RESERVE position.",
-          "Inspect the fuel pipe — if cracked or dripping, use tape as a temporary fix.",
-          "If the tank is empty, arrange fuel in a plastic or metal bottle (safely stored).",
-          "Pour petrol using a small funnel into the bike’s fuel tank.",
-          "Secure the cap tightly, and wipe away spills.",
-          "Ride slowly to the nearest petrol station or mechanic for a permanent fix if leakage exists."
+          "When your bike stalls unexpectedly, first verify the fuel tap is in the ON or RESERVE position, as sometimes the main tank is empty but reserve remains available.",
+          "Carefully inspect the fuel line from tank to carburetor for cracks, splits, or dripping fuel, applying strong tape as a temporary seal for minor leaks.",
+          "If the tank is genuinely empty, acquire a small amount of fuel in a proper metal or certified plastic container designed specifically for fuel transportation.",
+          "Using a small funnel to prevent spills, carefully pour fuel into the tank until it reaches approximately three-quarters full to allow for expansion.",
+          "Securely tighten the fuel cap and thoroughly wipe any spilled petrol from the bike's surface, particularly around the engine and exhaust areas.",
+          "Ride cautiously at moderate speed to the nearest petrol station for a proper refill, then visit a mechanic for permanent repair of any identified leakage points."
         ],
         "Images": {
           "bikeFuelLeak1": "assets/images/selfHelp/B_fuelleakage1.png",
@@ -258,12 +255,12 @@
           "Basic toolkit"
         ],
         "Steps": [
-          "If pressing the clutch pedal feels unusually soft, spongy, or it doesn’t return, safely pull over immediately.",
-          "Check under the dashboard and in the engine bay for any obvious fluid leaks.",
-          "Locate the clutch fluid reservoir (usually near the brake master cylinder).",
-          "If it is low or empty, carefully top it up with brake fluid (as a temporary fix).",
-          "If your car has a cable clutch and the cable snaps, you cannot engage gears normally — call for towing.",
-          "If clutch partially works after fluid top-up, engage gears gently and drive only to the nearest mechanic."
+          "If the clutch pedal feels abnormally soft, spongy, or fails to return to its normal position, immediately pull over to a safe location for inspection.",
+          "Check under the dashboard around the clutch pedal mechanism and in the engine bay for visible signs of hydraulic fluid leakage indicating a system failure.",
+          "Locate the clutch fluid reservoir (typically near the brake master cylinder) and check the fluid level against the minimum and maximum indicator marks.",
+          "If the reservoir is low, carefully top it up with the appropriate type of brake fluid, being cautious not to introduce air bubbles into the hydraulic system.",
+          "For vehicles with cable-operated clutches where the cable has snapped completely, you cannot normally engage gears and will require professional towing service.",
+          "If the clutch operates marginally after fluid top-up, you may gently engage gears with minimal clutch use and drive slowly directly to the nearest repair facility."
         ],
         "Images": {
           "carClutch1": "assets/images/selfHelp/C_clutchfailure1.png",
@@ -276,11 +273,11 @@
       },
       "In Bikes": {
         "Steps": [
-          "If clutch lever feels loose or unresponsive, check the clutch cable near the lever.",
-          "Sometimes, the cable end slips out of its slot — reattach it carefully if intact.",
-          "If the cable has snapped, replace it with a spare cable (many riders carry one).",
-          "Without a spare, you can push-start the bike in neutral and ride slowly without using the clutch.",
-          "Shift gears carefully by matching throttle and engine speed (clutchless shifting)."
+          "When the clutch lever feels loose, slack, or fails to disengage the clutch properly, first inspect the clutch cable connection at both the lever and engine ends.",
+          "Sometimes the cable end simply slips out of its retention slot - if the cable is intact, carefully reinsert it into the proper position and readjust tension.",
+          "If the clutch cable has snapped completely, replace it with a spare cable (which experienced riders often carry) following your bike's specific routing pattern.",
+          "Without a spare cable, you can push-start the bike in neutral, then carefully shift gears without using the clutch by matching engine RPM with road speed.",
+          "Practice clutchless shifting by applying slight upward pressure on the gear lever while momentarily backing off the throttle, then ride cautiously to a mechanic."
         ],
         "Images": {
           "bikeClutch1": "assets/images/selfHelp/B_clutchfailure1.png",
@@ -299,12 +296,12 @@
           "Jumper cables"
         ],
         "Steps": [
-          "If you turn the key and hear a click but the engine doesn’t crank, check that the battery is fully charged.",
-          "If the battery is good, suspect the starter motor is stuck.",
-          "Locate the starter motor (usually near the bottom of the engine).",
-          "Use a hammer or wrench to gently tap the starter while another person turns the key — this can unjam it temporarily.",
-          "If this doesn’t work, try using jumper cables with another vehicle to rule out weak battery supply.",
-          "If still unresponsive, call roadside assistance — do not keep cranking as it may drain the battery."
+          "When turning the ignition key produces only a clicking sound without engine cranking, first verify your battery has sufficient charge using a multimeter or visual indicators.",
+          "If battery power is confirmed adequate, the issue likely involves a stuck starter motor that isn't properly engaging with the engine's flywheel teeth.",
+          "Locate the starter motor (typically mounted low on the engine near the transmission bell housing) which is a cylindrical component with electrical connections.",
+          "Have an assistant turn the ignition key while you gently tap the starter motor body with a hammer or wrench - this vibration may free stuck internal components.",
+          "If tapping doesn't work, attempt jump-starting with another vehicle to eliminate the possibility of a weak battery providing insufficient cranking amperage.",
+          "When all these measures fail, cease further attempts to avoid complete battery drain and contact roadside assistance for professional diagnosis and potential towing."
         ],
         "Images": {
           "carStarter1": "assets/images/selfHelp/C_startermotor1.png",
@@ -317,11 +314,11 @@
       },
       "In Bikes": {
         "Steps": [
-          "If pressing the starter button does nothing, check if the battery is charged.",
-          "Try using the kick-starter (if available).",
-          "If the kick works but the button doesn’t, check the starter relay and wiring.",
-          "If the starter motor is jammed, push-start the bike in 2nd gear with clutch released suddenly.",
-          "If the starter is burnt out, it must be replaced at a workshop."
+          "If the electric starter button produces no response whatsoever, first check battery voltage with a multimeter or verify other electrical systems are functioning normally.",
+          "Use the kick-starter if your bike is equipped with one - successful kick-starting indicates an electrical issue rather than a mechanical engine problem.",
+          "If the kick-starter works but the electric button doesn't, inspect the starter relay and associated wiring connections for corrosion, damage, or disconnection.",
+          "For a mechanically jammed starter motor, attempt a push-start by running alongside the bike in second gear and abruptly releasing the clutch while jumping on.",
+          "If the starter motor is confirmed burnt out through testing or characteristic burning smells, it requires professional replacement at a motorcycle repair workshop."
         ],
         "Images": {
           "bikeStarter1": "assets/images/selfHelp/B_startermotor1.png",
@@ -341,12 +338,12 @@
           "Screwdriver"
         ],
         "Steps": [
-          "If headlights or indicators stop working suddenly, first check if multiple lights are affected — this usually indicates a blown fuse.",
-          "Locate the fuse box (often under dashboard or bonnet).",
-          "Replace the blown fuse with one of the same rating.",
-          "If only one bulb is fused, replace it by removing the light cover with a screwdriver and inserting a spare bulb.",
-          "If wiring is loose or exposed, temporarily secure it with tape.",
-          "Until fixed, use hazard lights and drive slowly."
+          "When multiple lighting components like headlights or turn signals fail simultaneously, this typically indicates a blown fuse affecting the entire lighting circuit.",
+          "Consult your vehicle's manual to locate the primary fuse box (usually under the dashboard or in the engine bay) containing the lighting system fuses.",
+          "Identify the specific fuse for the failed lights using the diagram, remove it carefully, and replace with an identical amperage-rated new fuse for proper protection.",
+          "If only a single bulb has failed, carefully remove the light assembly cover using appropriate screwdrivers and replace the specific burnt-out bulb with a compatible new one.",
+          "For loose connections or slightly exposed wiring, apply quality electrical tape as a temporary insulation measure until proper repairs can be performed.",
+          "Until permanent repairs are completed, use hazard lights when necessary and drive with extra caution, particularly during low visibility conditions or night driving."
         ],
         "Images": {
           "carHeadlight1": "assets/images/selfHelp/C_indicator1.png",
@@ -359,11 +356,11 @@
       },
       "In Bikes": {
         "Steps": [
-          "If the headlight doesn’t turn on, check the bulb by opening the headlamp housing.",
-          "Replace the fused bulb if you have a spare.",
-          "Inspect the small fuse under the seat or near the battery (if present).",
-          "If indicators fail, check the relay and connections inside the headlamp casing.",
-          "If unable to fix roadside, use hand signals and avoid night riding until repaired."
+          "If your motorcycle headlight fails to illuminate, first access the headlamp assembly by removing the surrounding cover or bezel according to your bike's design.",
+          "Carefully remove the old bulb by releasing its retention clip or twisting counterclockwise, then install a new compatible bulb without touching the glass surface.",
+          "Locate and inspect the main electrical fuse typically found under the seat or near the battery compartment, replacing it if the internal element appears broken.",
+          "For turn signal failures, check the flasher relay and all wiring connections within the headlight casing for corrosion, looseness, or disconnection issues.",
+          "If unable to perform immediate repairs, use proper hand signals for turning and braking, and avoid nighttime riding until all lighting systems are fully functional."
         ],
         "Images": {
           "bikeHeadlight1": "assets/images/selfHelp/B_indicator1.png",
@@ -374,6 +371,5 @@
         }
       }
     }
-
   ]
 }

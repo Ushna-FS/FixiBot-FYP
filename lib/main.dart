@@ -1,3 +1,4 @@
+import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:fixibot_app/screens/auth/controller/google_sign_in_helper.dart';
 import 'package:fixibot_app/screens/feedback/controller/feedbackController.dart';
 import 'package:fixibot_app/screens/homeScreen.dart';
@@ -16,7 +17,7 @@ import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+   await AppConfig.initialize();
   
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs);
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       initialBinding: InitialBinding(),
+      
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
       getPages: AppPages.pages,

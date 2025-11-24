@@ -245,131 +245,250 @@ final baseUrl  = AppConfig.baseUrl;
   //   }
   // }
 
-  Future<void> fetchMechanics() async {
-    isLoading.value = true;
-    errorMessage.value = '';
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
 
-      if (accessToken == null) {
-        errorMessage.value = 'Please login to view mechanics';
-        isLoading.value = false;
-        return;
-      }
+Future<void> fetchMechanics() async {
+  isLoading.value = true;
+  errorMessage.value = '';
 
-      // Fix 1: Correct URL without double slash
-      // Fix 2: Add query parameters as per API documentation
-      final uri = Uri.parse('$baseUrl/mechanics').replace(queryParameters: {
-        'skip': '0',
-        'limit': '100',
-        // You can add more filters here if needed
-        // 'verified': 'true',
-        // 'available': 'true',
-        // 'city': 'Lahore',
-      });
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
 
-      print('🌐 Fetching mechanics from: $uri');
-      print(
-          '🔐 Using access token: ${accessToken.isNotEmpty ? "Present" : "Missing"}');
+    if (accessToken == null) {
+      errorMessage.value = 'Please login to view mechanics';
+      isLoading.value = false;
+      return;
+    }
 
-      final response = await http.get(
-        uri,
-        headers: {
-          "Authorization": "Bearer $accessToken",
-          "Content-Type": "application/json",
-        },
-      ).timeout(Duration(seconds: 30));
+    // Get user location for proximity search
+    final double lat = userLatitude.value;
+    final double lng = userLongitude.value;
 
-      print('📡 Response Status: ${response.statusCode}');
-      print('📡 Response Body: ${response.body}');
+    // Build query parameters - include ALL required parameters
+    final Map<String, String> queryParams = {
+      'skip': '0',
+      'limit': '100',
+      'min_experience': '0',
+      'max_distance_km': maxDistance.value.toStringAsFixed(0),
+    };
 
-      if (response.statusCode == 200) {
-        final dynamic data = json.decode(response.body);
-        print('✅ Successfully fetched mechanics data');
+    // Add location if available
+    if (lat != 0.0 && lng != 0.0) {
+      queryParams['latitude'] = lat.toString();
+      queryParams['longitude'] = lng.toString();
+    }
 
-        List<Mechanic> mechanicList = [];
+    // Add vehicle type filter if selected
+    if (selectedVehicleType.value.isNotEmpty) {
+      queryParams['vehicle_type'] = selectedVehicleType.value.toLowerCase();
+    }
 
-        if (data is List) {
-          // Direct array response - convert each item to Map<String, dynamic>
-          mechanicList = data.map<Mechanic>((item) {
+    // Add expertise filter if selected
+    if (selectedCategory.value.isNotEmpty) {
+      queryParams['expertise'] = _mapCategoryToExpertise(selectedCategory.value);
+    }
+
+    final uri = Uri.parse('$baseUrl/mechanics/search/nearby').replace(
+      queryParameters: queryParams,
+    );
+
+    print('🌐 Fetching mechanics from: $uri');
+
+    final response = await http.get(
+      uri,
+      headers: {
+        "Authorization": "Bearer $accessToken",
+        "Content-Type": "application/json",
+      },
+    ).timeout(Duration(seconds: 30));
+
+    print('📡 Response Status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final dynamic data = json.decode(response.body);
+      print('✅ Successfully fetched mechanics data');
+
+      List<Mechanic> mechanicList = [];
+
+      if (data is List) {
+        mechanicList = data.map<Mechanic>((item) {
+          if (item is Map) {
+            return Mechanic.fromJson(Map<String, dynamic>.from(item));
+          }
+          return Mechanic.fromJson({});
+        }).toList();
+      } else if (data is Map && data.containsKey('data')) {
+        final dynamic mechanicsData = data['data'];
+        if (mechanicsData is List) {
+          mechanicList = mechanicsData.map<Mechanic>((item) {
             if (item is Map) {
               return Mechanic.fromJson(Map<String, dynamic>.from(item));
             }
-            return Mechanic.fromJson({}); // fallback for invalid items
+            return Mechanic.fromJson({});
           }).toList();
-          print('📊 Found ${mechanicList.length} mechanics in array format');
-        } else if (data is Map && data.containsKey('data')) {
-          // Response with 'data' key
-          final dynamic mechanicsData = data['data'];
-          if (mechanicsData is List) {
-            mechanicList = mechanicsData.map<Mechanic>((item) {
-              if (item is Map) {
-                return Mechanic.fromJson(Map<String, dynamic>.from(item));
-              }
-              return Mechanic.fromJson({});
-            }).toList();
-            print(
-                '📊 Found ${mechanicList.length} mechanics in data object format');
-          }
-        } else if (data is Map) {
-          // Single mechanic object or other structure
-          mechanicList = [Mechanic.fromJson(Map<String, dynamic>.from(data))];
-          print('📊 Found single mechanic in object format');
-        } else {
-          print('❌ Unexpected response format: ${data.runtimeType}');
-          errorMessage.value = 'Unexpected response format from server';
-          return;
         }
-
-        mechanicCategories.assignAll(mechanicList);
-        filteredMechanics.assignAll(mechanicList);
-
-        // Apply location-based filtering after loading mechanics
-        if (userLatitude.value != 0.0 && userLongitude.value != 0.0) {
-          filterNearbyMechanics();
-        }
-
-        print('🎯 Total mechanics loaded: ${mechanicList.length}');
-        print('🎯 Filtered mechanics: ${filteredMechanics.length}');
-      } else if (response.statusCode == 401) {
-        errorMessage.value = 'Authentication failed. Please login again.';
-        print('❌ Authentication failed - 401 Unauthorized');
-      } else if (response.statusCode == 403) {
-        errorMessage.value = 'Access forbidden';
-        print('❌ Access forbidden - 403');
-      } else if (response.statusCode == 404) {
-        errorMessage.value = 'Mechanics endpoint not found';
-        print('❌ Endpoint not found - 404');
-      } else if (response.statusCode == 422) {
-        errorMessage.value = 'Invalid request parameters';
-        print('❌ Validation error - 422');
-      } else {
-        // Try to parse error message from response
-        try {
-          final errorData = json.decode(response.body);
-          final dynamic errorDetail =
-              errorData['detail'] ?? errorData['message'] ?? 'Unknown error';
-          errorMessage.value = 'Failed to load mechanics: $errorDetail';
-        } catch (e) {
-          errorMessage.value =
-              'Failed to load mechanics: ${response.statusCode}';
-        }
-        print('❌ Server error: ${response.statusCode}');
       }
-    } catch (e) {
-      errorMessage.value = 'Network error: $e';
-      print('❌ Exception in fetchMechanics: $e');
 
-      // Check if it's a timeout
-      if (e is http.ClientException || e.toString().contains('timed out')) {
-        errorMessage.value = 'Network timeout. Please check your connection.';
-      }
-    } finally {
-      isLoading.value = false;
+      mechanicCategories.assignAll(mechanicList);
+      filteredMechanics.assignAll(mechanicList);
+
+      print('🎯 Total mechanics loaded: ${mechanicList.length}');
+    } else {
+      errorMessage.value = 'Failed to load mechanics: ${response.statusCode}';
+      print('❌ Error response: ${response.body}');
     }
+  } catch (e) {
+    errorMessage.value = 'Network error: $e';
+    print('❌ Exception in fetchMechanics: $e');
+  } finally {
+    isLoading.value = false;
   }
+}
+
+// Helper method to map category to expertise
+String _mapCategoryToExpertise(String category) {
+  switch (category.toLowerCase()) {
+    case 'engine':
+      return 'engine,mechanical';
+    case 'tyre':
+      return 'tyre,wheel,alignment';
+    case 'brakes':
+      return 'brake,stopping';
+    case 'electrical':
+      return 'electrical,battery,wiring';
+    case 'suspension':
+      return 'suspension,shock,spring';
+    default:
+      return category.toLowerCase();
+  }
+}
+
+  // Future<void> fetchMechanics() async {
+  //   isLoading.value = true;
+  //   errorMessage.value = '';
+
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final accessToken = prefs.getString('access_token');
+
+  //     if (accessToken == null) {
+  //       errorMessage.value = 'Please login to view mechanics';
+  //       isLoading.value = false;
+  //       return;
+  //     }
+
+  //     // Fix 1: Correct URL without double slash
+  //     // Fix 2: Add query parameters as per API documentation
+  //     final uri = Uri.parse('$baseUrl/mechanics/search/nearby').replace(queryParameters: {
+  //       'skip': '0',
+  //       'limit': '100',
+  //       // You can add more filters here if needed
+  //       // 'verified': 'true',
+  //       // 'available': 'true',
+  //       // 'city': 'Lahore',
+  //     });
+
+  //     print('🌐 Fetching mechanics from: $uri');
+  //     print(
+  //         '🔐 Using access token: ${accessToken.isNotEmpty ? "Present" : "Missing"}');
+
+  //     final response = await http.get(
+  //       uri,
+  //       headers: {
+  //         "Authorization": "Bearer $accessToken",
+  //         "Content-Type": "application/json",
+  //       },
+  //     ).timeout(Duration(seconds: 30));
+
+  //     print('📡 Response Status: ${response.statusCode}');
+  //     print('📡 Response Body: ${response.body}');
+
+  //     if (response.statusCode == 200) {
+  //       final dynamic data = json.decode(response.body);
+  //       print('✅ Successfully fetched mechanics data');
+
+  //       List<Mechanic> mechanicList = [];
+
+  //       if (data is List) {
+  //         // Direct array response - convert each item to Map<String, dynamic>
+  //         mechanicList = data.map<Mechanic>((item) {
+  //           if (item is Map) {
+  //             return Mechanic.fromJson(Map<String, dynamic>.from(item));
+  //           }
+  //           return Mechanic.fromJson({}); // fallback for invalid items
+  //         }).toList();
+  //         print('📊 Found ${mechanicList.length} mechanics in array format');
+  //       } else if (data is Map && data.containsKey('data')) {
+  //         // Response with 'data' key
+  //         final dynamic mechanicsData = data['data'];
+  //         if (mechanicsData is List) {
+  //           mechanicList = mechanicsData.map<Mechanic>((item) {
+  //             if (item is Map) {
+  //               return Mechanic.fromJson(Map<String, dynamic>.from(item));
+  //             }
+  //             return Mechanic.fromJson({});
+  //           }).toList();
+  //           print(
+  //               '📊 Found ${mechanicList.length} mechanics in data object format');
+  //         }
+  //       } else if (data is Map) {
+  //         // Single mechanic object or other structure
+  //         mechanicList = [Mechanic.fromJson(Map<String, dynamic>.from(data))];
+  //         print('📊 Found single mechanic in object format');
+  //       } else {
+  //         print('❌ Unexpected response format: ${data.runtimeType}');
+  //         errorMessage.value = 'Unexpected response format from server';
+  //         return;
+  //       }
+
+  //       mechanicCategories.assignAll(mechanicList);
+  //       filteredMechanics.assignAll(mechanicList);
+
+  //       // Apply location-based filtering after loading mechanics
+  //       if (userLatitude.value != 0.0 && userLongitude.value != 0.0) {
+  //         filterNearbyMechanics();
+  //       }
+
+  //       print('🎯 Total mechanics loaded: ${mechanicList.length}');
+  //       print('🎯 Filtered mechanics: ${filteredMechanics.length}');
+  //     } else if (response.statusCode == 401) {
+  //       errorMessage.value = 'Authentication failed. Please login again.';
+  //       print('❌ Authentication failed - 401 Unauthorized');
+  //     } else if (response.statusCode == 403) {
+  //       errorMessage.value = 'Access forbidden';
+  //       print('❌ Access forbidden - 403');
+  //     } else if (response.statusCode == 404) {
+  //       errorMessage.value = 'Mechanics endpoint not found';
+  //       print('❌ Endpoint not found - 404');
+  //     } else if (response.statusCode == 422) {
+  //       errorMessage.value = 'Invalid request parameters';
+  //       print('❌ Validation error - 422');
+  //     } else {
+  //       // Try to parse error message from response
+  //       try {
+  //         final errorData = json.decode(response.body);
+  //         final dynamic errorDetail =
+  //             errorData['detail'] ?? errorData['message'] ?? 'Unknown error';
+  //         errorMessage.value = 'Failed to load mechanics: $errorDetail';
+  //       } catch (e) {
+  //         errorMessage.value =
+  //             'Failed to load mechanics: ${response.statusCode}';
+  //       }
+  //       print('❌ Server error: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     errorMessage.value = 'Network error: $e';
+  //     print('❌ Exception in fetchMechanics: $e');
+
+  //     // Check if it's a timeout
+  //     if (e is http.ClientException || e.toString().contains('timed out')) {
+  //       errorMessage.value = 'Network timeout. Please check your connection.';
+  //     }
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   // ========== MECHANIC SERVICES METHODS ==========
 
@@ -870,38 +989,58 @@ final baseUrl  = AppConfig.baseUrl;
     selectedVehicleId.value = '';
     selectedCategory.value = '';
     filterMechanics();
+
+
   }
 
-  bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
-    if (mechanic.servicedVehicleTypes.isEmpty) {
-      // If no specific vehicle types listed, assume mechanic supports all
-      return true;
-    }
+bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
+  if (vehicleType.isEmpty) return true;
+  if (mechanic.servicedVehicleTypes.isEmpty) return true;
 
-    final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
-    final searchType = vehicleType.toLowerCase();
+  final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
+  final searchType = vehicleType.toLowerCase();
 
-    // More flexible matching
-    final typeMappings = {
-      'car': ['car', 'sedan', 'suv', 'hatchback', 'vehicle'],
-      'bike': ['bike', 'motorcycle', 'scooter', 'bicycle'],
-      'truck': ['truck', 'lorry', 'heavy'],
-      'bus': ['bus', 'coach'],
-    };
+  // Direct contains check
+  if (mechanicTypes.contains(searchType)) return true;
 
-    // Check direct match
-    if (mechanicTypes.contains(searchType)) {
-      return true;
-    }
+  // Common aliases
+  if (searchType == 'motorcycle' && mechanicTypes.contains('bike')) return true;
+  if (searchType == 'bike' && mechanicTypes.contains('motorcycle')) return true;
 
-    // Check related types
-    if (typeMappings.containsKey(searchType)) {
-      final relatedTypes = typeMappings[searchType]!;
-      return relatedTypes.any((type) => mechanicTypes.contains(type));
-    }
+  return false;
+}
 
-    return false;
-  }
+
+  // bool _doesMechanicSupportVehicleType(Mechanic mechanic, String vehicleType) {
+  //   if (mechanic.servicedVehicleTypes.isEmpty) {
+  //     // If no specific vehicle types listed, assume mechanic supports all
+  //     return true;
+  //   }
+
+  //   final mechanicTypes = mechanic.servicedVehicleTypes.toLowerCase();
+  //   final searchType = vehicleType.toLowerCase();
+
+  //   // More flexible matching
+  //   final typeMappings = {
+  //     'car': ['car', 'sedan', 'suv', 'hatchback', 'vehicle'],
+  //     'bike': ['bike', 'motorcycle', 'scooter', 'bicycle'],
+  //     'truck': ['truck', 'lorry', 'heavy'],
+  //     'bus': ['bus', 'coach'],
+  //   };
+
+  //   // Check direct match
+  //   if (mechanicTypes.contains(searchType)) {
+  //     return true;
+  //   }
+
+  //   // Check related types
+  //   if (typeMappings.containsKey(searchType)) {
+  //     final relatedTypes = typeMappings[searchType]!;
+  //     return relatedTypes.any((type) => mechanicTypes.contains(type));
+  //   }
+
+  //   return false;
+  // }
 
   bool _doesMechanicHaveSpecialty(Mechanic mechanic, String category) {
     if (mechanic.expertiseString != null) {

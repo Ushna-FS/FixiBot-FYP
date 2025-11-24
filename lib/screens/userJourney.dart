@@ -1,3 +1,6 @@
+import 'package:fixibot_app/routes/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../constants/app_colors.dart';
 import '../constants/app_fontStyles.dart';
 import '../model/userJourneyModel.dart';
@@ -32,12 +35,35 @@ class _UserJourneyState extends State<UserJourney> {
       }
     });
   }
+  Future<void> _clearAllSignupFlags() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    // Clear email signup flags
+    await prefs.setBool('is_fresh_signup', false);
+    // Clear Google signup flags  
+    await prefs.setBool('is_fresh_google_signup', false);
+    // Mark journey as seen
+    await prefs.setBool('has_seen_user_journey', true);
+    print('✅ All signup flags cleared (email + Google)');
+  } catch (e) {
+    print('❌ Error clearing signup flags: $e');
+  }}
 
   @override
   void dispose() {
     _model.dispose();
     super.dispose();
   }
+//   Future<void> _clearFreshSignupFlag() async {
+//   try {
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.setBool('is_fresh_signup', false);
+//     await prefs.setBool('has_seen_user_journey', true);
+//     print('✅ Fresh signup flag cleared');
+//   } catch (e) {
+//     print('❌ Error clearing fresh signup flag: $e');
+//   }
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -243,8 +269,10 @@ class _UserJourneyState extends State<UserJourney> {
                   ),
                   const SizedBox(height: 10),
                   GestureDetector(
-                    onTap: () {
-                      Get.to(const HomeScreen());
+                    onTap: () async {
+                      await _clearAllSignupFlags();
+    Get.offAllNamed(AppRoutes.home);
+                      //  Get.offAllNamed("/home");
                     },
                     child: const Text(
                       "Skip",
@@ -264,5 +292,4 @@ class _UserJourneyState extends State<UserJourney> {
         ],
       ),
     );
-  }
-}
+  }}

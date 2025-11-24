@@ -4,6 +4,7 @@ import 'package:fixibot_app/constants/appConfig.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtpController extends GetxController {
   final otpController = TextEditingController();
@@ -30,43 +31,97 @@ final baseUrl  = AppConfig.baseUrl;
         colorText: Colors.white);
   }
 
-  /// ✅ Verify Email with OTP
-  Future<void> verifyEmailWithOtp(String email) async {
-    final otp = otpController.text.trim();
-    if (otp.isEmpty) {
-      showError("Please enter the OTP");
-      return;
-    }
-
-    isLoading.value = true;
-    try {
-      final url = Uri.parse("$baseUrl/auth/verify-email");
-      // final body = {"email": email, "otp": otp};
-      final body = {"email": email, "otp": otpController.text.trim()};
-print("Sending OTP $otp for email $email");
-
-
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      );
-
-      print("Verify API: ${response.statusCode} -> ${response.body}");
-
-      if (response.statusCode == 200) {
-        showSuccess("Email verified successfully!");
-        Get.offAllNamed("/login"); // update with AppRoutes.login
-      } else {
-        final error = jsonDecode(response.body);
-        showError(error["detail"]?.toString() ?? "Verification failed");
-      }
-    } catch (e) {
-      showError("Unable to connect to server.");
-    } finally {
-      isLoading.value = false;
-    }
+/// ✅ Verify Email with OTP
+Future<void> verifyEmailWithOtp(String email) async {
+  final otp = otpController.text.trim();
+  if (otp.isEmpty) {
+    showError("Please enter the OTP");
+    return;
   }
+
+  isLoading.value = true;
+  try {
+    final url = Uri.parse("$baseUrl/auth/verify-email");
+    final body = {"email": email, "otp": otpController.text.trim()};
+    print("Sending OTP $otp for email $email");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(body),
+    );
+
+    print("Verify API: ${response.statusCode} -> ${response.body}");
+
+    if (response.statusCode == 200) {
+      showSuccess("Email verified successfully!");
+      
+      // ✅ MARK: This is a fresh signup - user will see journey after login
+      await _markAsFreshSignup();
+      
+      Get.offAllNamed("/login"); // Update with AppRoutes.login
+    } else {
+      final error = jsonDecode(response.body);
+      showError(error["detail"]?.toString() ?? "Verification failed");
+    }
+  } catch (e) {
+    showError("Unable to connect to server.");
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+/// Mark that this is a fresh signup (user just verified OTP)
+Future<void> _markAsFreshSignup() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_fresh_signup', true);
+    print('✅ Marked as fresh signup - user will see journey screens');
+  } catch (e) {
+    print('❌ Error marking fresh signup: $e');
+  }
+}
+
+
+
+//   /// ✅ Verify Email with OTP
+//   Future<void> verifyEmailWithOtp(String email) async {
+//     final otp = otpController.text.trim();
+//     if (otp.isEmpty) {
+//       showError("Please enter the OTP");
+//       return;
+//     }
+
+//     isLoading.value = true;
+//     try {
+//       final url = Uri.parse("$baseUrl/auth/verify-email");
+//       // final body = {"email": email, "otp": otp};
+//       final body = {"email": email, "otp": otpController.text.trim()};
+// print("Sending OTP $otp for email $email");
+
+
+//       final response = await http.post(
+//         url,
+//         headers: {"Content-Type": "application/json"},
+//         body: jsonEncode(body),
+//       );
+
+//       print("Verify API: ${response.statusCode} -> ${response.body}");
+
+//       if (response.statusCode == 200) {
+//         showSuccess("Email verified successfully!");
+        
+//         Get.offAllNamed("/login"); // update with AppRoutes.login
+//       } else {
+//         final error = jsonDecode(response.body);
+//         showError(error["detail"]?.toString() ?? "Verification failed");
+//       }
+//     } catch (e) {
+//       showError("Unable to connect to server.");
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
 
   /// ✅ Resend OTP
   Future<void> resendOtp(String email) async {
