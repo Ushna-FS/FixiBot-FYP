@@ -220,7 +220,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             ? null 
                             : Image.asset('assets/icons/google.png', width: 20, height: 20),
                       )),
-
                       SizedBox(height: screenSize.height * 0.02),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "90736648729",
-    "project_id": "autoassist-53928",
-    "storage_bucket": "autoassist-53928.firebasestorage.app"
+    "project_number": "577923430113",
+    "project_id": "gen-lang-client-0878689228",
+    "storage_bucket": "gen-lang-client-0878689228.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:90736648729:android:42b51965d48228bc690088",
+        "mobilesdk_app_id": "1:577923430113:android:d00b6a500ff5a50a2869a0",
         "android_client_info": {
           "package_name": "com.example.fixibot_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "577923430113-nrr4tphvhpg069kp5gcbn5d98msc5otu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fixibot_app",
+            "certificate_hash": "c58a66275fffeac2bd9d6b7f3ba872676ba34ca3"
+          }
+        },
+        {
+          "client_id": "577923430113-5el4v5guab66f4tvmeukhmalfeju0obv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBLoIwYCxS7n7EQONboP4U_IJl6Isp-iy4"
+          "current_key": "AIzaSyD0yqqfDTPz0KgxRaxFTP5YImRo68ZmQNw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577923430113-5el4v5guab66f4tvmeukhmalfeju0obv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
