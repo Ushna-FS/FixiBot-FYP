@@ -5,6 +5,7 @@ import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/location/location_controller.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
+import 'package:fixibot_app/services/language_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bindings/initialBinding.dart';
@@ -19,6 +20,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
    await AppConfig.initialize();
   
+  await LanguageService.initialize();
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs);
   Get.put(VehicleController());

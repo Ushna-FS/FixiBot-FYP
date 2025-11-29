@@ -50,10 +50,16 @@ class AppPages {
       name: AppRoutes.home,
       page: () => const HomeScreen(),
     ),
-    
-  GetPage(
+    // In your app_routes.dart
+GetPage(
   name: AppRoutes.selfhelp,
-  page: () => SelfHelpSolutions(issueData: Get.arguments as Map<String, dynamic>),
+  page: () {
+    final arguments = Get.arguments as Map<String, dynamic>? ?? {};
+    return SelfHelpSolutions(
+      issueData: arguments['issueData'] as Map<String, dynamic>,
+      breakdownIndex: arguments['breakdownIndex'] as int,
+    );
+  },
 ),
 
 
