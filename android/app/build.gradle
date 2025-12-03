@@ -28,8 +28,8 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '
 android {
     namespace 'com.example.fixibot_app'
     compileSdk 35
-    ndkVersion "26.1.10909125"
-
+    // ndkVersion "26.1.10909125"
+    ndkVersion "26.3.11579264"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

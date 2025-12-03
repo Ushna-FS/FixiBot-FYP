@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:fixibot_app/constants/appConfig.dart';
 class GoogleSignInController extends GetxController {
   final SharedPrefsHelper _sharedPrefs = SharedPrefsHelper();
   final isLoading = false.obs;
@@ -15,8 +15,8 @@ class GoogleSignInController extends GetxController {
 
   // Your WebApp Client ID
   static const String _serverClientId = "577923430113-5el4v5guab66f4tvmeukhmalfeju0obv.apps.googleusercontent.com";
-  static const String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
-
+  // static const String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
+  final baseUrl = AppConfig.baseUrl;
   late GoogleSignIn _googleSignIn;
 
   @override
