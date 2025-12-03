@@ -20,10 +20,14 @@
           "Carefully store all tools and the flat tire in your trunk, then drive cautiously to the nearest repair shop to fix or replace the damaged tire."
         ],
         "Images": {
-          "flatTyre": "assets/images/selfHelp/flat-tyreCar.png",
-          "jackCar": "assets/images/selfHelp/jackCar.png",
-          "carSpanner": "assets/images/selfHelp/carSapnner.png",
-          "triangleCar": "assets/images/selfHelp/Trainglecar.png"
+          "flatTyre": "assets/images/selfHelp/flat-tyreC.png",
+          "carSpanner": "assets/images/selfHelp/C-spanner.png",
+          "jackCar": "assets/images/selfHelp/jackC.png",
+          "jackLifting": "assets/images/selfHelp/jackLift.png",
+          "loosenWheel": "assets/images/selfHelp/loosenWheel_C.png",
+          "spareTyre": "assets/images/selfHelp/spareTyreC.png",
+          "wheelSpanner": "assets/images/selfHelp/wheelSpannerC.png",
+          "trunkCar": "assets/images/selfHelp/trunkC.png"
         }
       },
       "In Bikes": {
@@ -42,12 +46,14 @@
           "Use the hand pump to inflate the tire to the recommended pressure, refit the wheel onto the bike, and take a slow test ride to verify the repair holds."
         ],
         "Images": {
-          "flatTyrebike": "assets/images/selfHelp/t2.png",
-          "punturekitBike": "assets/images/selfHelp/B-kit.png",
+          "flatTyrebike": "assets/images/selfHelp/tyreB.png",
+          "punturekitBike": "assets/images/selfHelp/tyreTube_B.png",
           "bikeSpareTube": "assets/images/selfHelp/b-tube.png",
-          "bikeHandpump": "assets/images/selfHelp/bPump.png"
+          "tuberepair": "assets/images/selfHelp/tubeRepairB.png",
+          "tireLever": "assets/images/selfHelp/tyreLeverB.png",
+          "bikeHandpump": "assets/images/selfHelp/b_pump.png"
         }
-      } 
+      }
     },
     {
       "Name": "Battery Failure / Dead Battery",
@@ -65,9 +71,11 @@
           "Drive your vehicle continuously for at least 15-20 minutes to allow the alternator to sufficiently recharge the battery before turning the engine off again."
         ],
         "Images": {
-          "carBattery": "assets/images/selfHelp/carDeadbattery.png",
-          "batteryshare": "assets/images/selfHelp/carBatteryshare.png",
-          "jumperCablesCar": "assets/images/selfHelp/carJumpercable.png"
+          "carBattery": "assets/images/selfHelp/db-car1.png",
+          "carBattery2": "assets/images/selfHelp/db-car2.png",
+          "carBattery3": "assets/images/selfHelp/db-car3.png",
+          "carBattery4": "assets/images/selfHelp/db-car4.png",
+          "carBattery5": "assets/images/selfHelp/db-car5.png"
         }
       },
       "In Bikes": {
@@ -83,9 +91,11 @@
           "Once your bike starts successfully, carefully disconnect the cables in reverse order, then ride for at least 30 minutes to allow proper battery recharging."
         ],
         "Images": {
-          "defectedbatteryBike": "assets/images/selfHelp/B_batteryFailure.png",
-          "BikebatteryBooster": "assets/images/selfHelp/B_batteryBooster.png",
-          "bikejumperCable": "assets/images/selfHelp/B_jumperCable.png"
+          "deadBattery1": "assets/images/selfHelp/db-bike1.png",
+          "deadBattery2": "assets/images/selfHelp/db-bike2.png",
+          "deadBattery3": "assets/images/selfHelp/db-bike3.png",
+          "deadBattery4": "assets/images/selfHelp/db-bike4.png",
+          "deadbatteryBike5": "assets/images/selfHelp/db-bike5.png"
         }
       }
     },
@@ -106,9 +116,11 @@
           "Restart the engine gently and drive directly to the nearest repair shop, monitoring the temperature gauge closely and stopping immediately if it rises again."
         ],
         "Images": {
-          "carengine": "assets/images/selfHelp/carengineoverhea.png",
-          "heat": "assets/images/selfHelp/carHeat.png",
-          "carCoolant": "assets/images/selfHelp/carCoolant.png"
+          "engineOvergheat1": "assets/images/selfHelp/eoh-car1.png",
+          "engineOvergheat2": "assets/images/selfHelp/eoh-car2.png",
+          "engineOvergheat3": "assets/images/selfHelp/eoh-car3.png",
+          "engineOvergheat4": "assets/images/selfHelp/eoh-car4.png",
+          "engineOvergheat5": "assets/images/selfHelp/eoh-car5.png"
         }
       },
       "In Bikes": {
@@ -120,9 +132,11 @@
           "If the bike continues to overheat despite these measures, do not risk engine damage - instead, arrange for towing to a repair facility for professional assistance."
         ],
         "Images": {
-          "BikeEngine": "assets/images/selfHelp/bikeOverheat.png",
-          "bikecoolant": "assets/images/selfHelp/b_coolant.png",
-          "bikeoverheat": "assets/images/selfHelp/B_overheat.png"
+          "Bikeoverheat1": "assets/images/selfHelp/eoh-bike1.png",
+          "Bikeoverheat2": "assets/images/selfHelp/eoh-bike2.png",
+          "Bikeoverheat3": "assets/images/selfHelp/eoh-bike3.png",
+          "Bikeoverheat4": "assets/images/selfHelp/eoh-bike4.png",
+          "Bikeoverheat5": "assets/images/selfHelp/eoh-bike5.png"
         }
       }
     },
@@ -142,8 +156,12 @@
           "If brake pads are visibly worn down beyond safe limits, do not drive the vehicle - have it towed to a workshop for immediate brake system replacement."
         ],
         "Images": {
-          "carBrakefailure": "assets/images/selfHelp/C_brakefailure.png",
-          "carBrakeFluid": "assets/images/selfHelp/carBrakefluid.png"
+          "carBrakefailure1": "assets/images/selfHelp/brakefail-c1.png",
+          "carBrakefailure2": "assets/images/selfHelp/brakefail-c2.png",
+          "carBrakefailure3": "assets/images/selfHelp/brakefail-c3.png",
+          "carBrakefailure4": "assets/images/selfHelp/brakefail-c4.png",
+          "carBrakefailure5": "assets/images/selfHelp/brakefail-c5.png",
+          "carBrakefailure6": "assets/images/selfHelp/brakefail-c6.png"
         }
       },
       "In Bikes": {
@@ -155,8 +173,11 @@
           "Do not continue riding until the brakes feel firm and responsive - test them at low speed in a safe area before returning to normal traffic conditions."
         ],
         "Images": {
-          "bikeBrakefailure": "assets/images/selfHelp/B_brakeFailure.png",
-          "BikeBrakepad": "assets/images/selfHelp/B_brakePad.png"
+          "bikeBrakefailure1": "assets/images/selfHelp/B_brakeFailure1.png",
+          "bikeBrakefailure2": "assets/images/selfHelp/B_brakeFailure2.png",
+          "bikeBrakefailure3": "assets/images/selfHelp/B_brakeFailure3.png",
+          "bikeBrakefailure4": "assets/images/selfHelp/B_brakeFailure4.png",
+          "bikeBrakefailure5": "assets/images/selfHelp/B_brakeFailure5.png"
         }
       }
     },
@@ -177,9 +198,12 @@
           "If electrical issues persist after these basic fixes, use hazard lights when driving and proceed directly to an auto electrician for professional diagnosis."
         ],
         "Images": {
-          "carWiring": "assets/images/selfHelp/carWiring.png",
-          "carFuses": "assets/images/selfHelp/carFuses.png",
-          "carToolkit": "assets/images/selfHelp/carToolkit.png"
+          "carWiring1": "assets/images/selfHelp/carElectrical1.png",
+          "carWiring2": "assets/images/selfHelp/carElectrical2.png",
+          "carWiring3": "assets/images/selfHelp/carElectrical3.png",
+          "carWiring4": "assets/images/selfHelp/carElectrical4.png",
+          "carWiring5": "assets/images/selfHelp/carElectrical5.png",
+          "carWiring6": "assets/images/selfHelp/carElectrical6.png"
         }
       },
       "In Bikes": {
@@ -191,8 +215,11 @@
           "Once temporarily running, ride carefully to the nearest motorcycle repair shop for proper electrical system diagnosis and permanent wiring repairs."
         ],
         "Images": {
-          "BikeWiring": "assets/images/selfHelp/b_wiring.png",
-          "BikeFuses": "assets/images/selfHelp/b_fuses.png"
+          "BikeWiring1": "assets/images/selfHelp/b_wiring1.png",
+          "BikeWiring2": "assets/images/selfHelp/b_wiring2.png",
+          "BikeWiring3": "assets/images/selfHelp/b_wiring3.png",
+          "BikeWiring4": "assets/images/selfHelp/b_wiring4.png",
+          "BikeWiring5": "assets/images/selfHelp/b_wiring5.png"
         }
       }
     },
