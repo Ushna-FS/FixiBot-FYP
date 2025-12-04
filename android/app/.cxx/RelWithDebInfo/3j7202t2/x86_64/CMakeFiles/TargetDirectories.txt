@@ -1,0 +1,2 @@
+C:/Users/Ushna Siddiqui/Desktop/FYP/FYP-data/Fixibot-latest/FixiBot-FYP/android/app/.cxx/RelWithDebInfo/3j7202t2/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Ushna Siddiqui/Desktop/FYP/FYP-data/Fixibot-latest/FixiBot-FYP/android/app/.cxx/RelWithDebInfo/3j7202t2/x86_64/CMakeFiles/rebuild_cache.dir
