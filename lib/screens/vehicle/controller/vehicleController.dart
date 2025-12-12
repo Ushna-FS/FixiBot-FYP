@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 class VehicleController extends GetxController {
     // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
@@ -718,6 +720,43 @@ Future<void> fetchUserVehicles() async {
   // }
 
 
+
+// Add this method to your VehicleController
+Future<void> loadVehicleImage(String imageUrl) async {
+  try {
+    print('📸 Loading vehicle image from: $imageUrl');
+    
+    if (kIsWeb) {
+      // For web, download image as bytes
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        imageBytes.value = response.bodyBytes;
+        image.value = null;
+        print('✅ Web image loaded successfully');
+      }
+    } else {
+      // For mobile, download and save as file
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        final appDir = await getTemporaryDirectory();
+        final filePath = '${appDir.path}/vehicle_image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        image.value = file;
+        imageBytes.value = null;
+        print('✅ Mobile image loaded successfully to: $filePath');
+      }
+    }
+  } catch (e) {
+    print('❌ Failed to load vehicle image: $e');
+    // Reset image states if loading fails
+    image.value = null;
+    imageBytes.value = null;
+  }
+}
+
+
+
 Future<void> updateVehicle({
   required String vehicleId,
   required String userId,
@@ -732,6 +771,9 @@ Future<void> updateVehicle({
   String? registrationNumber,
   bool? isPrimary,
   bool? isActive,
+  File? imageFile,
+  Uint8List? imageBytes,
+  String? existingImageUrl, // Add this parameter
 }) async {
   isLoading.value = true;
 
@@ -743,37 +785,64 @@ Future<void> updateVehicle({
       throw Exception('No authentication token found');
     }
 
-    // Prepare update data
-    final Map<String, dynamic> body = {
-      "user_id": userId,
-      if (model != null) "model": model,
-      if (brand != null) "brand": brand,
-      if (year != null) "year": year,
-      if (category != null) "category": category,
-      if (subType != null) "sub_type": subType,
-      if (fuelType != null) "fuel_type": fuelType,
-      if (transmission != null) "transmission": transmission,
-      if (mileageKm != null) "mileage_km": mileageKm,
-      if (registrationNumber != null) "registration_number": registrationNumber,
-      if (isPrimary != null) "is_primary": isPrimary,
-      if (isActive != null) "is_active": isActive,
-    };
-
-    final headers = {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $accessToken",
-    };
-
-    final response = await http.put(
-      Uri.parse('$baseUrl/vehicles/$vehicleId'),
-      headers: headers,
-      body: jsonEncode(body),
-    ).timeout(Duration(seconds: 30));
-
-    if (response.statusCode == 200) {
-      print('✅ Vehicle updated successfully');
+    // Check if we have a new image to upload
+    final hasNewImage = (!kIsWeb && imageFile != null) || (kIsWeb && imageBytes != null);
+    
+    if (hasNewImage) {
+      // Use multipart request for image upload
+      await _updateVehicleWithImage(
+        vehicleId: vehicleId,
+        userId: userId,
+        accessToken: accessToken,
+        model: model,
+        brand: brand,
+        year: year,
+        category: category,
+        subType: subType,
+        fuelType: fuelType,
+        transmission: transmission,
+        mileageKm: mileageKm,
+        registrationNumber: registrationNumber,
+        isPrimary: isPrimary,
+        isActive: isActive,
+        imageFile: imageFile,
+        imageBytes: imageBytes,
+      );
     } else {
-      throw Exception('Failed to update vehicle: ${response.statusCode} - ${response.body}');
+      // Check if we should keep the existing image or clear it
+      final Map<String, dynamic> body = {
+        "user_id": userId,
+        if (model != null) "model": model,
+        if (brand != null) "brand": brand,
+        if (year != null) "year": year,
+        if (category != null) "category": category,
+        if (subType != null) "sub_type": subType,
+        if (fuelType != null) "fuel_type": fuelType,
+        if (transmission != null) "transmission": transmission,
+        if (mileageKm != null) "mileage_km": mileageKm,
+        if (registrationNumber != null) "registration_number": registrationNumber,
+        if (isPrimary != null) "is_primary": isPrimary,
+        if (isActive != null) "is_active": isActive,
+        // If existingImageUrl is provided, backend should keep it
+        // If it's null, backend might clear the image
+      };
+
+      final headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $accessToken",
+      };
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/vehicles/$vehicleId'),
+        headers: headers,
+        body: jsonEncode(body),
+      ).timeout(Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        print('✅ Vehicle updated successfully');
+      } else {
+        throw Exception('Failed to update vehicle: ${response.statusCode} - ${response.body}');
+      }
     }
     
     notifyVehicleDataChanged();
@@ -784,33 +853,157 @@ Future<void> updateVehicle({
     isLoading.value = false;
   }
 }
+Future<void> _updateVehicleWithoutImage({
+  required String vehicleId,
+  required String userId,
+  required String accessToken,
+  String? model,
+  String? brand,
+  int? year,
+  String? category,
+  String? subType,
+  String? fuelType,
+  String? transmission,
+  int? mileageKm,
+  String? registrationNumber,
+  bool? isPrimary,
+  bool? isActive,
+}) async {
+  final Map<String, dynamic> body = {
+    "user_id": userId,
+    if (model != null) "model": model,
+    if (brand != null) "brand": brand,
+    if (year != null) "year": year,
+    if (category != null) "category": category,
+    if (subType != null) "sub_type": subType,
+    if (fuelType != null) "fuel_type": fuelType,
+    if (transmission != null) "transmission": transmission,
+    if (mileageKm != null) "mileage_km": mileageKm,
+    if (registrationNumber != null) "registration_number": registrationNumber,
+    if (isPrimary != null) "is_primary": isPrimary,
+    if (isActive != null) "is_active": isActive,
+  };
 
- 
-  Future<Map<String, dynamic>?> getVehicleById(String vehicleId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+  final headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer $accessToken",
+  };
 
-      if (accessToken == null) {
-        throw Exception('No authentication token found');
-      }
+  final response = await http.put(
+    Uri.parse('$baseUrl/vehicles/$vehicleId'),
+    headers: headers,
+    body: jsonEncode(body),
+  ).timeout(Duration(seconds: 30));
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/vehicles/$vehicleId'),
-        headers: {
-          "Authorization": "Bearer $accessToken",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to fetch vehicle: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to fetch vehicle: $e');
-    }
+  if (response.statusCode == 200) {
+    print('✅ Vehicle updated successfully');
+  } else {
+    throw Exception('Failed to update vehicle: ${response.statusCode} - ${response.body}');
   }
+}
+
+Future<void> _updateVehicleWithImage({
+  required String vehicleId,
+  required String userId,
+  required String accessToken,
+  String? model,
+  String? brand,
+  int? year,
+  String? category,
+  String? subType,
+  String? fuelType,
+  String? transmission,
+  int? mileageKm,
+  String? registrationNumber,
+  bool? isPrimary,
+  bool? isActive,
+  File? imageFile,
+  Uint8List? imageBytes,
+}) async {
+  var request = http.MultipartRequest(
+    'PUT',
+    Uri.parse('$baseUrl/vehicles/$vehicleId'),
+  );
+
+  // Add headers
+  request.headers['Authorization'] = 'Bearer $accessToken';
+
+  // Add text fields
+  request.fields['user_id'] = userId;
+  if (model != null) request.fields['model'] = model;
+  if (brand != null) request.fields['brand'] = brand;
+  if (year != null) request.fields['year'] = year.toString();
+  if (category != null) request.fields['category'] = category;
+  if (subType != null) request.fields['sub_type'] = subType;
+  if (fuelType != null) request.fields['fuel_type'] = fuelType;
+  if (transmission != null) request.fields['transmission'] = transmission;
+  if (mileageKm != null) request.fields['mileage_km'] = mileageKm.toString();
+  if (registrationNumber != null) request.fields['registration_number'] = registrationNumber;
+  if (isPrimary != null) request.fields['is_primary'] = isPrimary.toString();
+  if (isActive != null) request.fields['is_active'] = isActive.toString();
+
+  // Add image file
+  if (!kIsWeb && imageFile != null) {
+    final multipartFile = await http.MultipartFile.fromPath(
+      'images',
+      imageFile.path,
+      contentType: MediaType('image', 'jpeg'),
+    );
+    request.files.add(multipartFile);
+  } else if (kIsWeb && imageBytes != null) {
+    final multipartFile = http.MultipartFile.fromBytes(
+      'images',
+      imageBytes,
+      filename: 'vehicle_image.jpg',
+      contentType: MediaType('image', 'jpeg'),
+    );
+    request.files.add(multipartFile);
+  }
+
+  // Send request
+  final streamedResponse = await request.send().timeout(Duration(seconds: 60));
+  final response = await http.Response.fromStream(streamedResponse);
+
+  if (response.statusCode == 200) {
+    print('✅ Vehicle updated with image successfully');
+  } else {
+    throw Exception('Failed to update vehicle: ${response.statusCode} - ${response.body}');
+  }
+}
+ Future<Map<String, dynamic>?> getVehicleById(String vehicleId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/vehicles/$vehicleId'),
+      headers: {
+        "Authorization": "Bearer $accessToken",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final vehicleData = jsonDecode(response.body);
+      
+      // Check if vehicle has images
+      if (vehicleData['images'] != null && vehicleData['images'].isNotEmpty) {
+        // The image might be stored as a URL or base64 string
+        // Adjust based on your backend response structure
+        print('📸 Vehicle has images: ${vehicleData['images']}');
+      }
+      
+      return vehicleData;
+    } else {
+      throw Exception('Failed to fetch vehicle: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch vehicle: $e');
+  }
+}
 
   @override
   void onClose() {

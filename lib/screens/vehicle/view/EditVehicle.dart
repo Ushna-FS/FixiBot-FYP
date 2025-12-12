@@ -29,28 +29,193 @@ class _EditVehicleState extends State<EditVehicle> {
     _populateForm();
   }
 
-  void _populateForm() {
-    // Pre-fill the form with existing vehicle data
-    controller.selectedBrand.value = vehicleDataFromArgs['brand'] ?? '';
-    controller.selectedModel.value = vehicleDataFromArgs['model'] ?? '';
-    controller.carModelYear.text = vehicleDataFromArgs['year']?.toString() ?? '';
-    controller.carMileage.text = vehicleDataFromArgs['mileage_km']?.toString() ?? '';
-    controller.selectedFuelType.value = vehicleDataFromArgs['fuel_type'] ?? '';
-    controller.selectedVehicleType.value = vehicleDataFromArgs['category'] ?? '';
-    controller.selectedSubType.value = vehicleDataFromArgs['sub_type'] ?? '';
-    controller.selectedTransmission.value = vehicleDataFromArgs['transmission'] ?? '';
-    controller.registrationNumber.text = vehicleDataFromArgs['registration_number'] ?? '';
-  }
+  void _populateForm() async {
+  // Pre-fill the form with existing vehicle data
+  controller.selectedBrand.value = vehicleDataFromArgs['brand'] ?? '';
+  controller.selectedModel.value = vehicleDataFromArgs['model'] ?? '';
+  controller.carModelYear.text = vehicleDataFromArgs['year']?.toString() ?? '';
+  controller.carMileage.text = vehicleDataFromArgs['mileage_km']?.toString() ?? '';
+  controller.selectedFuelType.value = vehicleDataFromArgs['fuel_type'] ?? '';
+  controller.selectedVehicleType.value = vehicleDataFromArgs['category'] ?? '';
+  controller.selectedSubType.value = vehicleDataFromArgs['sub_type'] ?? '';
+  controller.selectedTransmission.value = vehicleDataFromArgs['transmission'] ?? '';
+  controller.registrationNumber.text = vehicleDataFromArgs['registration_number'] ?? '';
+  
+  // Try to load vehicle image if it exists
+  await _loadVehicleImage();
+}
 
+
+Widget _buildVehicleImage(bool isPortrait, Size screenSize) {
+  // Priority 1: Newly selected image (from camera/gallery)
+  if (controller.image.value != null) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: Image.file(
+        controller.image.value!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+    );
+  }
+  
+  // Priority 2: Newly selected image on web
+  if (kIsWeb && controller.imageBytes.value != null) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: Image.memory(
+        controller.imageBytes.value!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+    );
+  }
+  
+  // Priority 3: Existing image from database
+  if (existingImageUrl != null && existingImageUrl!.isNotEmpty) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: Image.network(
+        existingImageUrl!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder(isPortrait, screenSize);
+        },
+      ),
+    );
+  }
+  
+  // Priority 4: Placeholder
+  return _buildPlaceholder(isPortrait, screenSize);
+}
+
+Widget _buildPlaceholder(bool isPortrait, Size screenSize) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          existingImageUrl != null ? Icons.broken_image : Icons.add_a_photo,
+          size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
+          color: AppColors.mainColor,
+        ),
+        SizedBox(height: 8),
+        Text(
+          existingImageUrl != null ? "Image failed to load" : "Add Vehicle Photo",
+          style: AppFonts.montserratMainText14.copyWith(
+            color: AppColors.mainColor,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+Future<void> _loadVehicleImage() async {
+  try {
+    print('🖼️ Checking for vehicle images...');
+    print('📋 Vehicle data keys: ${vehicleDataFromArgs.keys}');
+    
+    // Check for images field in the data
+    if (vehicleDataFromArgs.containsKey('images')) {
+      final images = vehicleDataFromArgs['images'];
+      print('📷 Images data type: ${images.runtimeType}, value: $images');
+      
+      if (images is List && images.isNotEmpty) {
+        final imageUrl = images[0];
+        print('🔗 Found image URL: $imageUrl');
+        
+        if (imageUrl is String && imageUrl.isNotEmpty) {
+          // Display the image directly without downloading it first
+          // We'll use a different approach - just store the URL
+          _displayVehicleImage(imageUrl);
+        } else {
+          print('⚠️ Image URL is empty or invalid');
+        }
+      } else {
+        print('⚠️ Images list is empty or null');
+      }
+    } else {
+      print('⚠️ No images field in vehicle data');
+      
+      // Try to fetch fresh vehicle data from API
+      await _fetchFreshVehicleData();
+    }
+  } catch (e) {
+    print('❌ Error loading vehicle image: $e');
+  }
+}
+
+void _displayVehicleImage(String imageUrl) {
+  // For web, we can use NetworkImage directly
+  // For mobile, we might want to download and cache it
+  
+  // Store the image URL so we can display it
+  // We'll use a different approach - update the UI to show network image
+  // For now, just log it
+  print('🖼️ Ready to display image from: $imageUrl');
+  
+  // You can set a flag or store the URL to use in your UI
+  // For example, add this to your EditVehicle state:
+  existingImageUrl = imageUrl;
+  
+  // Update the UI
+  if (mounted) {
+    setState(() {});
+  }
+}
+
+Future<void> _fetchFreshVehicleData() async {
+  try {
+    print('🔄 Fetching fresh vehicle data from API...');
+    final vehicleId = vehicleDataFromArgs['_id'];
+    
+    if (vehicleId != null) {
+      final freshData = await controller.getVehicleById(vehicleId);
+      if (freshData != null) {
+        print('✅ Fresh vehicle data fetched: ${freshData.keys}');
+        
+        if (freshData.containsKey('images')) {
+          final images = freshData['images'];
+          if (images is List && images.isNotEmpty) {
+            final imageUrl = images[0];
+            if (imageUrl is String && imageUrl.isNotEmpty) {
+              _displayVehicleImage(imageUrl);
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    print('❌ Error fetching fresh vehicle data: $e');
+  }
+}
+
+// Add this variable to your EditVehicle state class
+String? existingImageUrl;
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
   }
 
   String _formatSubTypeDisplay(String subType) {
-    return subType.split('_').map((word) => 
-      word[0].toUpperCase() + word.substring(1)
-    ).join(' ');
+    return subType
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
   }
 
   int? _validateYear(String yearText) {
@@ -66,7 +231,8 @@ class _EditVehicleState extends State<EditVehicle> {
   }
 
   // Get ONLY suggested sub-types (not all)
-  List<String> _getSuggestedSubTypes(String vehicleType, String brand, String model) {
+  List<String> _getSuggestedSubTypes(
+      String vehicleType, String brand, String model) {
     try {
       for (var typeData in vehicleData) {
         if (typeData["type"] == vehicleType) {
@@ -76,7 +242,8 @@ class _EditVehicleState extends State<EditVehicle> {
               final models = brandData["models"] as List;
               for (var modelData in models) {
                 if (modelData["name"] == model) {
-                  final suggestedSubtypes = modelData["suggested_subtypes"] as List<String>?;
+                  final suggestedSubtypes =
+                      modelData["suggested_subtypes"] as List<String>?;
                   return suggestedSubtypes ?? [];
                 }
               }
@@ -96,17 +263,17 @@ class _EditVehicleState extends State<EditVehicle> {
   // Get ONLY suggested fuel types based on selection
   List<String> _getSuggestedFuelTypes(String vehicleType, String subType) {
     final suggestions = <String>[];
-    
+
     // Electric vehicles
     if (subType.contains('electric')) {
       suggestions.add('electric');
     }
-    
+
     // Hybrid vehicles
     if (subType.contains('hybrid')) {
       suggestions.addAll(['hybrid', 'petrol']);
     }
-    
+
     // Default based on vehicle type
     if (vehicleType == 'car') {
       if (suggestions.isEmpty) {
@@ -115,44 +282,44 @@ class _EditVehicleState extends State<EditVehicle> {
     } else if (vehicleType == 'motorcycle') {
       suggestions.addAll(['petrol']);
     }
-    
+
     // Always include 'other' as fallback
     if (suggestions.isNotEmpty) {
       suggestions.add('other');
     }
-    
+
     return suggestions.toSet().toList();
   }
 
   // Get ONLY suggested transmissions based on selection
   List<String> _getSuggestedTransmissions(String vehicleType, String subType) {
     final suggestions = <String>[];
-    
+
     // Electric vehicles
     if (subType.contains('electric')) {
       suggestions.addAll(['direct_drive', 'automatic']);
     }
-    
+
     // Sports/super vehicles
     if (subType.contains('sports') || subType.contains('super')) {
       suggestions.addAll(['manual', 'dual_clutch', 'automatic']);
     }
-    
+
     // Motorcycles
     if (vehicleType == 'motorcycle') {
       suggestions.addAll(['manual', 'semi_automatic']);
     }
-    
+
     // Default for cars
     if (vehicleType == 'car' && suggestions.isEmpty) {
       suggestions.addAll(['manual', 'automatic', 'cvt']);
     }
-    
+
     // Always include 'other' as fallback
     if (suggestions.isNotEmpty) {
       suggestions.add('other');
     }
-    
+
     return suggestions.toSet().toList();
   }
 
@@ -161,7 +328,9 @@ class _EditVehicleState extends State<EditVehicle> {
       for (var typeData in vehicleData) {
         if (typeData["type"] == vehicleType) {
           final brands = typeData["brands"] as List;
-          return brands.map<String>((brand) => brand["brand"] as String).toList();
+          return brands
+              .map<String>((brand) => brand["brand"] as String)
+              .toList();
         }
       }
       return [];
@@ -179,7 +348,9 @@ class _EditVehicleState extends State<EditVehicle> {
           for (var brandData in brands) {
             if (brandData["brand"] == brand) {
               final models = brandData["models"] as List;
-              return models.map<String>((model) => model["name"] as String).toList();
+              return models
+                  .map<String>((model) => model["name"] as String)
+                  .toList();
             }
           }
         }
@@ -248,21 +419,26 @@ class _EditVehicleState extends State<EditVehicle> {
       );
 
       // Call the update API
-      await controller.updateVehicle(
-        vehicleId: vehicleDataFromArgs['_id'],
-        userId: userId,
-        model: controller.selectedModel.value,
-        brand: controller.selectedBrand.value,
-        year: validatedYear,
-        category: controller.selectedVehicleType.value,
-        subType: controller.selectedSubType.value,
-        fuelType: controller.selectedFuelType.value,
-        transmission: controller.selectedTransmission.value,
-        mileageKm: int.tryParse(controller.carMileage.text),
-        registrationNumber: controller.registrationNumber.text.trim(),
-        isPrimary: vehicleDataFromArgs['is_primary'] ?? false,
-        isActive: vehicleDataFromArgs['is_active'] ?? true,
-      );
+      // Call the update API
+      // In your _updateVehicle method, update the controller call:
+await controller.updateVehicle(
+  vehicleId: vehicleDataFromArgs['_id'],
+  userId: userId,
+  model: controller.selectedModel.value,
+  brand: controller.selectedBrand.value,
+  year: validatedYear,
+  category: controller.selectedVehicleType.value,
+  subType: controller.selectedSubType.value,
+  fuelType: controller.selectedFuelType.value,
+  transmission: controller.selectedTransmission.value,
+  mileageKm: int.tryParse(controller.carMileage.text),
+  registrationNumber: controller.registrationNumber.text.trim(),
+  isPrimary: vehicleDataFromArgs['is_primary'] ?? false,
+  isActive: vehicleDataFromArgs['is_active'] ?? true,
+  imageFile: !kIsWeb ? controller.image.value : null,
+  imageBytes: kIsWeb ? controller.imageBytes.value : null,
+  existingImageUrl: existingImageUrl, // Pass existing URL so backend knows to keep it if no new image
+);
 
       // Close loading
       Get.back();
@@ -324,8 +500,10 @@ class _EditVehicleState extends State<EditVehicle> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
     final bool isPortrait = screenSize.height > screenSize.width;
-    final double horizontalPadding = isPortrait ? screenSize.width * 0.08 : screenSize.width * 0.15;
-    final double verticalPadding = isPortrait ? screenSize.height * 0.02 : screenSize.height * 0.03;
+    final double horizontalPadding =
+        isPortrait ? screenSize.width * 0.08 : screenSize.width * 0.15;
+    final double verticalPadding =
+        isPortrait ? screenSize.height * 0.02 : screenSize.height * 0.03;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -341,7 +519,9 @@ class _EditVehicleState extends State<EditVehicle> {
               right: 0,
               child: Image.asset(
                 'assets/icons/upper.png',
-                width: isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
+                width: isPortrait
+                    ? screenSize.width * 0.5
+                    : screenSize.height * 0.5,
               ),
             ),
             Positioned(
@@ -349,7 +529,9 @@ class _EditVehicleState extends State<EditVehicle> {
               left: 0,
               child: Image.asset(
                 'assets/icons/lower.png',
-                width: isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
+                width: isPortrait
+                    ? screenSize.width * 0.5
+                    : screenSize.height * 0.5,
               ),
             ),
             Padding(
@@ -363,98 +545,64 @@ class _EditVehicleState extends State<EditVehicle> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Image Picker Section
-                      // GestureDetector(
-                      //   onTap: () => OpenDialog(context),
-                      //   child: Center(
-                      //     child: Obx(
-                      //       () => Stack(
-                      //         children: [
-                      //           Container(
-                      //             width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
-                      //             height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
-                      //             decoration: BoxDecoration(
-                      //               color: AppColors.secondaryColor,
-                      //               borderRadius: BorderRadius.circular(30),
-                      //               border: Border.all(color: AppColors.mainColor, width: 2),
-                      //             ),
-                      //             child: controller.image.value == null && controller.imageBytes.value == null
-                      //                 ? Center(
-                      //                     child: Column(
-                      //                       mainAxisAlignment: MainAxisAlignment.center,
-                      //                       children: [
-                      //                         Icon(
-                      //                           Icons.add_a_photo,
-                      //                           size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
-                      //                           color: AppColors.mainColor,
-                      //                         ),
-                      //                         SizedBox(height: 8),
-                      //                         Text(
-                      //                           "Update Vehicle Photo",
-                      //                           style: AppFonts.montserratMainText14.copyWith(
-                      //                             color: AppColors.mainColor,
-                      //                           ),
-                      //                         ),
-                      //                       ],
-                      //                     ),
-                      //                   )
-                      //                 : ClipRRect(
-                      //                     borderRadius: BorderRadius.circular(30),
-                      //                     child: kIsWeb
-                      //                         ? Image.memory(
-                      //                             controller.imageBytes.value!,
-                      //                             fit: BoxFit.cover,
-                      //                             width: double.infinity,
-                      //                             height: double.infinity,
-                      //                           )
-                      //                         : Image.file(
-                      //                             controller.image.value!,
-                      //                             fit: BoxFit.cover,
-                      //                             width: double.infinity,
-                      //                             height: double.infinity,
-                      //                           ),
-                      //                   ),
-                      //           ),
-                      //           if (controller.image.value != null || controller.imageBytes.value != null)
-                      //             Positioned(
-                      //               bottom: 10,
-                      //               right: 10,
-                      //               child: Row(
-                      //                 children: [
-                      //                   ElevatedButton(
-                      //                     style: ElevatedButton.styleFrom(
-                      //                       backgroundColor: AppColors.mainColor,
-                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      //                     ),
-                      //                     onPressed: () => OpenDialog(context),
-                      //                     child: Text(
-                      //                       'Update',
-                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                      //                     ),
-                      //                   ),
-                      //                   const SizedBox(width: 10),
-                      //                   ElevatedButton(
-                      //                     style: ElevatedButton.styleFrom(
-                      //                       backgroundColor: Colors.red,
-                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      //                     ),
-                      //                     onPressed: () {
-                      //                       controller.image.value = null;
-                      //                       controller.imageBytes.value = null;
-                      //                     },
-                      //                     child: Text(
-                      //                       'Remove',
-                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                      //                     ),
-                      //                   ),
-                      //                 ],
-                      //               ),
-                      //             ),
-                      //         ],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      
+                     GestureDetector(
+  onTap: () => OpenDialog(context),
+  child: Center(
+    child: Obx(
+      () => Stack(
+        children: [
+          Container(
+            width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
+            height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
+            decoration: BoxDecoration(
+              color: AppColors.secondaryColor,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: AppColors.mainColor, width: 2),
+            ),
+            child: _buildVehicleImage(isPortrait, screenSize),
+          ),
+          if (controller.image.value != null || controller.imageBytes.value != null || existingImageUrl != null)
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mainColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: () => OpenDialog(context),
+                    child: Text(
+                      'Update',
+                      style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  if (controller.image.value != null || controller.imageBytes.value != null)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onPressed: () {
+                        controller.image.value = null;
+                        controller.imageBytes.value = null;
+                        // Don't clear existingImageUrl as it's from the database
+                      },
+                      child: Text(
+                        'Remove New',
+                        style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ),
+  ),
+),
                       SizedBox(height: verticalPadding),
 
                       // ========== FIELDS APPEAR IN SEQUENCE ==========
@@ -482,11 +630,12 @@ class _EditVehicleState extends State<EditVehicle> {
                       SizedBox(height: verticalPadding),
 
                       // Brand Dropdown (appears after vehicle type selected)
-                      if (controller.selectedVehicleType.value.isNotEmpty) 
+                      if (controller.selectedVehicleType.value.isNotEmpty)
                         _buildDropdown(
                           value: controller.selectedBrand.value,
                           hint: "Select Brand",
-                          items: _getBrandsForType(controller.selectedVehicleType.value),
+                          items: _getBrandsForType(
+                              controller.selectedVehicleType.value),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
@@ -501,26 +650,29 @@ class _EditVehicleState extends State<EditVehicle> {
                           isPortrait: isPortrait,
                           screenSize: screenSize,
                         ),
-                      if (controller.selectedVehicleType.value.isNotEmpty) SizedBox(height: verticalPadding),
+                      if (controller.selectedVehicleType.value.isNotEmpty)
+                        SizedBox(height: verticalPadding),
 
                       // Model Dropdown (appears after brand selected)
-                      if (controller.selectedBrand.value.isNotEmpty) 
+                      if (controller.selectedBrand.value.isNotEmpty)
                         _buildDropdown(
                           value: controller.selectedModel.value,
                           hint: "Select Model",
-                          items: _getModelsForBrand(controller.selectedVehicleType.value, controller.selectedBrand.value),
+                          items: _getModelsForBrand(
+                              controller.selectedVehicleType.value,
+                              controller.selectedBrand.value),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
                                 controller.selectedModel.value = newValue;
                                 // Auto-select first suggested sub-type
                                 final suggestedSubTypes = _getSuggestedSubTypes(
-                                  controller.selectedVehicleType.value,
-                                  controller.selectedBrand.value,
-                                  newValue
-                                );
+                                    controller.selectedVehicleType.value,
+                                    controller.selectedBrand.value,
+                                    newValue);
                                 if (suggestedSubTypes.isNotEmpty) {
-                                  controller.selectedSubType.value = suggestedSubTypes.first;
+                                  controller.selectedSubType.value =
+                                      suggestedSubTypes.first;
                                 } else {
                                   controller.selectedSubType.value = '';
                                 }
@@ -532,18 +684,18 @@ class _EditVehicleState extends State<EditVehicle> {
                           isPortrait: isPortrait,
                           screenSize: screenSize,
                         ),
-                      if (controller.selectedBrand.value.isNotEmpty) SizedBox(height: verticalPadding),
+                      if (controller.selectedBrand.value.isNotEmpty)
+                        SizedBox(height: verticalPadding),
 
                       // Sub-type Dropdown (appears after model selected)
-                      if (controller.selectedModel.value.isNotEmpty) 
+                      if (controller.selectedModel.value.isNotEmpty)
                         _buildSuggestedDropdown(
                           value: controller.selectedSubType.value,
                           hint: "Select Sub-type",
                           suggestedItems: _getSuggestedSubTypes(
-                            controller.selectedVehicleType.value,
-                            controller.selectedBrand.value,
-                            controller.selectedModel.value
-                          ),
+                              controller.selectedVehicleType.value,
+                              controller.selectedBrand.value,
+                              controller.selectedModel.value),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
@@ -556,17 +708,17 @@ class _EditVehicleState extends State<EditVehicle> {
                           isPortrait: isPortrait,
                           screenSize: screenSize,
                         ),
-                      if (controller.selectedModel.value.isNotEmpty) SizedBox(height: verticalPadding),
+                      if (controller.selectedModel.value.isNotEmpty)
+                        SizedBox(height: verticalPadding),
 
                       // Fuel Type Dropdown (appears after sub-type selected)
-                      if (controller.selectedSubType.value.isNotEmpty) 
+                      if (controller.selectedSubType.value.isNotEmpty)
                         _buildSuggestedDropdown(
                           value: controller.selectedFuelType.value,
                           hint: "Select Fuel Type",
                           suggestedItems: _getSuggestedFuelTypes(
-                            controller.selectedVehicleType.value,
-                            controller.selectedSubType.value
-                          ),
+                              controller.selectedVehicleType.value,
+                              controller.selectedSubType.value),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
@@ -578,28 +730,30 @@ class _EditVehicleState extends State<EditVehicle> {
                           isPortrait: isPortrait,
                           screenSize: screenSize,
                         ),
-                      if (controller.selectedSubType.value.isNotEmpty) SizedBox(height: verticalPadding),
+                      if (controller.selectedSubType.value.isNotEmpty)
+                        SizedBox(height: verticalPadding),
 
                       // Transmission Dropdown (appears after fuel type selected)
-                      if (controller.selectedFuelType.value.isNotEmpty) 
+                      if (controller.selectedFuelType.value.isNotEmpty)
                         _buildTransmissionDropdown(
                           value: controller.selectedTransmission.value,
                           hint: "Select Transmission",
                           suggestedItems: _getSuggestedTransmissions(
-                            controller.selectedVehicleType.value,
-                            controller.selectedSubType.value
-                          ),
+                              controller.selectedVehicleType.value,
+                              controller.selectedSubType.value),
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
-                                controller.selectedTransmission.value = newValue;
+                                controller.selectedTransmission.value =
+                                    newValue;
                               });
                             }
                           },
                           isPortrait: isPortrait,
                           screenSize: screenSize,
                         ),
-                      if (controller.selectedFuelType.value.isNotEmpty) SizedBox(height: verticalPadding),
+                      if (controller.selectedFuelType.value.isNotEmpty)
+                        SizedBox(height: verticalPadding),
 
                       // Text Fields and Button (ALWAYS VISIBLE)
                       CustomTextField(
@@ -627,8 +781,12 @@ class _EditVehicleState extends State<EditVehicle> {
 
                       // Update Vehicle Button (ALWAYS VISIBLE)
                       Obx(() => CustomButton(
-                            text: controller.isLoading.value ? 'Updating Vehicle...' : 'Update Vehicle',
-                            onPressed: controller.isLoading.value ? null : _handleUpdate,
+                            text: controller.isLoading.value
+                                ? 'Updating Vehicle...'
+                                : 'Update Vehicle',
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : _handleUpdate,
                           )),
                     ],
                   ),
@@ -651,7 +809,9 @@ class _EditVehicleState extends State<EditVehicle> {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
+      padding: EdgeInsets.symmetric(
+          horizontal:
+              isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.mainColor, width: 1.5),
@@ -662,12 +822,14 @@ class _EditVehicleState extends State<EditVehicle> {
           value: value.isEmpty ? null : value,
           hint: Text(
             hint,
-            style: AppFonts.montserratMainText14.copyWith(color: AppColors.mainColor.withOpacity(0.9)),
+            style: AppFonts.montserratMainText14
+                .copyWith(color: AppColors.mainColor.withOpacity(0.9)),
           ),
           items: items.map<DropdownMenuItem<String>>((String item) {
             return DropdownMenuItem<String>(
               value: item,
-              child: Text(_capitalize(item), style: AppFonts.montserratMainText14),
+              child:
+                  Text(_capitalize(item), style: AppFonts.montserratMainText14),
             );
           }).toList(),
           onChanged: onChanged,
@@ -685,10 +847,12 @@ class _EditVehicleState extends State<EditVehicle> {
     required Size screenSize,
   }) {
     final hasSuggestions = suggestedItems.isNotEmpty;
-    
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
+      padding: EdgeInsets.symmetric(
+          horizontal:
+              isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
@@ -703,14 +867,16 @@ class _EditVehicleState extends State<EditVehicle> {
           hint: Text(
             hasSuggestions ? hint : "No options available",
             style: AppFonts.montserratMainText14.copyWith(
-              color: hasSuggestions ? AppColors.mainColor.withOpacity(0.9) : Colors.grey,
+              color: hasSuggestions
+                  ? AppColors.mainColor.withOpacity(0.9)
+                  : Colors.grey,
             ),
           ),
           items: suggestedItems.map<DropdownMenuItem<String>>((String item) {
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
-                _formatSubTypeDisplay(item), 
+                _formatSubTypeDisplay(item),
                 style: AppFonts.montserratMainText14,
               ),
             );
@@ -730,10 +896,12 @@ class _EditVehicleState extends State<EditVehicle> {
     required Size screenSize,
   }) {
     final hasSuggestions = suggestedItems.isNotEmpty;
-    
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
+      padding: EdgeInsets.symmetric(
+          horizontal:
+              isPortrait ? screenSize.width * 0.05 : screenSize.width * 0.02),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
@@ -748,14 +916,16 @@ class _EditVehicleState extends State<EditVehicle> {
           hint: Text(
             hasSuggestions ? hint : "No options available",
             style: AppFonts.montserratMainText14.copyWith(
-              color: hasSuggestions ? AppColors.mainColor.withOpacity(0.9) : Colors.grey,
+              color: hasSuggestions
+                  ? AppColors.mainColor.withOpacity(0.9)
+                  : Colors.grey,
             ),
           ),
           items: suggestedItems.map<DropdownMenuItem<String>>((String item) {
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
-                _formatSubTypeDisplay(item), 
+                _formatSubTypeDisplay(item),
                 style: AppFonts.montserratMainText14,
               ),
             );
@@ -777,7 +947,9 @@ class _EditVehicleState extends State<EditVehicle> {
         title: Text(
           "Select Image Source",
           style: AppFonts.montserratMainText.copyWith(
-            fontSize: isPortrait ? screenSize.height * 0.025 : screenSize.width * 0.025,
+            fontSize: isPortrait
+                ? screenSize.height * 0.025
+                : screenSize.width * 0.025,
           ),
         ),
         actions: [
@@ -789,7 +961,9 @@ class _EditVehicleState extends State<EditVehicle> {
             child: Text(
               "Camera",
               style: AppFonts.montserratText5.copyWith(
-                fontSize: isPortrait ? screenSize.height * 0.02 : screenSize.width * 0.02,
+                fontSize: isPortrait
+                    ? screenSize.height * 0.02
+                    : screenSize.width * 0.02,
               ),
             ),
           ),
@@ -801,7 +975,9 @@ class _EditVehicleState extends State<EditVehicle> {
             child: Text(
               "Gallery",
               style: AppFonts.montserratText5.copyWith(
-                fontSize: isPortrait ? screenSize.height * 0.02 : screenSize.width * 0.02,
+                fontSize: isPortrait
+                    ? screenSize.height * 0.02
+                    : screenSize.width * 0.02,
               ),
             ),
           ),

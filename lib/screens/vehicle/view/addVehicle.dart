@@ -299,97 +299,97 @@ Future<void> _debugAuthState() async {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Image Picker Section
-                      // GestureDetector(
-                      //   onTap: () => OpenDialog(context),
-                      //   child: Center(
-                      //     child: Obx(
-                      //       () => Stack(
-                      //         children: [
-                      //           Container(
-                      //             width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
-                      //             height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
-                      //             decoration: BoxDecoration(
-                      //               color: AppColors.secondaryColor,
-                      //               borderRadius: BorderRadius.circular(30),
-                      //               border: Border.all(color: AppColors.mainColor, width: 2),
-                      //             ),
-                      //             child: controller.image.value == null && controller.imageBytes.value == null
-                      //                 ? Center(
-                      //                     child: Column(
-                      //                       mainAxisAlignment: MainAxisAlignment.center,
-                      //                       children: [
-                      //                         Icon(
-                      //                           Icons.add_a_photo,
-                      //                           size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
-                      //                           color: AppColors.mainColor,
-                      //                         ),
-                      //                         SizedBox(height: 8),
-                      //                         Text(
-                      //                           "Add Vehicle Photo",
-                      //                           style: AppFonts.montserratMainText14.copyWith(
-                      //                             color: AppColors.mainColor,
-                      //                           ),
-                      //                         ),
-                      //                       ],
-                      //                     ),
-                      //                   )
-                      //                 : ClipRRect(
-                      //                     borderRadius: BorderRadius.circular(30),
-                      //                     child: kIsWeb
-                      //                         ? Image.memory(
-                      //                             controller.imageBytes.value!,
-                      //                             fit: BoxFit.cover,
-                      //                             width: double.infinity,
-                      //                             height: double.infinity,
-                      //                           )
-                      //                         : Image.file(
-                      //                             controller.image.value!,
-                      //                             fit: BoxFit.cover,
-                      //                             width: double.infinity,
-                      //                             height: double.infinity,
-                      //                           ),
-                      //                   ),
-                      //           ),
-                      //           if (controller.image.value != null || controller.imageBytes.value != null)
-                      //             Positioned(
-                      //               bottom: 10,
-                      //               right: 10,
-                      //               child: Row(
-                      //                 children: [
-                      //                   ElevatedButton(
-                      //                     style: ElevatedButton.styleFrom(
-                      //                       backgroundColor: AppColors.mainColor,
-                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      //                     ),
-                      //                     onPressed: () => OpenDialog(context),
-                      //                     child: Text(
-                      //                       'Update',
-                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                      //                     ),
-                      //                   ),
-                      //                   const SizedBox(width: 10),
-                      //                   ElevatedButton(
-                      //                     style: ElevatedButton.styleFrom(
-                      //                       backgroundColor: Colors.red,
-                      //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      //                     ),
-                      //                     onPressed: () {
-                      //                       controller.image.value = null;
-                      //                       controller.imageBytes.value = null;
-                      //                     },
-                      //                     child: Text(
-                      //                       'Remove',
-                      //                       style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
-                      //                     ),
-                      //                   ),
-                      //                 ],
-                      //               ),
-                      //             ),
-                      //         ],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      GestureDetector(
+                        onTap: () => OpenDialog(context),
+                        child: Center(
+                          child: Obx(
+                            () => Stack(
+                              children: [
+                                Container(
+                                  width: isPortrait ? screenSize.width * 0.8 : screenSize.width * 0.5,
+                                  height: isPortrait ? screenSize.height * 0.25 : screenSize.height * 0.4,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondaryColor,
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(color: AppColors.mainColor, width: 2),
+                                  ),
+                                  child: controller.image.value == null && controller.imageBytes.value == null
+                                      ? Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.add_a_photo,
+                                                size: isPortrait ? screenSize.height * 0.08 : screenSize.width * 0.08,
+                                                color: AppColors.mainColor,
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                "Add Vehicle Photo",
+                                                style: AppFonts.montserratMainText14.copyWith(
+                                                  color: AppColors.mainColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : ClipRRect(
+                                          borderRadius: BorderRadius.circular(30),
+                                          child: kIsWeb
+                                              ? Image.memory(
+                                                  controller.imageBytes.value!,
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                )
+                                              : Image.file(
+                                                  controller.image.value!,
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                ),
+                                        ),
+                                ),
+                                if (controller.image.value != null || controller.imageBytes.value != null)
+                                  Positioned(
+                                    bottom: 10,
+                                    right: 10,
+                                    child: Row(
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.mainColor,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                          ),
+                                          onPressed: () => OpenDialog(context),
+                                          child: Text(
+                                            'Update',
+                                            style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                          ),
+                                          onPressed: () {
+                                            controller.image.value = null;
+                                            controller.imageBytes.value = null;
+                                          },
+                                          child: Text(
+                                            'Remove',
+                                            style: AppFonts.montserratMainText14.copyWith(color: AppColors.secondaryColor),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                       
                       SizedBox(height: verticalPadding),
 
