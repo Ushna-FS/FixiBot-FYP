@@ -1,7 +1,6 @@
 import 'package:fixibot_app/bindings/initialBinding.dart';
 import 'package:fixibot_app/screens/auth/view/confirm_forgetPassword.dart';
 import 'package:fixibot_app/screens/auth/view/forgotPassword.dart';
-import 'package:fixibot_app/screens/auth/view/verificationScreen.dart';
 import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
 import 'package:fixibot_app/screens/otp/controller/otpController.dart';
 import 'package:fixibot_app/screens/otp/view/otpScreen.dart';

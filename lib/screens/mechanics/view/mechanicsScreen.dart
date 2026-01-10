@@ -97,29 +97,29 @@ class MechanicScreen extends GetView<MechanicController> {
         ),
         centerTitle: true,
         actions: [
-          Padding(
-            padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
-            child: Obx(() => GestureDetector(
-                  onTap: () {
-                    controller.notificationSelection();
-                  },
-                  child: controller.isNotified.value
-                      ? Image.asset(
-                          "assets/icons/notification.png",
-                          color: AppColors.secondaryColor,
-                          width: isSmallScreen ? 24 : 30,
-                          height: isSmallScreen ? 24 : 30,
-                        )
-                      : Image.asset(
-                          "assets/icons/notification.png",
-                          color: AppColors.textColor2,
-                          width: isSmallScreen ? 24 : 30,
-                          height: isSmallScreen ? 24 : 30,
-                        ),
-                )),
-          )
-        ],
-      ),
+        //   Padding(
+        //     padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
+        //     child: Obx(() => GestureDetector(
+        //           onTap: () {
+        //             controller.notificationSelection();
+        //           },
+        //           child: controller.isNotified.value
+        //               ? Image.asset(
+        //                   "assets/icons/notification.png",
+        //                   color: AppColors.secondaryColor,
+        //                   width: isSmallScreen ? 24 : 30,
+        //                   height: isSmallScreen ? 24 : 30,
+        //                 )
+        //               : Image.asset(
+        //                   "assets/icons/notification.png",
+        //                   color: AppColors.textColor2,
+        //                   width: isSmallScreen ? 24 : 30,
+        //                   height: isSmallScreen ? 24 : 30,
+        //                 ),
+        //         )),
+        //   )
+        // ],
+      ]),
       backgroundColor: AppColors.secondaryColor,
       body: Obx(() {
         if (controller.isLoading.value) {

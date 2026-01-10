@@ -341,7 +341,7 @@ class FeedbackHistoryScreen extends StatelessWidget {
                     _showUpdateFeedbackDialog(feedback);
                   },
                   child: const Text(
-                    'Edit Feedback',
+                    'Edit',
                     style: TextStyle(color: Colors.blue),
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:fixibot_app/constants/app_errors.dart';
 import 'package:fixibot_app/screens/profile/controller/userController.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
@@ -8,7 +9,7 @@ import '../screens/auth/controller/shared_pref_helper.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
-
+import 'package:connectivity_plus/connectivity_plus.dart'; 
 class HomeHeaderBox extends StatefulWidget {
   final VoidCallback? onRefresh;
   const HomeHeaderBox({super.key, this.onRefresh});
@@ -21,45 +22,88 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
   final SharedPrefsHelper _sharedPrefs = SharedPrefsHelper();
   final VehicleController vehicleController = Get.find<VehicleController>();
   final UserController userController = Get.find<UserController>();
-
-  int? selectedIndex;
+  final Connectivity _connectivity = Connectivity();
+  
+  RxBool hasInternet = true.obs;
+  RxBool isLoading = false.obs;
+  RxString errorMessage = ''.obs;
 
   @override
   void initState() {
     super.initState();
+    _checkInternetConnection();
     _loadUserName();
     _fetchVehicles();
+    
+    // Listen for connectivity changes
+    _connectivity.onConnectivityChanged.listen((result) {
+      if (result != ConnectivityResult.none) {
+        hasInternet.value = true;
+        // Retry fetching vehicles when connection is restored
+        _fetchVehicles();
+      } else {
+        hasInternet.value = false;
+        errorMessage.value = 'No internet connection';
+      }
+    });
   }
 
-  @override
-  void didUpdateWidget(HomeHeaderBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _fetchVehicles();
+  Future<void> _checkInternetConnection() async {
+    try {
+      final connectivityResult = await _connectivity.checkConnectivity();
+      hasInternet.value = connectivityResult != ConnectivityResult.none;
+      if (!hasInternet.value) {
+        errorMessage.value = 'No internet connection';
+      }
+    } catch (e) {
+      AppErrors.showError('Failed to check internet connection');
+    }
   }
 
   Future<void> _loadUserName() async {
-    final name = await _sharedPrefs.getString("full_name");
-    final email = await _sharedPrefs.getString("email");
-    if (name != null && name.isNotEmpty) {
-      userController.updateUser(name, email ?? "");
+    try {
+      final name = await _sharedPrefs.getString("full_name");
+      final email = await _sharedPrefs.getString("email");
+      if (name != null && name.isNotEmpty) {
+        userController.updateUser(name, email ?? "");
+      }
+    } catch (e) {
+      AppErrors.showError('Failed to load user information');
     }
   }
 
   Future<void> _fetchVehicles() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString("user_id");
-    if (userId != null && userId.isNotEmpty) {
-      await vehicleController.getUserVehicles(userId);
+    // Don't try to fetch if no internet
+    if (!hasInternet.value) {
+      errorMessage.value = 'No internet connection';
+      return;
+    }
+
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString("user_id");
+      
+      if (userId != null && userId.isNotEmpty) {
+        await vehicleController.fetchUserVehicles();
+      } else {
+        errorMessage.value = 'User session expired. Please login again.';
+      }
+    } catch (e) {
+      errorMessage.value = AppErrors.humanReadableError(e);
+      // Optional: Show error toast
+      AppErrors.showError(errorMessage.value);
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  // Build vehicle chip widget - FIXED VERSION
   Widget _buildVehicleChip(Map<String, dynamic> vehicle, bool isPrimary) {
-    // Get vehicle type for icon - FIXED: Use 'category' instead of 'type'
     IconData vehicleIcon;
     Color iconColor = AppColors.mainColor;
     
-    // Use 'category' field which is what your backend uses
     final category = vehicle['category']?.toString().toLowerCase() ?? '';
     
     switch (category) {
@@ -79,7 +123,6 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
         vehicleIcon = Icons.directions_car;
     }
 
-    // Get display name
     final brand = vehicle['brand'] ?? 'Vehicle';
     final model = vehicle['model'] ?? '';
     final displayName = '$brand $model'.trim();
@@ -122,6 +165,100 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
     );
   }
 
+  Widget _buildLoadingState() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CircularProgressIndicator(color: Colors.white),
+        SizedBox(height: 16),
+        Text(
+          'Loading your vehicles...',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.error_outline,
+          size: 64,
+          color: Colors.white.withOpacity(0.7),
+        ),
+        SizedBox(height: 16),
+        Text(
+          message,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Please check your connection and try again',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white70,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24),
+        CustomButton(
+          text: 'Retry',
+          color: AppColors.mainSwatch.shade200,
+          onPressed: () => _fetchVehicles(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoVehiclesState() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.directions_car_outlined,
+          size: 64,
+          color: Colors.white.withOpacity(0.7),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'No Vehicles Added Yet',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Add your first vehicle to get started',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white70,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24),
+        CustomButton(
+          text: 'Add Vehicle',
+          color: AppColors.mainSwatch.shade200,
+          onPressed: () {
+            Get.to(() => AddVehicle());
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -153,67 +290,129 @@ class _HomeHeaderBoxState extends State<HomeHeaderBox> {
           ),
           const SizedBox(height: 10),
 
-          // Display vehicle chips
-          Obx(() {
-            final vehicles = vehicleController.userVehicles;
-          
-            if (vehicles.isEmpty) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.directions_car_outlined,
-                    size: 64,
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No Vehicles Added Yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Add your first vehicle to get started',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  CustomButton(
-                    text: 'Add Vehicle',
-                    color: AppColors.mainSwatch.shade200,
-                    onPressed: () {
-                      Get.to(() => AddVehicle());
-                    },
-                  ),
-                ],
-              );
-            }
-            
-            // Debug: Print vehicle data to see what fields are available
-            print('🔍 Vehicles data:');
-            for (var vehicle in vehicles) {
-              print('  - Vehicle: ${vehicle['brand']} ${vehicle['model']}');
-              print('    Category: ${vehicle['category']}');
-              print('    Type: ${vehicle['type']}');
-              print('    Sub-type: ${vehicle['sub_type']}');
-            }
-            
-            return Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: vehicles.map((v) {
-                final isPrimary = v['is_primary'] == true;
-                return _buildVehicleChip(v, isPrimary);
-              }).toList(),
-            );
-          }),
+          // Display vehicle chips with proper error handling
+          // In HomeHeader.dart, update the vehicle display section:
+Obx(() {
+  final vehicles = vehicleController.userVehicles;
+  final isLoading = vehicleController.isLoading.value;
+  final hasError = vehicleController.hasError.value;
+  final errorMsg = vehicleController.errorMessage.value;
+  
+  // Show loading state
+  if (isLoading) {
+    return Center(
+      child: CircularProgressIndicator(color: Colors.white),
+    );
+  }
+  
+  // Handle error state
+  if (hasError) {
+    // Check if it's a server error (priority)
+    final isServerError = errorMsg.toLowerCase().contains('server');
+    
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+    Icon(
+  isServerError
+      ? Icons.cloud_off
+      : Icons.cloud_done,
+  size: 64,
+  color: Colors.white.withOpacity(0.7),
+),
+        SizedBox(height: 16),
+        Text(
+          isServerError ? 'Server Error' : 'Connection Error',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          errorMsg.isNotEmpty ? errorMsg : 
+          isServerError ? 'Server is currently unavailable' : 'Check your internet connection',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white70,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 16),
+        // Show vehicles if we have cached data, even with server error
+        if (vehicles.isNotEmpty) ...[
+          Text(
+            'Showing cached data',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white60,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: vehicles.map((v) {
+              final isPrimary = v['is_primary'] == true;
+              return _buildVehicleChip(v, isPrimary);
+            }).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+  
+  // No vehicles (but no error)
+  if (vehicles.isEmpty) {
+    return Column(
+      children: [
+        Icon(
+          Icons.directions_car_outlined,
+          size: 64,
+          color: Colors.white.withOpacity(0.7),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'No Vehicles Yet',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Add your first vehicle to get started',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white70,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24),
+        CustomButton(
+          text: 'Add Vehicle',
+          color: AppColors.mainSwatch.shade200,
+          onPressed: () {
+            Get.to(() => AddVehicle());
+          },
+        ),
+      ],
+    );
+  }
+  
+  // Has vehicles - display them
+  return Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: vehicles.map((v) {
+      final isPrimary = v['is_primary'] == true;
+      return _buildVehicleChip(v, isPrimary);
+    }).toList(),
+  );
+}),
 
           const SizedBox(height: 16),
           Container(

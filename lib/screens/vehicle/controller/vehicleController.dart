@@ -32,6 +32,8 @@ class VehicleController extends GetxController {
   var isLoading = false.obs;
   var image = Rx<File?>(null);
   var imageBytes = Rx<Uint8List?>(null);
+  var hasError = false.obs;
+var errorMessage = ''.obs;
 
   void notifyVehicleDataChanged() {
     update();
@@ -46,6 +48,7 @@ class VehicleController extends GetxController {
     selectedFuelType.value = '';
     selectedTransmission.value = '';
     transmissionAuto.value = false;
+    
     
     // Clear text controllers
     carModelYear.clear();
@@ -191,58 +194,135 @@ class VehicleController extends GetxController {
       return userId;
     } catch (e) {
       return null;
+    }}
+  // In VehicleController.dart, update getUserVehicles method:
+Future<List<dynamic>> getUserVehicles(String userId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+    
+    // Check connectivity first
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception("Please login again");
     }
-  }
+    
+    final response = await http.get(
+      Uri.parse('$baseUrl/vehicles/all'),
+      headers: {
+        "Authorization": "Bearer $accessToken",
+      },
+    ).timeout(Duration(seconds: 15));
 
-  Future<List<dynamic>> getUserVehicles(String userId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       
-      if (accessToken == null) {
-        throw Exception('No authentication token found. Please login again.');
+      userVehicles.assignAll(
+        (data as List).map((e) => e as Map<String, dynamic>).toList(),
+      );
+      
+      return data is List ? data : [];
+    } else {
+      throw Exception("Failed to load vehicles");
+    }
+  } catch (e) {
+    // Re-throw to be handled by UI
+    throw Exception(e);
+  }
+}
+
+Future<void> fetchUserVehicles() async {
+  try {
+    hasError.value = false;
+    errorMessage.value = '';
+    isLoading.value = true;
+    
+    final userId = await getCurrentUserId();
+    
+    if (userId == null) {
+      throw Exception("User not logged in");
+    }
+    
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+    
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception("No authentication token found");
+    }
+    
+    final response = await http.get(
+      Uri.parse('$baseUrl/vehicles/all'),
+      headers: {
+        "Authorization": "Bearer $accessToken",
+        "Content-Type": "application/json",
+      },
+    ).timeout(Duration(seconds: 10));
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      
+      // Check if response is valid
+      if (data is! List) {
+        throw Exception("Invalid response format");
       }
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/vehicles/all'),
-        headers: {
-          "Authorization": "Bearer $accessToken",
-          "Content-Type": "application/json",
-        },
-      ).timeout(Duration(seconds: 30));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        
-        userVehicles.assignAll(
-          (data as List).map((e) => e as Map<String, dynamic>).toList(),
-        );
-
-        return data is List ? data : [];
+      
+      userVehicles.assignAll(
+        data.map((e) => e as Map<String, dynamic>).toList(),
+      );
+      
+      hasError.value = false;
+      errorMessage.value = '';
+    } else {
+      // SERVER ERROR - status code not 200
+      hasError.value = true;
+      
+      // Check for server error status codes
+      if (response.statusCode >= 500 && response.statusCode < 600) {
+        errorMessage.value = "Server error. Please try later.";
       } else {
-        // Use AppErrors.parseServerError for consistent error messages
-        throw Exception(AppErrors.parseServerError(response.body));
+        errorMessage.value = "Failed to load vehicles ( Server Error ${response.statusCode})";
       }
-    } catch (e) {
-      // Re-throw with human readable message
-      throw Exception(AppErrors.humanReadableError(e));
+      
+      // Don't clear vehicles - show cached data if available
     }
-  }
-
-  Future<void> fetchUserVehicles() async {
-    try {
-      final userId = await getCurrentUserId();
-
-      if (userId == null) {
-        throw Exception("User not logged in properly. Please login again.");
-      }
-
-      await getUserVehicles(userId);
-    } catch (e) {
-      // Use AppErrors.showError directly
-      AppErrors.showError(e);
+  } catch (e) {
+    hasError.value = true;
+    
+    // IMPORTANT: Check for server-related errors FIRST
+    final errorStr = e.toString().toLowerCase();
+    
+    // Check for SocketException with server-related messages
+    if (errorStr.contains('failed host lookup') || 
+        errorStr.contains('connection refused') ||
+        errorStr.contains('connection reset') ||
+        errorStr.contains('software caused connection abort')) {
+      // These are server connection errors, not internet errors
+      errorMessage.value = "Cannot connect to server. Server may be down.";
+    } 
+    // Check for timeout (could be server busy)
+    else if (errorStr.contains('timeout')) {
+      errorMessage.value = "Server is taking too long to respond.";
     }
+    // Check for HTTP errors
+    else if (errorStr.contains('http') && errorStr.contains('5')) {
+      errorMessage.value = "Server error. Please try later.";
+    }
+    // Check for internet connectivity errors
+    else if (errorStr.contains('socket') || 
+             errorStr.contains('network is unreachable') ||
+             e is SocketException) {
+      errorMessage.value = "No internet connection";
+    }
+    // Default error
+    else {
+      errorMessage.value = AppErrors.humanReadableError(e);
+    }
+    
+    // Show snackbar
+    AppErrors.showError(errorMessage.value);
+  } finally {
+    isLoading.value = false;
   }
+}
 
   Future<void> _tryAlternativeEndpoints(String userId, String accessToken) async {
     final alternativeEndpoints = [

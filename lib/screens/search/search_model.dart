@@ -1,28 +1,18 @@
-
-import 'package:fixibot_app/screens/chatbot/chatDetailScreen.dart';
-import 'package:fixibot_app/screens/chatbot/chatView.dart';
-import 'package:fixibot_app/screens/chatbot/chatviewHistory.dart';
-import 'package:fixibot_app/screens/help/support.dart';
-import 'package:fixibot_app/screens/homeScreen.dart';
-import 'package:fixibot_app/screens/mechanics/view/mechanicsScreen.dart';
-import 'package:fixibot_app/screens/profile/view/profile.dart';
-import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
-import 'package:fixibot_app/screens/vehicle/view/myVehicles.dart';
-import 'package:flutter/material.dart';
+import 'package:fixibot_app/routes/app_routes.dart';
 
 class SearchModel {
   final String name;
-  final Widget screen;
+  final String route; // Changed from Widget to String
 
-  SearchModel({required this.name, required this.screen});
+  SearchModel({required this.name, required this.route});
 
   static List<SearchModel> modules = [
-   SearchModel(name: 'Home', screen: const HomeScreen()),
-    SearchModel(name: 'Profile', screen: const ProfileScreen()),
-    SearchModel(name: 'Add Vehicle', screen: const AddVehicle()),
-    SearchModel(name: 'My Vehicle', screen: const MyVehicleScreen()),
-    SearchModel(name: 'Mechanic ', screen: const MechanicScreen()),
-    SearchModel(name: 'Chatbot ', screen: const ChatScreen()),
-    SearchModel(name: 'Help', screen:  HelpSupportPage()),
+    SearchModel(name: 'Home', route: AppRoutes.home),
+    SearchModel(name: 'Profile', route: AppRoutes.profile),
+    SearchModel(name: 'Add Vehicle', route: AppRoutes.addVehicle),
+    SearchModel(name: 'My Vehicles', route: AppRoutes.myVehicle),
+    SearchModel(name: 'Mechanics', route: AppRoutes.mechanics),
+    SearchModel(name: 'Chatbot', route: '/chat'), // Add this route
+    SearchModel(name: 'Help', route: '/help'), // Add this route
   ];
 }

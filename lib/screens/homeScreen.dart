@@ -23,7 +23,7 @@ import 'package:fixibot_app/screens/search/searchScreen.dart';
 import 'package:fixibot_app/screens/self-helpguide/selfHelpSolutionScreen.dart';
 import 'package:fixibot_app/screens/vehicle/view/addVehicle.dart';
 import 'package:fixibot_app/screens/vehicle/controller/vehicleController.dart';
-import 'package:fixibot_app/screens/viewNotifications.dart';
+// import 'package:fixibot_app/screens/viewNotifications.dart';
 import 'package:fixibot_app/services/breakdown-serv.dart';
 import 'package:fixibot_app/widgets/custom_buttons.dart';
 import 'package:fixibot_app/widgets/home_header.dart';
@@ -238,8 +238,6 @@ Future<void> _uploadProfileImageFromHome(File imageFile) async {
       return;
     }
      final baseUrl  = AppConfig.baseUrl;
-
-    // final String baseUrl = "https://chalky-anjelica-bovinely.ngrok-free.dev";
     final url = Uri.parse("$baseUrl/auth/users/me");
     final request = http.MultipartRequest("PUT", url);
 
@@ -357,15 +355,6 @@ Text(
   }
 }
 
-
-  // Future<void> pickImage(ImageSource source) async {
-  //   final picker = ImagePicker();
-  //   final picked = await picker.pickImage(source: source, imageQuality: 75);
-  //   if (picked != null) {
-  //     userController.updateProfileImage(File(picked.path));
-  //   }
-  // }
-
   void _showImagePickerDialog() {
     Get.dialog(
       AlertDialog(
@@ -391,7 +380,8 @@ Text(
   }
 
   void _refreshHomeHeader() {
-    setState(() {});
+     Get.find<VehicleController>().fetchUserVehicles();
+    // setState(() {});
   }
 
   @override
@@ -412,26 +402,7 @@ Text(
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // CircleAvatar(
-                //   radius: 15,
-                //   backgroundColor: AppColors.textColor4,
-                //   backgroundImage: userController.profileImage.value != null
-                //       ? FileImage(userController.profileImage.value!)
-                //       : (userController.profileImageUrl.value.isNotEmpty
-                //           ? NetworkImage(userController.profileImageUrl.value)
-                //               as ImageProvider
-                //           : null),
-                //   child: userController.profileImage.value == null &&
-                //           userController.profileImageUrl.value.isEmpty
-                //       ? IconButton(
-                //           icon: const Icon(Icons.add, size: 10),
-                //           color: Colors.white,
-                //           onPressed: _showImagePickerDialog,
-                //         )
-                //       : null,
-                // ),
-
-                // In homescreen.dart - Update the CircleAvatar in AppBar
+                
 CircleAvatar(
   radius: 15,
   backgroundColor: AppColors.textColor4,
@@ -452,7 +423,7 @@ CircleAvatar(
 ),
 
                 Image.asset("assets/icons/locationIcon.png",
-                    color: AppColors.textColor),
+                    color: const Color.fromARGB(255, 255, 220, 220)),
                 TextButton(
                   onPressed: () {
                     Get.to(const LocationScreen());
@@ -474,194 +445,193 @@ CircleAvatar(
                     );
                   }),
                 ),
-                IconButton(
-                  onPressed: () {
-                    Get.to(const ViewNotificationsScreen());
-                  },
-                  icon: Image.asset('assets/icons/notification.png',
-                      width: 30, height: 30, color: AppColors.textColor),
-                ),
+                
               ],
             ),
           ],
         ),
       ),
-      body: SingleChildScrollView(
-      child: Column(
-        children: [
-          HomeHeaderBox(
-            onRefresh: _refreshHomeHeader,
-          ),
-          SizedBox(height: screenHeight * 0.02),
-          // In your HomeScreen, update the CarouselSlider part:
-FutureBuilder<List<BreakdownModel>>(
-  future: futureBreakdowns,
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(
-          child: CircularProgressIndicator(
-              color: AppColors.mainColor));
-    } else if (snapshot.hasError) {
-      return Center(child: Text("Error: ${snapshot.error}"));
-    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-      return const Center(child: Text("No breakdowns found"));
-    }
-    
-    final breakdowns = snapshot.data!;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-      _debugBreakdownData(breakdowns);
-    });
-    return Container(
-      height: screenHeight * 0.28,
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-      padding: EdgeInsets.all(screenWidth * 0.01),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            blurRadius: 20,
-            color: Color(0x1A263238),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Text(
-            "Self Help Solutions",
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const Divider(),
-          SizedBox(height: screenHeight * 0.01),
-          CarouselSlider(
-            options: CarouselOptions(
-              autoPlay: true,
-              enlargeCenterPage: true,
-              aspectRatio: 3,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  currentIndex = index;
+
+        body: RefreshIndicator(
+      onRefresh: () async {
+        // Only refresh vehicles, not everything
+        await Get.find<VehicleController>().fetchUserVehicles();
+        // Optionally refresh other data if needed
+        setState(() {});
+      },
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            HomeHeaderBox(
+              onRefresh: _refreshHomeHeader,
+            ),
+            SizedBox(height: screenHeight * 0.02),
+            // In your HomeScreen, update the CarouselSlider part:
+            FutureBuilder<List<BreakdownModel>>(
+              future: futureBreakdowns,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppColors.mainColor),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text("No breakdowns found"));
+                }
+
+                final breakdowns = snapshot.data!;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _debugBreakdownData(breakdowns);
                 });
+                return Container(
+                  height: screenHeight * 0.28,
+                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  padding: EdgeInsets.all(screenWidth * 0.01),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 20,
+                        color: Color(0x1A263238),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Self Help Solutions",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Divider(),
+                      SizedBox(height: screenHeight * 0.01),
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          aspectRatio: 3,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              currentIndex = index;
+                            });
+                          },
+                        ),
+                        items: issuesList.map((issues) {
+                          return Wrap(
+                            spacing: screenWidth * 0.04,
+                            runSpacing: screenHeight * 0.02,
+                            children: issues.map((issue) {
+                              // Find the breakdown and its index
+                              int breakdownIndex = -1;
+                              Map<String, dynamic>? issueData;
+
+                              for (int i = 0; i < breakdowns.length; i++) {
+                                if (breakdowns[i].name.toLowerCase().contains(issue.toLowerCase())) {
+                                  breakdownIndex = i;
+                                  issueData = {
+                                    "Name": breakdowns[i].name,
+                                    "Categories": breakdowns[i].categories,
+                                  };
+                                  break;
+                                }
+                              }
+
+                              return GestureDetector(
+                                onTap: () {
+                                  if (issueData != null && breakdownIndex != -1) {
+                                    print('🎯 Navigating to SelfHelpSolutions with index: $breakdownIndex');
+                                    Get.to(() => SelfHelpSolutions(
+                                          issueData: issueData!,
+                                          breakdownIndex: breakdownIndex, // Pass the index
+                                        ));
+                                  } else {
+                                    print('❌ Could not find breakdown for issue: $issue');
+                                    Get.snackbar(
+                                      "Error",
+                                      "No data found for $issue",
+                                      backgroundColor: Colors.red,
+                                      colorText: Colors.white,
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  height: screenHeight * 0.06,
+                                  width: screenWidth * 0.3,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: const Color(0x4DA4A1A1),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    issue,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(height: screenHeight * 0.005),
+                      DotsIndicator(
+                        dotsCount: issuesList.length,
+                        position: currentIndex.toDouble(),
+                        decorator: const DotsDecorator(
+                          activeColor: AppColors.mainColor,
+                          color: Colors.grey,
+                          activeSize: Size(10.0, 10.0),
+                          size: Size(8.0, 8.0),
+                          spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
-            items: issuesList.map((issues) {
-              return Wrap(
-                spacing: screenWidth * 0.04,
-                runSpacing: screenHeight * 0.02,
-                children: issues.map((issue) {
-                  // Find the breakdown and its index
-                  int breakdownIndex = -1;
-                  Map<String, dynamic>? issueData;
-                  
-                  for (int i = 0; i < breakdowns.length; i++) {
-                    if (breakdowns[i].name.toLowerCase().contains(issue.toLowerCase())) {
-                      breakdownIndex = i;
-                      issueData = {
-                        "Name": breakdowns[i].name,
-                        "Categories": breakdowns[i].categories,
-                      };
-                      break;
-                    }
-                  }
-                  
-                  return GestureDetector(
-                    onTap: () {
-                      if (issueData != null && breakdownIndex != -1) {
-                        print('🎯 Navigating to SelfHelpSolutions with index: $breakdownIndex');
-                        Get.to(() => SelfHelpSolutions(
-                          issueData: issueData!,
-                          breakdownIndex: breakdownIndex, // Pass the index
-                        ));
-                      } else {
-                        print('❌ Could not find breakdown for issue: $issue');
-                        Get.snackbar(
-                          "Error",
-                          "No data found for $issue",
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
-                        );
-                      }
-                    },
-                    child: Container(
-                      height: screenHeight * 0.06,
-                      width: screenWidth * 0.3,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: const Color(0x4DA4A1A1),
-                          width: 1,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        issue,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
-            }).toList(),
-          ),
-          SizedBox(height: screenHeight * 0.005),
-          DotsIndicator(
-            dotsCount: issuesList.length,
-            position: currentIndex.toDouble(),
-            decorator: const DotsDecorator(
-              activeColor: AppColors.mainColor,
-              color: Colors.grey,
-              activeSize: Size(10.0, 10.0),
-              size: Size(8.0, 8.0),
-              spacing: EdgeInsets.fromLTRB(4, 0, 4, 0),
+            SizedBox(height: screenHeight * 0.035),
+            _buildInfoCard(
+              "Find Mechanic",
+              "Locate expert mechanics nearby, fast and hassle-free.",
+              "assets/images/MechanicIllustration.png",
+              () {
+                Get.to(const MechanicScreen());
+              },
+              buttonText: "Find Now",
             ),
-          ),
-        ],
+            SizedBox(height: screenHeight * 0.025),
+            _buildInfoCard(
+              "Add Your Vehicle",
+              "Save details for quick fixes and smart assistance.",
+              "assets/images/AddVeh-illustration.png",
+              () {
+                Get.to(const AddVehicle())?.then((_) {
+                  _refreshHomeHeader();
+                });
+              },
+              buttonText: "Add Vehicle",
+            ),
+            SizedBox(height: screenHeight * 0.025),
+          ],
+        ),
       ),
-    );
-  },
-),
-          
-          SizedBox(height: screenHeight * 0.035),
-          _buildInfoCard(
-            "Find Mechanic",
-            "Locate expert mechanics nearby, fast and hassle-free.",
-            "assets/images/MechanicIllustration.png",
-            () {
-              Get.to(const MechanicScreen());
-            },
-            buttonText: "Find Now",
-          ),
-          SizedBox(height: screenHeight * 0.025),
-          _buildInfoCard(
-            "Add Your Vehicle",
-            "Save details for quick fixes and smart assistance.",
-            "assets/images/AddVeh-illustration.png",
-            () {
-              Get.to(const AddVehicle())?.then((_) {
-                _refreshHomeHeader();
-              });
-            },
-            buttonText: "Add Vehicle",
-          ),
-          SizedBox(height: screenHeight * 0.025),
-          
-        ],
-      ),
-              ),
-      
-      bottomNavigationBar: CustomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavItemTapped,
-      ),
-    );
-  }
-
+    ),
+    bottomNavigationBar: CustomNavBar(
+      currentIndex: _selectedIndex,
+      onTap: _onNavItemTapped,
+    ),
+  );
+}
   Widget _buildInfoCard(
     String title,
     String description,

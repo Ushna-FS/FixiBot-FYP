@@ -42,6 +42,12 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
     });
   }
 
+  // 🔥 NEW: Check if current language is RTL
+  bool get _isRTL {
+    final lang = LanguageService.currentLanguage;
+    return lang == 'urdu' || lang == 'punjabi' || lang == 'sindhi' || lang == 'arabic';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -53,25 +59,6 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
           ),
         ),
       );
-    }
-
-    // DEBUG: Print the complete structure
-    print('🎯 COMPLETE issueData STRUCTURE:');
-    print('Main Keys: ${widget.issueData.keys}');
-    
-    // Check if we have direct Car/Bike keys or if they're nested under "Categories"
-    bool hasDirectKeys = widget.issueData.containsKey("Car") || widget.issueData.containsKey("Bike");
-    bool hasCategoriesKey = widget.issueData.containsKey("Categories");
-    
-    print('Has direct Car/Bike keys: $hasDirectKeys');
-    print('Has Categories key: $hasCategoriesKey');
-    
-    if (hasCategoriesKey) {
-      final categories = widget.issueData["Categories"];
-      print('Categories type: ${categories.runtimeType}');
-      if (categories is Map) {
-        print('Categories keys: ${categories.keys}');
-      }
     }
 
     final issueName = widget.issueData["Name"] ?? 'Unknown Issue';
@@ -111,11 +98,14 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
                 _buildLanguageSelector(),
                 const SizedBox(height: 20),
 
-                Text(
-                  LanguageService.getTranslatedUIText("Select Vehicle Type"),
-                  style: AppFonts.customTextStyle(
-                    color: AppColors.textColor2,
-                    fontSize: 18,
+                Container(
+                  alignment: _isRTL ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Text(
+                    LanguageService.getTranslatedUIText("Select Vehicle Type"),
+                    style: AppFonts.customTextStyle(
+                      color: AppColors.textColor2,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -133,27 +123,22 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
   List<Widget> _buildVehicleOptions() {
     final List<Widget> options = [];
     
-    // Check different possible data structures
     Map<String, dynamic>? carData;
     Map<String, dynamic>? bikeData;
 
-    // Case 1: Direct Car/Bike keys
     if (widget.issueData.containsKey("Car")) {
       final carDataDynamic = widget.issueData["Car"];
       if (carDataDynamic is Map) {
         carData = Map<String, dynamic>.from(carDataDynamic);
-        print('✅ Found Car data directly');
       }
     }
     if (widget.issueData.containsKey("Bike")) {
       final bikeDataDynamic = widget.issueData["Bike"];
       if (bikeDataDynamic is Map) {
         bikeData = Map<String, dynamic>.from(bikeDataDynamic);
-        print('✅ Found Bike data directly');
       }
     }
 
-    // Case 2: Nested under "Categories"
     if (widget.issueData.containsKey("Categories")) {
       final categories = widget.issueData["Categories"];
       if (categories is Map) {
@@ -162,37 +147,30 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
           final carDataDynamic = categoriesMap["Car"];
           if (carDataDynamic is Map) {
             carData = Map<String, dynamic>.from(carDataDynamic);
-            print('✅ Found Car data under Categories');
           }
         }
         if (categoriesMap.containsKey("Bike")) {
           final bikeDataDynamic = categoriesMap["Bike"];
           if (bikeDataDynamic is Map) {
             bikeData = Map<String, dynamic>.from(bikeDataDynamic);
-            print('✅ Found Bike data under Categories');
           }
         }
       }
     }
 
-    // Case 3: Try to find any vehicle-like keys
     if (carData == null && bikeData == null) {
-      print('🔍 Searching for vehicle data in all keys...');
       widget.issueData.forEach((key, value) {
         if (value is Map && key != "Name" && key != "Categories") {
           final keyLower = key.toLowerCase();
           if (keyLower.contains('car') && carData == null) {
             carData = Map<String, dynamic>.from(value);
-            print('✅ Found Car-like data with key: $key');
           } else if (keyLower.contains('bike') && bikeData == null) {
             bikeData = Map<String, dynamic>.from(value);
-            print('✅ Found Bike-like data with key: $key');
           }
         }
       });
     }
 
-    // Build options for found data
     if (carData != null) {
       options.add(_buildVehicleOption("Car", carData!, LanguageService.getTranslatedUIText("Car")));
     }
@@ -200,9 +178,7 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
       options.add(_buildVehicleOption("Bike", bikeData!, LanguageService.getTranslatedUIText("Bike")));
     }
 
-    // If no options found, show error
     if (options.isEmpty) {
-      print('❌ No vehicle data found at all!');
       options.add(
         Padding(
           padding: const EdgeInsets.all(20.0),
@@ -222,36 +198,20 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
   }
 
   Widget _buildVehicleOption(String vehicleKey, Map<String, dynamic> categoryData, String translatedType) {
-    print('🚗 Building option for $vehicleKey');
-    print('📦 Category data keys: ${categoryData.keys}');
-
-    // Extract first image from "Images"
     String? imagePath;
     if (categoryData["Images"] != null) {
       final imagesDynamic = categoryData["Images"];
       if (imagesDynamic is Map) {
         final imagesMap = Map<String, dynamic>.from(imagesDynamic);
         if (imagesMap.isNotEmpty) {
-          // Get the first image value
           final firstImageEntry = imagesMap.entries.first;
           imagePath = firstImageEntry.value.toString();
-          print('🖼️ First image for $vehicleKey: $imagePath');
         }
       }
     }
 
-    // Check if we have steps data
-    final hasSteps = categoryData["Steps"] != null && (categoryData["Steps"] as List).isNotEmpty;
-    final hasTools = categoryData["Tools Required"] != null && (categoryData["Tools Required"] as List).isNotEmpty;
-    
-    print('📝 $vehicleKey has steps: $hasSteps');
-    print('🔧 $vehicleKey has tools: $hasTools');
-
     return GestureDetector(
       onTap: () {
-        print('🎯 Navigating to detail screen for $vehicleKey');
-        print('📋 Details data type: ${categoryData.runtimeType}');
-        
         Get.to(() => BreakdownDetailScreen(
               breakdownIndex: widget.breakdownIndex,
               issueName: widget.issueData['Name'],
@@ -262,7 +222,7 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Category Box
+          // Category Box - 🔥 FIXED: Arrow position changes based on RTL
           Container(
             margin: const EdgeInsets.only(bottom: 8.0),
             padding: const EdgeInsets.all(12),
@@ -279,18 +239,31 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  translatedType,
-                  style: AppFonts.customTextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Icon(Icons.arrow_forward_ios,
-                    color: Colors.white, size: 18),
-              ],
+              children: _isRTL 
+                ? [ // 🔥 FIXED: RTL layout - arrow on left, text on right
+                    Icon(Icons.arrow_back_ios, // 🔥 Changed to arrow_back_ios for RTL
+                        color: Colors.white, size: 18),
+                    Text(
+                      translatedType,
+                      style: AppFonts.customTextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ]
+                : [ // 🔥 FIXED: LTR layout - text on left, arrow on right
+                    Text(
+                      translatedType,
+                      style: AppFonts.customTextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios,
+                        color: Colors.white, size: 18),
+                  ],
             ),
           ),
 
@@ -317,7 +290,6 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
                     imagePath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      print('❌ Error loading image: $error');
                       return Container(
                         color: Colors.grey[200],
                         child: Column(
@@ -358,7 +330,7 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Steps: ${hasSteps ? "Available" : "Not available"}',
+                        'Steps: Available',
                         style: TextStyle(color: Colors.grey[500], fontSize: 12),
                       ),
                     ],
@@ -371,7 +343,7 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
     );
   }
 
-  // Horizontal Language Selector
+  // Horizontal Language Selector - 🔥 FIXED: Order changes based on RTL
   Widget _buildLanguageSelector() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -382,11 +354,17 @@ class _SelfHelpSolutionsState extends State<SelfHelpSolutions> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildLanguageButton('english', 'English'),
-          _buildLanguageButton('urdu', 'Urdu'),
-          _buildLanguageButton('punjabi', 'Punjabi'),
-        ],
+        children: _isRTL 
+          ? [ // 🔥 FIXED: RTL order - right to left
+              _buildLanguageButton('punjabi', 'Punjabi'),
+              _buildLanguageButton('urdu', 'Urdu'),
+              _buildLanguageButton('english', 'English'),
+            ]
+          : [ // 🔥 FIXED: LTR order - left to right
+              _buildLanguageButton('english', 'English'),
+              _buildLanguageButton('urdu', 'Urdu'),
+              _buildLanguageButton('punjabi', 'Punjabi'),
+            ],
       ),
     );
   }

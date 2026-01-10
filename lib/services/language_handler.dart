@@ -1,4 +1,3 @@
-// services/language_handler.dart
 import 'dart:convert';
 import 'package:flutter/services.dart';
 

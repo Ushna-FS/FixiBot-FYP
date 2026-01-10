@@ -1,5 +1,6 @@
 import 'package:fixibot_app/screens/homeScreen.dart';
 import 'package:fixibot_app/screens/search/search_model.dart';
+import 'package:fixibot_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../constants/app_colors.dart';
@@ -39,29 +40,27 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
       appBar: AppBar(
-      backgroundColor: AppColors.secondaryColor,
+        backgroundColor: AppColors.secondaryColor,
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
           icon: Image.asset('assets/icons/back.png', width: 30, height: 30),
         ),
-        title: Expanded(
-          child: TextField(
-            controller: _searchController,
-            onChanged: _onSearch,
-            decoration: InputDecoration(
-              hintText: 'Search Here',
-              suffixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: AppColors.textColor3,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
+        title: TextField(
+          controller: _searchController,
+          onChanged: _onSearch,
+          decoration: InputDecoration(
+            hintText: 'Search Here',
+            suffixIcon: const Icon(Icons.search),
+            filled: true,
+            fillColor: AppColors.textColor3,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
             ),
-            style: const TextStyle(color: AppColors.textColor2),
           ),
+          style: const TextStyle(color: AppColors.textColor2),
         ),
       ),
       body: Padding(
@@ -72,7 +71,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Expanded(
               child: _searchController.text.isEmpty
                   ? const Center(
-                      child: Text("...",
+                      child: Text("Start typing to search...",
                           style: TextStyle(color: AppColors.textColor2)),
                     )
                   : _filteredModules.isEmpty
@@ -94,7 +93,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                       fontSize: 14),
                                 ),
                                 onTap: () {
-                                  Get.to(module.screen);
+                                  // Use named route navigation
+                                  Get.toNamed(module.route);
                                 },
                               ),
                             );
@@ -105,5 +105,11 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

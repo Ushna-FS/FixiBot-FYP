@@ -195,9 +195,9 @@ final baseUrl  = AppConfig.baseUrl;
     }
   }
 
-  void notificationSelection() {
-    isNotified.toggle();
-  }
+  // void notificationSelection() {
+  //   isNotified.toggle();
+  // }
 
   // Future<void> fetchMechanics() async {
   //   isLoading.value = true;

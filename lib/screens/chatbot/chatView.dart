@@ -49,9 +49,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final Map<String, String> _languages = {
     'English': 'en-US',
     'Urdu': 'ur-PK',
-    'Hindi': 'hi-IN',
-    'Punjabi': 'pa-PK',
-    'Sindhi': 'sd-PK',
   };
   String _selectedLanguage = 'English';
 
